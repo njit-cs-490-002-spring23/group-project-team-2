@@ -94,11 +94,14 @@ export type GameStatus = 'IN_PROGRESS' | 'WAITING_TO_START' | 'OVER';
 export interface GameState {
   status: GameStatus;
 }
+
+export type Teams = 'CIVILIANS_TEAM' | 'MAFIAS_TEAM';
 /**
  * Type for the state of a game that can be won
  */
 export interface WinnableGameState extends GameState {
-  winners: PlayerID[];
+  winners?: PlayerID[];
+  winnerTeam?: Teams;
 }
 
 /**
@@ -126,10 +129,8 @@ export interface VoteMove {
  */
 export interface MafiaGameState extends WinnableGameState {
   moves: ReadonlyArray<VoteMove>;
-  villager1?: PlayerID;
-  villager2?: PlayerID;
-  mafia1?: PlayerID;
-  mafia2?: PlayerID;
+  villagers?: [PlayerID, PlayerID, PlayerID?, PlayerID?, PlayerID?];
+  mafias?: [PlayerID, PlayerID, PlayerID?];
   police?: PlayerID;
   doctor?: PlayerID;
 }

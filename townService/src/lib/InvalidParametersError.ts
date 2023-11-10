@@ -8,7 +8,10 @@ export const GAME_ID_MISSMATCH_MESSAGE = 'Game ID mismatch';
 /**
  * invalid move messages
  */
+export const PLAYER_ALREADY_VOTED_MESSAGE = 'Player already casted a vote';
 export const MOVE_NOT_YOUR_TURN_MESSAGE = 'Not your turn';
+export const PLAYER_ALREADY_VOTED_OUT_MESSAGE = 'Player is already voted out of the game.';
+export const PLAYER_ALREADY_DEAD_MESSAGE = 'Player already killed by mafia in previous round.';
 /**
  * invalid player messages
  */

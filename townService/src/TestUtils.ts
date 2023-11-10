@@ -21,6 +21,7 @@ import {
   PlayerLocation,
   ServerToClientEvents,
   SocketData,
+  TownEmitter,
   ViewingArea,
 } from './types/CoveyTownSocket';
 
@@ -193,6 +194,14 @@ export function expectArraysToContainSameMembers<T>(actual: T[], expected: T[]):
   expected.forEach(expectedVal =>
     expect(actual.find(actualVal => actualVal === expectedVal)).toBeDefined(),
   );
+}
+
+export function createPlayerForTesting(): Player {
+  return new Player(`username${nanoid()}`, mock<TownEmitter>());
+}
+
+export function isIdInArray(arr: number[], id: number) {
+  return arr.includes(id);
 }
 
 export function isViewingArea(interactable: Interactable): interactable is ViewingArea {

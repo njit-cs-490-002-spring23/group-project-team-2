@@ -52,6 +52,28 @@ describe('Mafia', () => {
         const players = [player1, player2, player3, player4, player5, player6];
         expect(validRole(mafia, players)).toEqual(2);
       });
+      it('only 1 doctor', () => {
+        const { doctor } = game.state.doctor;
+        const players = [player1, player2, player3, player4, player5, player6];
+        let checkDoctor = false;
+        for (let i = 0; i < players.length; i++) {
+          if (doctor.id === players[i].id) {
+            checkDoctor = !checkDoctor;
+          }
+        }
+        expect(checkDoctor).toBe(true);
+      });
+      it('only 1 police officer', () => {
+        const { police } = game.state.police;
+        const players = [player1, player2, player3, player4, player5, player6];
+        let checkPolice = false;
+        for (let i = 0; i < players.length; i++) {
+          if (police.id === players[i].id) {
+            checkPolice = !checkPolice;
+          }
+        }
+        expect(checkPolice).toBe(true);
+      });
     });
     describe('7 players', () => {
       beforeEach(() => {
@@ -79,6 +101,28 @@ describe('Mafia', () => {
         const { mafia } = game.state.mafia;
         const players = [player1, player2, player3, player4, player5, player6];
         expect(validRole(mafia, players)).toEqual(2);
+      });
+      it('only 1 doctor', () => {
+        const { doctor } = game.state.doctor;
+        const players = [player1, player2, player3, player4, player5, player6];
+        let checkDoctor = false;
+        for (let i = 0; i < players.length; i++) {
+          if (doctor.id === players[i].id) {
+            checkDoctor = !checkDoctor;
+          }
+        }
+        expect(checkDoctor).toBe(true);
+      });
+      it('only 1 police officer', () => {
+        const { police } = game.state.police;
+        const players = [player1, player2, player3, player4, player5, player6];
+        let checkPolice = false;
+        for (let i = 0; i < players.length; i++) {
+          if (police.id === players[i].id) {
+            checkPolice = !checkPolice;
+          }
+        }
+        expect(checkPolice).toBe(true);
       });
     });
     describe('8 players', () => {
@@ -109,6 +153,28 @@ describe('Mafia', () => {
         const { mafia } = game.state.mafia;
         const players = [player1, player2, player3, player4, player5, player6];
         expect(validRole(mafia, players)).toEqual(3);
+      });
+      it('only 1 doctor', () => {
+        const { doctor } = game.state.doctor;
+        const players = [player1, player2, player3, player4, player5, player6];
+        let checkDoctor = false;
+        for (let i = 0; i < players.length; i++) {
+          if (doctor.id === players[i].id) {
+            checkDoctor = !checkDoctor;
+          }
+        }
+        expect(checkDoctor).toBe(true);
+      });
+      it('only 1 police officer', () => {
+        const { police } = game.state.police;
+        const players = [player1, player2, player3, player4, player5, player6];
+        let checkPolice = false;
+        for (let i = 0; i < players.length; i++) {
+          if (police.id === players[i].id) {
+            checkPolice = !checkPolice;
+          }
+        }
+        expect(checkPolice).toBe(true);
       });
     });
     describe('9 players', () => {
@@ -141,6 +207,28 @@ describe('Mafia', () => {
         const { mafia } = game.state.mafia;
         const players = [player1, player2, player3, player4, player5, player6];
         expect(validRole(mafia, players)).toEqual(3);
+      });
+      it('only 1 doctor', () => {
+        const { doctor } = game.state.doctor;
+        const players = [player1, player2, player3, player4, player5, player6];
+        let checkDoctor = false;
+        for (let i = 0; i < players.length; i++) {
+          if (doctor.id === players[i].id) {
+            checkDoctor = !checkDoctor;
+          }
+        }
+        expect(checkDoctor).toBe(true);
+      });
+      it('only 1 police officer', () => {
+        const { police } = game.state.police;
+        const players = [player1, player2, player3, player4, player5, player6];
+        let checkPolice = false;
+        for (let i = 0; i < players.length; i++) {
+          if (police.id === players[i].id) {
+            checkPolice = !checkPolice;
+          }
+        }
+        expect(checkPolice).toBe(true);
       });
     });
     describe('10 players', () => {
@@ -175,6 +263,28 @@ describe('Mafia', () => {
         const { mafia } = game.state.mafia;
         const players = [player1, player2, player3, player4, player5, player6];
         expect(validRole(mafia, players)).toEqual(3);
+      });
+      it('only 1 doctor', () => {
+        const { doctor } = game.state.doctor;
+        const players = [player1, player2, player3, player4, player5, player6];
+        let checkDoctor = false;
+        for (let i = 0; i < players.length; i++) {
+          if (doctor.id === players[i].id) {
+            checkDoctor = !checkDoctor;
+          }
+        }
+        expect(checkDoctor).toBe(true);
+      });
+      it('only 1 police officer', () => {
+        const { police } = game.state.police;
+        const players = [player1, player2, player3, player4, player5, player6];
+        let checkPolice = false;
+        for (let i = 0; i < players.length; i++) {
+          if (police.id === players[i].id) {
+            checkPolice = !checkPolice;
+          }
+        }
+        expect(checkPolice).toBe(true);
       });
     });
   });

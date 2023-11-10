@@ -1,7 +1,7 @@
 import Game from "./Game";
 import {GameMove, MafiaGameState, VoteMove} from "../../types/CoveyTownSocket";
 import Player from "../../lib/Player";
-import InvalidParametersError, { PLAYER_ALREADY_IN_GAME_MESSAGE } from "../../lib/InvalidParametersError";
+import InvalidParametersError, { GAME_FULL_MESSAGE, PLAYER_ALREADY_IN_GAME_MESSAGE } from "../../lib/InvalidParametersError";
 /**
  * A MafiaGame is a Game that implements the rules of Mafia.
  */
@@ -28,6 +28,49 @@ export default class MafiaGame extends Game<MafiaGameState, VoteMove> {
     return false;
   }
   /**
+   * A helper function to roll a dice.
+   * The maximum is inclusive and the minimum is inclusive.
+   */
+  private _getRandomIntInclusive(): number {
+    let min = 1;
+    let max = 6; 
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
+  /**
+   * A helper function to randomly assign a player to one of the Roles in the Mafia Game.
+   * @param player The player that will be assigned a role in the game
+   * @returns nothing. Only used for role assignment and updating the game state to reflect the role assignment.
+   */
+  private _randomlyAssignRoleTo(player: Player): void {
+    if (this._players.length <= 6) {
+      let roleAssigned = false;
+      let diceRoll;
+      while (!roleAssigned) {
+        diceRoll = this._getRandomIntInclusive();
+        if (diceRoll === 1 && this.state.police !== undefined) {
+          this.state.police = player.id;
+        }
+        if (diceRoll === 2 && this.state.doctor !== undefined) {
+          this.state.doctor = player.id;
+        }
+        if (diceRoll === 3 && this.state.villagers[0] !== undefined) {
+          
+        }
+        if (diceRoll === 4 && this.state.villagers[1] !== undefined) {
+
+        }
+        if (diceRoll === 5 && this.state.mafias[0] !== undefined) {
+
+        }
+        if (diceRoll === 6 && this.state.mafias[1] !== undefined) {
+
+        }
+      }
+    }
+  }
+  /**
    * Applies a player's move to the game. In this game a move would be a vote.
    */
   public applyMove(move: GameMove<VoteMove>): void {
@@ -46,6 +89,10 @@ export default class MafiaGame extends Game<MafiaGameState, VoteMove> {
     if (this._playerInGame(player)) {
       throw new InvalidParametersError(PLAYER_ALREADY_IN_GAME_MESSAGE);
     }
+    if (this._players.length === 8) {
+      throw new InvalidParametersError(GAME_FULL_MESSAGE);
+    }
+
 
   }
   /**

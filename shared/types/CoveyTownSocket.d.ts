@@ -1,3 +1,5 @@
+import { type } from "os";
+
 export type TownJoinResponse = {
   /** Unique ID that represents this player * */
   userID: string;
@@ -25,8 +27,9 @@ export type TownSettingsUpdate = {
 }
 
 export type Direction = 'front' | 'back' | 'left' | 'right';
+export type PlayerID = string;
 export interface Player {
-  id: string;
+  id: PlayerID;
   userName: string;
   location: PlayerLocation;
 };

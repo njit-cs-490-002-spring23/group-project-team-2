@@ -1,6 +1,7 @@
 import Game from "./Game";
 import {GameMove, MafiaGameState, VoteMove} from "../../types/CoveyTownSocket";
 import Player from "../../lib/Player";
+import InvalidParametersError, { PLAYER_ALREADY_IN_GAME_MESSAGE } from "../../lib/InvalidParametersError";
 /**
  * A MafiaGame is a Game that implements the rules of Mafia.
  */
@@ -34,9 +35,18 @@ export default class MafiaGame extends Game<MafiaGameState, VoteMove> {
   }
   /**
    * Adds a player to the game
+   * Updates the game's state to reflect the new player.
+   * If the game is now full (has at least 6 players), updates the game's state to set the status to IN_PROGRESS.
+   * 
+   * @param player The player to join the game.
+   * @throws InvalidParametersError if the player is already in the game (PLAYER_ALREADY_IN_GAME_MESSAGE)
+   * or the game is full (GAME_FULL_MESSAGE)
    */
   public _join(player: Player): void {
-    
+    if (this._playerInGame(player)) {
+      throw new InvalidParametersError(PLAYER_ALREADY_IN_GAME_MESSAGE);
+    }
+
   }
   /**
    * Removes a player form the game.

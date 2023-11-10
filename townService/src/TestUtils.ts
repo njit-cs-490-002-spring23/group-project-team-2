@@ -200,7 +200,7 @@ export function createPlayerForTesting(): Player {
   return new Player(`username${nanoid()}`, mock<TownEmitter>());
 }
 
-export function isIdInArray(arr: number[], id: number) {
+export function isIdInArray(arr: string[], id: string) {
   return arr.includes(id);
 }
 

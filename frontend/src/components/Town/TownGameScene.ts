@@ -8,6 +8,8 @@ import Interactable from './Interactable';
 import ConversationArea from './interactables/ConversationArea';
 import Transporter from './interactables/Transporter';
 import ViewingArea from './interactables/ViewingArea';
+import MafiaArea from './interactables/MafiaArea';
+import PromptTransporter from './interactables/PromptTransporter';
 
 // Still not sure what the right type is here... "Interactable" doesn't do it
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -18,6 +20,10 @@ function interactableTypeForObjectType(type: string): any {
     return Transporter;
   } else if (type == 'ViewingArea') {
     return ViewingArea;
+  } else if (type == 'MafiaArea') {
+    return MafiaArea;
+  } else if (type == 'PromptTransporter') {
+    return PromptTransporter
   } else {
     throw new Error(`Unknown object type: ${type}`);
   }

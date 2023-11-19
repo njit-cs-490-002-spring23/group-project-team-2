@@ -126,16 +126,35 @@ export interface VoteMove {
 }
 
 /**
+ * The current player status of a current Mafia game player
+ */
+export type PlayerStatus = 'Alive' | 'Deceased';
+
+/**
+ * type to define the time of day: day cycle or night cycle
+ */
+export type TimeOfDay = 'Day' | 'Night';
+
+/**
+ * Represents the state of a current Mafia game player.
+ */
+export interface PlayerState {
+  id: PlayerID;
+  status: PlayerStatus;
+}
+
+/**
  * Type for the state of a Mafia game
  * The state of the game is represented as a list of moves, and the playerIDs of the players (2 villagers, 2 mafia, one police, one doctor)
  * When player join, they will be assign to the roles randonly
  */
 export interface MafiaGameState extends WinnableGameState {
   moves: ReadonlyArray<VoteMove>;
-  villagers?: [PlayerID, PlayerID, PlayerID?, PlayerID?, PlayerID?];
-  mafias?: [PlayerID, PlayerID, PlayerID?];
-  police?: PlayerID;
-  doctor?: PlayerID;
+  villagers?: PlayerState[];
+  mafias?: PlayerState[];
+  police?: PlayerState;
+  doctor?: PlayerState;
+  phase?: TimeOfDay;
 }
 
 export type InteractableID = string;

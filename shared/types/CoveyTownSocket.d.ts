@@ -1,3 +1,5 @@
+import { type } from "os";
+
 export type TownJoinResponse = {
   /** Unique ID that represents this player * */
   userID: string;
@@ -18,15 +20,15 @@ export type TownJoinResponse = {
 }
 
 export type Interactable = ViewingArea | ConversationArea;
-
 export type TownSettingsUpdate = {
   friendlyName?: string;
   isPubliclyListed?: boolean;
 }
 
 export type Direction = 'front' | 'back' | 'left' | 'right';
+export type PlayerID = string;
 export interface Player {
-  id: string;
+  id: PlayerID;
   userName: string;
   location: PlayerLocation;
 };
@@ -55,6 +57,7 @@ export interface ConversationArea {
   topic?: string;
   occupantsByID: string[];
 };
+
 export interface BoundingBox {
   x: number;
   y: number;
@@ -69,22 +72,6 @@ export interface ViewingArea {
   elapsedTimeSec: number;
 }
 
-export interface ServerToClientEvents {
-  playerMoved: (movedPlayer: Player) => void;
-  playerDisconnect: (disconnectedPlayer: Player) => void;
-  playerJoined: (newPlayer: Player) => void;
-  initialize: (initialData: TownJoinResponse) => void;
-  townSettingsUpdated: (update: TownSettingsUpdate) => void;
-  townClosing: () => void;
-  chatMessage: (message: ChatMessage) => void;
-  interactableUpdate: (interactable: Interactable) => void;
-}
-
-export interface ClientToServerEvents {
-  chatMessage: (message: ChatMessage) => void;
-  playerMovement: (movementData: PlayerLocation) => void;
-  interactableUpdate: (update: Interactable) => void;
-}
 
 /* Game */
 export type GameStatus = 'IN_PROGRESS' | 'WAITING_TO_START' | 'OVER';
@@ -127,12 +114,21 @@ export interface VoteMove {
  * The state of the game is represented as a list of moves, and the playerIDs of the players (2 villagers, 2 mafia, one police, one doctor)
  * When player join, they will be assign to the roles randonly
  */
+export type PlayerStatus = 'Alive' | 'Deceased';
+
+export interface PlayerState {
+  id: PlayerID;
+  status: PlayerStatus;
+}
+
+export type TimeOfDay = 'Day' | 'Night';
 export interface MafiaGameState extends WinnableGameState {
   moves: ReadonlyArray<VoteMove>;
-  villagers?: [PlayerID, PlayerID, PlayerID?, PlayerID?, PlayerID?];
-  mafias?: [PlayerID, PlayerID, PlayerID?];
-  police?: PlayerID;
-  doctor?: PlayerID;
+  villagers?: [PlayerState, PlaterState, PlayerState?, PlayerState?, PlayerState?];
+  mafias?: [PlayerState, PlayerState, PlayerState?];
+  police?: PlayerState;
+  doctor?: PlayerState;
+  phase?: TimeOfDay;
 }
 
 export type InteractableID = string;
@@ -190,7 +186,7 @@ interface InteractableCommandBase {
   type: string;
 }
 
-export type InteractableCommand =  ViewingAreaUpdateCommand | JoinGameCommand | GameMoveCommand<TicTacToeMove> | LeaveGameCommand;
+export type InteractableCommand =  ViewingAreaUpdateCommand | JoinGameCommand | GameMoveCommand<VoteMove> | LeaveGameCommand;
 export interface ViewingAreaUpdateCommand  {
   type: 'ViewingAreaUpdate';
   update: ViewingArea;
@@ -210,7 +206,7 @@ export interface GameMoveCommand<MoveType> {
 export type InteractableCommandReturnType<CommandType extends InteractableCommand> = 
   CommandType extends JoinGameCommand ? { gameID: string}:
   CommandType extends ViewingAreaUpdateCommand ? undefined :
-  CommandType extends GameMoveCommand<TicTacToeMove> ? undefined :
+  CommandType extends GameMoveCommand<VoteMove> ? undefined :
   CommandType extends LeaveGameCommand ? undefined :
   never;
 
@@ -219,4 +215,23 @@ export type InteractableCommandResponse<MessageType> = {
   interactableID: InteractableID;
   error?: string;
   payload?: InteractableCommandResponseMap[MessageType];
+}
+
+export interface ServerToClientEvents {
+  playerMoved: (movedPlayer: Player) => void;
+  playerDisconnect: (disconnectedPlayer: Player) => void;
+  playerJoined: (newPlayer: Player) => void;
+  initialize: (initialData: TownJoinResponse) => void;
+  townSettingsUpdated: (update: TownSettingsUpdate) => void;
+  townClosing: () => void;
+  chatMessage: (message: ChatMessage) => void;
+  interactableUpdate: (interactable: Interactable) => void;
+  commandResponse: (response: InteractableCommandResponse) => void;
+}
+
+export interface ClientToServerEvents {
+  chatMessage: (message: ChatMessage) => void;
+  playerMovement: (movementData: PlayerLocation) => void;
+  interactableUpdate: (update: Interactable) => void;
+  interactableCommand: (command: InteractableCommand & InteractableCommandBase) => void;
 }

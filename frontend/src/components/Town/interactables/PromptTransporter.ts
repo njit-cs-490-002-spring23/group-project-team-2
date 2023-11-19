@@ -48,4 +48,8 @@ export default class PromptTransporter extends Transporter {
     overlapExit(): void {
         this._infoTextBox?.setVisible(false);
     }
+
+    public transport() : void {
+        super.overlap();
+    }
 }

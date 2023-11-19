@@ -771,9 +771,9 @@
                 {
                  "height":125.333,
                  "id":39,
-                 "name":"Mafia 1",
+                 "name":"Basement Lounge",
                  "rotation":0,
-                 "type":"MafiaArea",
+                 "type":"ConversationArea",
                  "visible":true,
                  "width":134.000333333333,
                  "x":2943.6665,
@@ -836,14 +836,14 @@
                  "y":826.666666666667
                 }, 
                 {
-                 "height":63,
+                 "height":65,
                  "id":48,
                  "name":"Mafia",
                  "properties":[
                         {
                          "name":"infoText",
                          "type":"string",
-                         "value":"This is a prompted transporter. It has not been fully implemented yet."
+                         "value":"Hey Kid, I'm in this pot! Press space if you want to talk!"
                         }, 
                         {
                          "name":"promptText",
@@ -858,9 +858,9 @@
                  "rotation":0,
                  "type":"PromptTransporter",
                  "visible":true,
-                 "width":64.5,
-                 "x":3040.5,
-                 "y":896.5
+                 "width":65,
+                 "x":3039.5,
+                 "y":895.5
                 }, 
                 {
                  "height":0,

@@ -24,12 +24,12 @@ import PlayerController from '../../../../classes/PlayerController';
 import useTownController from '../../../../hooks/useTownController';
 import { GameStatus, InteractableID, PlayerID } from '../../../../types/CoveyTownSocket';
 import GameAreaInteractable from '../GameArea';
-// import MafiaBoard from './MafiaBoard';
+import MafiaBoard from './MafiaBoard';
 
 function gameStatusMessage(controller: MafiaAreaController): string {
   if (controller.status === 'IN_PROGRESS') {
     const phase = controller.currentPhase;
-    const isPlayerTurn = controller.isPlayerTurn();
+    const isPlayerTurn = controller.isPlayerTurn;
 
     if (phase === 'Day') {
       return `Mafia game in progress, Day Stage, ${
@@ -145,7 +145,7 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
           <ListItem key={index}>{player}</ListItem>
         ))}
       </List>
-      {/*<MafiaBoard gameAreaController={gameAreaController} />  */}
+      <MafiaBoard gameAreaController={gameAreaController} />
     </Container>
   );
 }
@@ -160,7 +160,7 @@ export default function MafiaAreaWrapper(): JSX.Element {
       controller.leaveGame();
     }
   }, [townController, gameArea]);
-  if (gameArea && gameArea.getData('type') === 'Mafia') {
+  if (gameArea && gameArea.getData('type') === 'TicTacToe') {
     return (
       <Modal isOpen={true} onClose={closeModal} closeOnOverlayClick={false}>
         <ModalOverlay />

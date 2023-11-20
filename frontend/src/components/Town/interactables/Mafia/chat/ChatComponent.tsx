@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import useTownController from '../../../../../hooks/useTownController';
 import { ChatMessage } from '../../../../../types/CoveyTownSocket';
 import TextConversation from '../../../../../classes/TextConversation';
-import './ChatArea.css';
+//import './ChatArea.css';
 
 export function ChatArea(): JSX.Element {
   const [message, setMessage] = useState('');

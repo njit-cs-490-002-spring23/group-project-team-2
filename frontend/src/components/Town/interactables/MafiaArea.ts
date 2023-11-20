@@ -2,8 +2,9 @@ import TownController from '../../../classes/TownController';
 import Interactable, { KnownInteractableTypes } from '../Interactable';
 import TownGameScene from '../TownGameScene';
 import { BoundingBox } from '../../../types/CoveyTownSocket';
+import GameArea from './GameArea';
 
-export default class MafiaArea extends Interactable {
+export default class MafiaArea extends GameArea {
     private _townController: TownController;
 
     private _infoTextBox?: Phaser.GameObjects.Text;

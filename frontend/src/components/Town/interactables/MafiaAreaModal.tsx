@@ -11,53 +11,46 @@ import {
   import React, { useCallback, useEffect, useState } from 'react';
   import useTownController from '../../../hooks/useTownController';
   import { useInteractable } from '../../../classes/TownController';
-  import PromptTransporterInteractable from './PromptTransporter';
+  import MafiaAreaInteractable from './MafiaArea';
 
-  export default function PromptTransporterModal(): JSX.Element {
+  export default function MafiaAreaModal(): JSX.Element {
     const coveyTownController = useTownController();
-    const transportPrompt = useInteractable<PromptTransporterInteractable>('promptTransporter');
+    const mafiaArea = useInteractable<MafiaAreaInteractable>('mafiaArea');
     
-    const isOpen = transportPrompt !== undefined;
+    const isOpen = mafiaArea !== undefined;
 
     useEffect(() => {
-        if (transportPrompt) {
+        if (mafiaArea) {
           coveyTownController.pause();
         } else {
           coveyTownController.unPause();
         }
-    }, [coveyTownController, transportPrompt]);
+    }, [coveyTownController, mafiaArea]);
 
     const closeModal = useCallback(() => {
-        if (transportPrompt) {
-          coveyTownController.interactEnd(transportPrompt);
+        if (mafiaArea) {
+          coveyTownController.interactEnd(mafiaArea);
         }
-      }, [coveyTownController, transportPrompt]);
+      }, [coveyTownController, mafiaArea]);
 
     const onClose = () => {
         closeModal();
         coveyTownController.unPause();
     };
 
-    const onTransport = () => {
-        transportPrompt?.transport();
-        onClose();
-    }
-
-    transportPrompt?.overlapExit();
-
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
             <ModalContent>
                 <ModalHeader>
-                    {transportPrompt?.name}
+                    {mafiaArea?.getData('type')}
                 </ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
-                    {transportPrompt?.getData('promptText')}
+                    Join this game of mafia?
                 </ModalBody>
                 <ModalFooter>
-                    <Button colorScheme='blue' mr={3} onClick={onTransport}>Yes</Button>
+                    <Button colorScheme='blue' mr={3} onClick={onClose}>Yes</Button>
                     <Button colorScheme='red' mr={3} onClick={onClose}>No</Button>
                 </ModalFooter>
             </ModalContent>

@@ -10,6 +10,7 @@ import Transporter from './interactables/Transporter';
 import ViewingArea from './interactables/ViewingArea';
 import MafiaArea from './interactables/MafiaArea';
 import PromptTransporter from './interactables/PromptTransporter';
+import GameArea from './interactables/GameArea';
 
 // Still not sure what the right type is here... "Interactable" doesn't do it
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -20,10 +21,12 @@ function interactableTypeForObjectType(type: string): any {
     return Transporter;
   } else if (type == 'ViewingArea') {
     return ViewingArea;
-  } else if (type == 'MafiaArea') {
-    return MafiaArea;
+  } else if (type == 'GameArea') {
+    return GameArea;
   } else if (type == 'PromptTransporter') {
     return PromptTransporter
+  } else if (type == 'MafiaArea') {
+    return MafiaArea;
   } else {
     throw new Error(`Unknown object type: ${type}`);
   }
@@ -407,8 +410,8 @@ export default class TownGameScene extends Phaser.Scene {
     // player's body.
     const sprite = this.physics.add
       .sprite(spawnPoint.x, spawnPoint.y, 'atlas', 'misa-front')
-      .setSize(30, 40)
-      .setOffset(0, 24)
+      .setSize(30, 30)
+      .setOffset(0, 30)
       .setDepth(6);
     const label = this.add
       .text(spawnPoint.x, spawnPoint.y - 20, '(You)', {

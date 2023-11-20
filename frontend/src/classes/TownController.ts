@@ -12,14 +12,21 @@ import useTownController from '../hooks/useTownController';
 import {
   ChatMessage,
   CoveyTownSocket,
+  GameState,
   PlayerLocation,
   TownSettingsUpdate,
   ViewingArea as ViewingAreaModel,
+  Interactable as InteractableAreaModel,
 } from '../types/CoveyTownSocket';
 import { isConversationArea, isViewingArea } from '../types/TypeUtils';
 import ConversationAreaController from './ConversationAreaController';
 import PlayerController from './PlayerController';
 import ViewingAreaController from './ViewingAreaController';
+import GameArea from '../components/Town/interactables/GameArea';
+import GameAreaController, { GameEventTypes } from './interactable/GameAreaController';
+import InteractableAreaController, {
+  BaseInteractableEventMap,
+} from './interactable/InteractableAreaController';
 
 const CALCULATE_NEARBY_PLAYERS_DELAY = 300;
 
@@ -125,6 +132,14 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    * with a new one; clients should take note not to retain stale references.
    */
   private _playersInternal: PlayerController[] = [];
+
+  /**
+   * The current list of interactable areas in the town. Adding or removing interactable areas might replace the array.
+   */
+  private _interactableControllers: InteractableAreaController<
+    BaseInteractableEventMap,
+    InteractableAreaModel
+  >[] = [];
 
   /**
    * The current list of conversation areas in the twon. Adding or removing conversation areas might
@@ -307,6 +322,13 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   public set viewingAreas(newViewingAreas: ViewingAreaController[]) {
     this._viewingAreas = newViewingAreas;
     this.emit('viewingAreasChanged', newViewingAreas);
+  }
+
+  public get gameAreas() {
+    const ret = this._interactableControllers.filter(
+      eachInteractable => eachInteractable instanceof GameAreaController,
+    );
+    return ret as GameAreaController<GameState, GameEventTypes>[];
   }
 
   /**
@@ -587,6 +609,26 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     }
   }
 
+/**
+   * Retrives the game area controller corresponding to a game area by ID, or
+   * throws an error if the game area controller does not exist
+   *
+   * @param gameArea
+   * @returns
+   */
+  public getGameAreaController<GameType extends GameState, EventsType extends GameEventTypes>(
+    gameArea: GameArea,
+  ): GameAreaController<GameType, EventsType> {
+    const existingController = this._interactableControllers.find(
+      eachExistingArea => eachExistingArea.id === gameArea.name,
+    );
+    if (existingController instanceof GameAreaController) {
+      return existingController as GameAreaController<GameType, EventsType>;
+    } else {
+      throw new Error('Game area controller not created');
+    }
+  }
+
   /**
    * Emit a viewing area update to the townService
    * @param viewingArea The Viewing Area Controller that is updated and should be emitted
@@ -652,6 +694,27 @@ export function useTownSettings() {
     };
   }, [townController]);
   return { friendlyName, isPubliclyListed };
+}
+
+/**
+ * A react hook to retrieve an interactable area controller
+ *
+ * This function will throw an error if the interactable area controller does not exist.
+ *
+ * This hook relies on the TownControllerContext.
+ *
+ * @param interactableAreaID The ID of the interactable area to retrieve the controller for
+ * @throws Error if there is no interactable area controller matching the specified ID
+ */
+export function useInteractableAreaController<T>(interactableAreaID: string): T {
+  const townController = useTownController();
+  const interactableAreaController = townController.gameAreas.find(
+    eachArea => eachArea.id == interactableAreaID,
+  );
+  if (!interactableAreaController) {
+    throw new Error(`Requested interactable area ${interactableAreaID} does not exist`);
+  }
+  return interactableAreaController as unknown as T;
 }
 
 /**

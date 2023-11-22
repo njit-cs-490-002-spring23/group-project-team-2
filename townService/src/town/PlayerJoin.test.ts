@@ -1,5 +1,6 @@
 import { createPlayerForTesting, isIdInArray } from '../TestUtils';
 import Player from '../lib/Player';
+import MafiaGame from '../game/MafiaGame';
 
 const validRole = (role: string[], players: Player[]) => {
   let roleCount = 0;

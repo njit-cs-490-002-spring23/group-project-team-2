@@ -25,3 +25,6 @@ export default class InvalidParametersError extends Error {
     this.message = message;
   }
 }
+
+
+export const INVALID_COMMAND_MESSAGE = 'Invalid command';

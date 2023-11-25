@@ -19,10 +19,17 @@ export type TownJoinResponse = {
   interactables: Interactable[];
 }
 
-export type Interactable = ViewingArea | ConversationArea;
+export type Interactable = ViewingArea | ConversationArea | MafiaArea;
 export type TownSettingsUpdate = {
   friendlyName?: string;
   isPubliclyListed?: boolean;
+}
+
+export type InteractableType = 'ConversationArea' | 'ViewingArea' | 'MafiaArea';
+export interface Interactable {
+  type: InteractableType;
+  id: InteractableID;
+  occupants: PlayerID[];
 }
 
 export type Direction = 'front' | 'back' | 'left' | 'right';

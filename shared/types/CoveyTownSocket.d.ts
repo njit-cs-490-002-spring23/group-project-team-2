@@ -14,10 +14,16 @@ export type TownJoinResponse = {
   /** Is this a private town? * */
   isPubliclyListed: boolean;
   /** Current state of interactables in this town */
-  interactables: Interactable[];
+  interactables: TypedInteractable[];
 }
 
-export type Interactable = ViewingArea | ConversationArea;
+export type InteractableType = 'ConversationArea' | 'ViewingArea' | 'MafiaArea';
+export interface Interactable {
+  type: InteractableType;
+  id: InteractableID;
+  occupants: PlayerID[];
+}
+
 export type TownSettingsUpdate = {
   friendlyName?: string;
   isPubliclyListed?: boolean;

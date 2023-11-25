@@ -7,8 +7,8 @@ import {
   Teams,
   TimeOfDay,
 } from '../../types/CoveyTownSocket';
-import PlayerController from '../PlayerController';
 import GameAreaController, { GameEventTypes } from './GameAreaController';
+import PlayerController from '../PlayerController';
 
 export const PLAYER_NOT_IN_GAME_ERROR = 'Player is not in game';
 export const NO_GAME_IN_PROGRESS_ERROR = 'No game in progress';
@@ -27,6 +27,54 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    */
   get playersAlive(): PlayerID[] {
     return this._mafiaGamePlayersAlive;
+  }
+
+  /**
+   * Returns the player with the 'Police' role, if there is one, or undefined otherwise
+   */
+  get police(): PlayerController | undefined {
+    const police = this._model.game?.state.police?.id;
+    if (police) {
+      return this.occupants.find(eachOccupant => eachOccupant.id === police);
+    }
+    return undefined;
+  }
+
+  /**
+   * Returns the player with the 'Doctor' role, if there is one, or undefined otherwise
+   */
+  get doctor(): PlayerController | undefined {
+    const doctor = this._model.game?.state.doctor?.id;
+    if (doctor) {
+      return this.occupants.find(eachOccupant => eachOccupant.id === doctor);
+    }
+    return undefined;
+  }
+
+  /**
+   * Returns the players with the 'Mafia' role, if there is one, or undefined otherwise
+   */
+  get mafias(): PlayerController[] | undefined {
+    const mafias = this._model.game?.state.mafias;
+    const mafiaID = mafias?.filter(mafia => mafia !== undefined).map(mafia => mafia?.id);
+    if (mafiaID) {
+      return this.occupants.filter(eachOccupant => mafiaID.includes(eachOccupant.id));
+    }
+    return undefined;
+  }
+
+  /**
+   * Returns the players with the 'Villagers' role, if there is one, or undefined otherwise
+   */
+  get villagers(): PlayerController[] | undefined {
+    const villagers = this._model.game?.state.villagers;
+    const villagerID = villagers
+      ?.filter(villager => villager !== undefined)
+      .map(villager => villager?.id);
+    if (villagerID) {
+      return this.occupants.filter(eachOccupant => villagerID.includes(eachOccupant.id));
+    }
+    return undefined;
   }
 
   /**
@@ -107,6 +155,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
 
   /**
    * Returns players' role
+   * Throws an error PLAYER_NOT_IN_GAME_ERROR if the current player is not a player in this game
    */
   get role(): 'Mafia' | 'Doctor' | 'Police' | 'Villager' {
     const playerId = this._townController.ourPlayer.id;
@@ -116,8 +165,10 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
       return 'Doctor';
     } else if (this._model.game?.state.police?.id === playerId) {
       return 'Police';
-    } else {
+    } else if (this._model.game?.state.villagers?.some(villager => villager?.id === playerId)) {
       return 'Villager';
+    } else {
+      throw new Error(PLAYER_NOT_IN_GAME_ERROR);
     }
   }
 
@@ -151,7 +202,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
   }
 
   /**
-   * Returns the winners of the game
+   * Returns the winners Usernames of the game
    */
   get winners(): PlayerController[] {
     const winners = this._model.game?.state.winners;
@@ -181,6 +232,9 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
     return 'WAITING_TO_START';
   }
 
+  /**
+   * Returns true if the current player is a player in this game
+   */
   get isPlayer(): boolean {
     return this._model.game?.players.includes(this._townController.ourPlayer.id) || false;
   }

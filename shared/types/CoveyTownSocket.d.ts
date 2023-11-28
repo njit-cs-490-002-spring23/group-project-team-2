@@ -16,10 +16,8 @@ export type TownJoinResponse = {
   /** Is this a private town? * */
   isPubliclyListed: boolean;
   /** Current state of interactables in this town */
-  interactables: Interactable[];
+  interactables: TypedInteractable[];
 }
-
-export type Interactable = ViewingArea | ConversationArea | MafiaArea;
 export type TownSettingsUpdate = {
   friendlyName?: string;
   isPubliclyListed?: boolean;
@@ -52,17 +50,12 @@ export interface PlayerLocation {
   moving: boolean;
   interactableID?: string;
 };
+
 export type ChatMessage = {
   author: string;
   sid: string;
   body: string;
   dateCreated: Date;
-};
-
-export interface ConversationArea {
-  id: string;
-  topic?: string;
-  occupantsByID: string[];
 };
 
 export interface BoundingBox {
@@ -72,8 +65,11 @@ export interface BoundingBox {
   height: number;
 };
 
-export interface ViewingArea {
-  id: string;
+export interface ConversationArea extends Interactable{
+  topic?: string;
+};
+
+export interface ViewingArea extends Interactable{
   video?: string;
   isPlaying: boolean;
   elapsedTimeSec: number;
@@ -111,7 +107,7 @@ export interface GameMove<MoveType> {
 /**
  * Type for a move in Mafia Game
  */
-export interface VoteMove {
+export interface MafiaMove {
   playerVoting: PlayerID;
   playerVoted: PlayerID;
 }
@@ -130,7 +126,7 @@ export interface PlayerState {
 
 export type TimeOfDay = 'Day' | 'Night';
 export interface MafiaGameState extends WinnableGameState {
-  moves: ReadonlyArray<VoteMove>;
+  moves: ReadonlyArray<MafiaMove>;
   villagers?: [PlayerState, PlaterState, PlayerState?, PlayerState?, PlayerState?];
   mafias?: [PlayerState, PlayerState, PlayerState?];
   police?: PlayerState;
@@ -193,7 +189,7 @@ interface InteractableCommandBase {
   type: string;
 }
 
-export type InteractableCommand =  ViewingAreaUpdateCommand | JoinGameCommand | GameMoveCommand<VoteMove> | LeaveGameCommand;
+export type InteractableCommand =  ViewingAreaUpdateCommand | JoinGameCommand | GameMoveCommand<MafiaMove> | LeaveGameCommand;
 export interface ViewingAreaUpdateCommand  {
   type: 'ViewingAreaUpdate';
   update: ViewingArea;
@@ -213,7 +209,7 @@ export interface GameMoveCommand<MoveType> {
 export type InteractableCommandReturnType<CommandType extends InteractableCommand> = 
   CommandType extends JoinGameCommand ? { gameID: string}:
   CommandType extends ViewingAreaUpdateCommand ? undefined :
-  CommandType extends GameMoveCommand<VoteMove> ? undefined :
+  CommandType extends GameMoveCommand<MafiaMove> ? undefined :
   CommandType extends LeaveGameCommand ? undefined :
   never;
 

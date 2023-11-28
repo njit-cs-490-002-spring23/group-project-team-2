@@ -81,6 +81,8 @@ export default class ViewingArea extends InteractableArea {
       video: this._video,
       isPlaying: this._isPlaying,
       elapsedTimeSec: this._elapsedTimeSec,
+      occupants: this.occupantsByID,
+      type: 'ViewingArea',
     };
   }
 
@@ -96,6 +98,6 @@ export default class ViewingArea extends InteractableArea {
       throw new Error(`Malformed viewing area ${name}`);
     }
     const rect: BoundingBox = { x: mapObject.x, y: mapObject.y, width, height };
-    return new ViewingArea({ isPlaying: false, id: name, elapsedTimeSec: 0 }, rect, townEmitter);
+    return new ViewingArea({ isPlaying: false, id: name, elapsedTimeSec: 0, occupants: [], type: 'ViewingArea' }, rect, townEmitter);
   }
 }

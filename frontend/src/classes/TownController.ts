@@ -1,10 +1,12 @@
 import assert from 'assert';
 import EventEmitter from 'events';
 import _ from 'lodash';
+import { nanoid } from 'nanoid';
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import TypedEmitter from 'typed-emitter';
 import Interactable from '../components/Town/Interactable';
+import ConversationArea from '../components/Town/interactables/ConversationArea';
 import ViewingArea from '../components/Town/interactables/ViewingArea';
 import { LoginController } from '../contexts/LoginControllerContext';
 import { TownsService, TownsServiceClient } from '../generated/client';
@@ -13,12 +15,17 @@ import {
   ChatMessage,
   CoveyTownSocket,
   GameState,
+  InteractableCommand,
+  InteractableCommandBase,
+  InteractableCommandResponse,
+  InteractableID,
+  PlayerID,
   PlayerLocation,
   TownSettingsUpdate,
   ViewingArea as ViewingAreaModel,
   Interactable as InteractableAreaModel,
 } from '../types/CoveyTownSocket';
-import { isConversationArea, isViewingArea } from '../types/TypeUtils';
+import { isConversationArea, isViewingArea, isMafiaArea } from '../types/TypeUtils';
 import ConversationAreaController from './ConversationAreaController';
 import PlayerController from './PlayerController';
 import ViewingAreaController from './ViewingAreaController';
@@ -27,7 +34,9 @@ import GameAreaController, { GameEventTypes } from './interactable/GameAreaContr
 import InteractableAreaController, {
   BaseInteractableEventMap,
 } from './interactable/InteractableAreaController';
+import MafiaAreaController from './interactable/MafiaAreaController';
 
+const SOCKET_COMMAND_TIMEOUT_MS = 5000;
 const CALCULATE_NEARBY_PLAYERS_DELAY = 300;
 
 export type ConnectionProperties = {
@@ -302,9 +311,16 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     this._playersInternal = newPlayers;
   }
 
+  public getPlayer(id: PlayerID) {
+    const ret = this._playersInternal.find(eachPlayer => eachPlayer.id === id);
+    assert(ret);
+    return ret;
+  }
+
   public get conversationAreas() {
     return this._conversationAreasInternal;
   }
+  
 
   private set _conversationAreas(newConversationAreas: ConversationAreaController[]) {
     this._conversationAreasInternal = newConversationAreas;
@@ -438,7 +454,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
         if (updatedConversationArea) {
           const emptyNow = updatedConversationArea.isEmpty();
           updatedConversationArea.topic = interactable.topic;
-          updatedConversationArea.occupants = this._playersByIDs(interactable.occupantsByID);
+          updatedConversationArea.occupants = this._playersByIDs(interactable.occupants);
           const emptyAfterChange = updatedConversationArea.isEmpty();
           if (emptyNow !== emptyAfterChange) {
             this.emit('conversationAreasChanged', this._conversationAreasInternal);
@@ -477,6 +493,52 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    */
   public emitChatMessage(message: ChatMessage) {
     this._socket.emit('chatMessage', message);
+  }
+
+
+  /**
+   * Sends an InteractableArea command to the townService. Returns a promise that resolves
+   * when the command is acknowledged by the server.
+   *
+   * If the command is not acknowledged within SOCKET_COMMAND_TIMEOUT_MS, the promise will reject.
+   *
+   * If the command is acknowledged successfully, the promise will resolve with the payload of the response.
+   *
+   * If the command is acknowledged with an error, the promise will reject with the error.
+   *
+   * @param interactableID ID of the interactable area to send the command to
+   * @param command The command to send @see InteractableCommand
+   * @returns A promise for the InteractableResponse corresponding to the command
+   *
+   **/
+  public async sendInteractableCommand<CommandType extends InteractableCommand>(
+    interactableID: InteractableID,
+    command: CommandType,
+  ): Promise<InteractableCommandResponse<CommandType>['payload']> {
+    const commandMessage: InteractableCommand & InteractableCommandBase = {
+      ...command,
+      commandID: nanoid(),
+      interactableID: interactableID,
+    };
+    return new Promise((resolve, reject) => {
+      const watchdog = setTimeout(() => {
+        reject('Command timed out');
+      }, SOCKET_COMMAND_TIMEOUT_MS);
+
+      const ackListener = (response: InteractableCommandResponse<CommandType>) => {
+        if (response.commandID === commandMessage.commandID) {
+          clearTimeout(watchdog);
+          this._socket.off('commandResponse', ackListener);
+          if (response.error) {
+            reject(response.error);
+          } else {
+            resolve(response.payload);
+          }
+        }
+      };
+      this._socket.on('commandResponse', ackListener);
+      this._socket.emit('interactableCommand', commandMessage);
+    });
   }
 
   /**
@@ -572,6 +634,10 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
             );
           } else if (isViewingArea(eachInteractable)) {
             this._viewingAreas.push(new ViewingAreaController(eachInteractable));
+          } else if (isMafiaArea(eachInteractable)) {
+            this._interactableControllers.push(
+              new MafiaAreaController(eachInteractable.id, eachInteractable, this),
+            );
           }
         });
         this._userID = initialData.userID;
@@ -584,6 +650,20 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
       });
     });
   }
+
+  public getConversationAreaController(
+    converationArea: ConversationArea,
+  ): ConversationAreaController {
+    const existingController = this._interactableControllers.find(
+      eachExistingArea => eachExistingArea.id === converationArea.name,
+    );
+    if (existingController instanceof ConversationAreaController) {
+      return existingController;
+    } else {
+      throw new Error(`No such viewing area controller ${existingController}`);
+    }
+  }
+
 
   /**
    * Retrieve the viewing area controller that corresponds to a viewingAreaModel, creating one if necessary
@@ -603,6 +683,8 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
         id: viewingArea.name,
         isPlaying: false,
         video: viewingArea.defaultVideoURL,
+        occupants: [],
+        type: 'ViewingArea',
       });
       this._viewingAreas.push(newController);
       return newController;

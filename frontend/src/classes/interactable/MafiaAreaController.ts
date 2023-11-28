@@ -35,7 +35,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
   get villagerAlive(): number {
     if (this._model.game?.state.villagers) {
       return this._model.game.state.villagers.filter(
-        villager => villager && villager.status === 'Alive',
+        villager => villager && villager.status === 'Active',
       ).length;
     }
     return 0;
@@ -46,7 +46,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    */
   get mafiasAlive(): integer {
     if (this._model.game?.state.mafias) {
-      return this._model.game.state.mafias.filter(mafia => mafia && mafia.status === 'Alive')
+      return this._model.game.state.mafias.filter(mafia => mafia && mafia.status === 'Active')
         .length;
     }
     return 0;
@@ -57,7 +57,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    */
   get doctorAlive(): number {
     // Check if the doctor is defined and alive in the game state
-    if (this._model.game?.state.doctor?.status === 'Alive') {
+    if (this._model.game?.state.doctor?.status === 'Active') {
       return 1;
     }
     return 0;
@@ -68,7 +68,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    */
   get policeAlive(): integer {
     // Check if the doctor is defined and alive in the game state
-    if (this._model.game?.state.police?.status === 'Alive') {
+    if (this._model.game?.state.police?.status === 'Active') {
       return 1;
     }
     return 0;
@@ -210,19 +210,19 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
       const newMafiaGamePlayersAlive: PlayerID[] = [];
       // Check and add villagers, mafia, doctor, and police that are alive
       newState.state.villagers?.forEach(villager => {
-        if (villager && villager.status === 'Alive') {
+        if (villager && villager.status === 'Active') {
           newMafiaGamePlayersAlive.push(villager.id);
         }
       });
       newState.state.mafias?.forEach(mafia => {
-        if (mafia && mafia.status === 'Alive') {
+        if (mafia && mafia.status === 'Active') {
           newMafiaGamePlayersAlive.push(mafia.id);
         }
       });
-      if (newState.state.doctor?.status === 'Alive') {
+      if (newState.state.doctor?.status === 'Active') {
         newMafiaGamePlayersAlive.push(newState.state.doctor.id);
       }
-      if (newState.state.police?.status === 'Alive') {
+      if (newState.state.police?.status === 'Active') {
         newMafiaGamePlayersAlive.push(newState.state.police.id);
       }
       if (!_.isEqual(newMafiaGamePlayersAlive, this._mafiaGamePlayersAlive)) {

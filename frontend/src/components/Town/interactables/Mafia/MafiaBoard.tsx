@@ -11,8 +11,8 @@ export type MafiaGameProps = {
 /**
  * A component that will render the mafia board, styled
  */
-
-const tyledMafiaGameBoard = chakra(Container, {
+/* eslint-disable-next-line */
+const StyledMafiaGameBoard = chakra(Container, {
   baseStyle: {
     display: 'flex',
     flexDirection: 'column',
@@ -29,6 +29,7 @@ const tyledMafiaGameBoard = chakra(Container, {
 /**
  * A component that will render a single player in the Mafia game, styledd
  */
+/* eslint-disable-next-line */
 const StyledMafiaPlayer = chakra(Button, {
   baseStyle: {
     justifyContent: 'left',
@@ -56,6 +57,7 @@ const StyledMafiaPlayer = chakra(Button, {
 /**
  * A component that will render the timer, styledd
  */
+/* eslint-disable-next-line */
 const StyledTimer = chakra(Text, {
   baseStyle: {
     fontSize: '24px',

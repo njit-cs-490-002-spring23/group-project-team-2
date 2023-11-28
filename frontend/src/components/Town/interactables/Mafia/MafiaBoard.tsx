@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { Text, Box, Button, chakra, Container, useToast } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import MafiaAreaController from '../../../../classes/interactable/MafiaAreaController';
@@ -109,8 +108,7 @@ export default function MafiaBoard({ gameAreaController }: MafiaGameProps): JSX.
                 });
               }
             }}
-            disabled={!isPlayerTurn}
-            aria-label={`Player ${index + 1}`}>
+            disabled={!isPlayerTurn}>
             {gameAreaController.observers.find(p => p.id === player)?.userName}
           </StyledMafiaPlayer>
         ))}

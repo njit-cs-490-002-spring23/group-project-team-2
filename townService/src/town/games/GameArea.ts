@@ -19,6 +19,8 @@ export default abstract class GameArea<
 
   protected _history: GameResult[] = [];
 
+  protected _isActive = true;
+
   public get game(): GameType | undefined {
     return this._game;
   }
@@ -38,7 +40,7 @@ export default abstract class GameArea<
   }
 
   public get isActive(): boolean {
-    return true;
+    return this._isActive;
   }
 
   protected abstract getType(): InteractableType;

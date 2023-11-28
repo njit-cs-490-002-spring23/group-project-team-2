@@ -1,7 +1,7 @@
 import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
 import { BoundingBox, TownEmitter } from '../../types/CoveyTownSocket';
 import InteractableArea from '../InteractableArea';
-import MafiaGameArea from './MafiaGameArea'
+import MafiaGameArea from './MafiaGameArea';
 
 /**
  * Creates a new GameArea from a map object
@@ -22,6 +22,6 @@ export default function GameAreaFactory(
   const gameType = mapObject.properties?.find(prop => prop.name === 'type')?.value;
   if (gameType === 'Mafia') {
     return new MafiaGameArea(name, rect, broadcastEmitter);
-  } 
+  }
   throw new Error(`Unknown game area type ${mapObject.class}`);
 }

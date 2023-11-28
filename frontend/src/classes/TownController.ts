@@ -320,7 +320,6 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   public get conversationAreas() {
     return this._conversationAreasInternal;
   }
-  
 
   private set _conversationAreas(newConversationAreas: ConversationAreaController[]) {
     this._conversationAreasInternal = newConversationAreas;
@@ -495,7 +494,6 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     this._socket.emit('chatMessage', message);
   }
 
-
   /**
    * Sends an InteractableArea command to the townService. Returns a promise that resolves
    * when the command is acknowledged by the server.
@@ -664,7 +662,6 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     }
   }
 
-
   /**
    * Retrieve the viewing area controller that corresponds to a viewingAreaModel, creating one if necessary
    *
@@ -691,7 +688,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     }
   }
 
-/**
+  /**
    * Retrives the game area controller corresponding to a game area by ID, or
    * throws an error if the game area controller does not exist
    *

@@ -8,7 +8,7 @@ import Interactable from './Interactable';
 import ConversationArea from './interactables/ConversationArea';
 import Transporter from './interactables/Transporter';
 import ViewingArea from './interactables/ViewingArea';
-import MafiaArea from './interactables/MafiaArea';
+import MafiaArea from './interactables/Mafia/MafiaArea';
 import PromptTransporter from './interactables/PromptTransporter';
 import GameArea from './interactables/GameArea';
 
@@ -24,7 +24,7 @@ function interactableTypeForObjectType(type: string): any {
   } else if (type == 'GameArea') {
     return GameArea;
   } else if (type == 'PromptTransporter') {
-    return PromptTransporter
+    return PromptTransporter;
   } else if (type == 'MafiaArea') {
     return MafiaArea;
   } else {

@@ -98,6 +98,16 @@ export default class ViewingArea extends InteractableArea {
       throw new Error(`Malformed viewing area ${name}`);
     }
     const rect: BoundingBox = { x: mapObject.x, y: mapObject.y, width, height };
-    return new ViewingArea({ isPlaying: false, id: name, elapsedTimeSec: 0, occupants: [], type: 'ViewingArea' }, rect, townEmitter);
+    return new ViewingArea(
+      {
+        isPlaying: false,
+        id: name,
+        elapsedTimeSec: 0,
+        occupants: [],
+        type: 'ViewingArea',
+      },
+      rect,
+      townEmitter,
+    );
   }
 }

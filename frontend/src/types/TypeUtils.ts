@@ -1,4 +1,10 @@
-import { ConversationArea, Interactable, ViewingArea, GameArea, MafiaGameState } from './CoveyTownSocket';
+import {
+  ConversationArea,
+  Interactable,
+  ViewingArea,
+  GameArea,
+  MafiaGameState,
+} from './CoveyTownSocket';
 
 /**
  * Test to see if an interactable is a conversation area

@@ -76,6 +76,14 @@ export default class ConversationArea extends InteractableArea {
       throw new Error(`Malformed viewing area ${name}`);
     }
     const rect: BoundingBox = { x: mapObject.x, y: mapObject.y, width, height };
-    return new ConversationArea({ id: name, occupants: [], type: 'ConversationArea'}, rect, broadcastEmitter);
+    return new ConversationArea(
+      {
+        id: name,
+        occupants: [],
+        type: 'ConversationArea',
+      },
+      rect,
+      broadcastEmitter,
+    );
   }
 }

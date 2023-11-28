@@ -12,7 +12,7 @@ export type MafiaGameProps = {
  * A component that will render the mafia board, styled
  */
 
-const StyledMafiaGameBoard = chakra(Container, {
+const tyledMafiaGameBoard = chakra(Container, {
   baseStyle: {
     display: 'flex',
     flexDirection: 'column',

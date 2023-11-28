@@ -143,7 +143,11 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
    * A helper function that updates the status of the WinnableGameState winnerTeam value
    * @return void
    */
-  private _setWinnerTeam(): void {}
+  /*
+  private _setWinnerTeam(): void {
+    //TODO: Acutally Implement this/replace it with a check game ending function. This was put here to appease prettier.
+  }
+  */
 
   /**
    * A helper function that iterates over array of current game players
@@ -175,30 +179,30 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
    * Applies a player's move to the game. In this game a move would be a vote.
    */
   public applyMove(move: GameMove<MafiaMove>): void {
-    //this._validateMove(move); TODO IMPLEMENT
+    this._validateMove(/* TODO: Use move here */);
     this._applyMove(move.move);
   }
 
-  /* TODO IMPLEMENT
-  private _validateMove(move: MafiaMove){
+  private _validateMove(/* move: MafiaMove */) {
+    // TODO: Use move in this function.
     if (this.state.status !== 'IN_PROGRESS') {
       throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
     }
   }
-  */
-
 
   private _applyMove(move: MafiaMove): void {
     this.state = {
       ...this.state,
       moves: [...this.state.moves, move],
     };
-    this._checkForGameEnding();
+    // this._checkForGameEnding(); TODO: IMPLEMNENT
   }
 
+  /*
   private _checkForGameEnding() {
-    //TODO: Implement
+    // TODO: Implement
   }
+  */
 
   /**
    * Adds a player to the game
@@ -245,7 +249,7 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
       this.state.winners = this._getWinningTeam();
     }
     if (this.state.status === 'OVER') {
-      this._setWinnerTeam();
+      // this._setWinnerTeam(); TODO Implement this function so it can get used here.
     }
   }
 }

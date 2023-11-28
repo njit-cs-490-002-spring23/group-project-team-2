@@ -160,7 +160,7 @@ export default function MafiaAreaWrapper(): JSX.Element {
       controller.leaveGame();
     }
   }, [townController, gameArea]);
-  if (gameArea && gameArea.getData('type') === 'Mafia') {
+  if (gameArea && gameArea.getData('type') === 'TicTacToe') {
     return (
       <Modal isOpen={true} onClose={closeModal} closeOnOverlayClick={false}>
         <ModalOverlay />

@@ -1,5 +1,5 @@
 import Game from './Game';
-import { GameMove, MafiaGameState, PlayerID, VoteMove } from '../../types/CoveyTownSocket';
+import { GameMove, GameState, MafiaGameState, PlayerID, VoteMove } from '../../types/CoveyTownSocket';
 import Player from '../../lib/Player';
 import InvalidParametersError, {
   GAME_FULL_MESSAGE,
@@ -7,6 +7,7 @@ import InvalidParametersError, {
   PLAYER_ALREADY_IN_GAME_MESSAGE,
   PLAYER_NOT_IN_GAME_MESSAGE,
 } from '../../lib/InvalidParametersError';
+import { move } from 'ramda';
 
 /**
  * A helper function to roll a dice.
@@ -16,6 +17,20 @@ function getRandomIntInclusive(min: number, max: number): number {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1) + min);
+}
+/**
+ * A helper function that adds a VoteMove to the Mafia Game State VoteMove array
+ * replaces the current read only vote move array with a new read only vote move array with the newest vote move at the last index
+ * @returns void
+ */
+function addMoveToMafiaGameState(mafiaGame: MafiaGame, newVoteMove: GameMove<VoteMove>) {
+  let moveIndex: number;
+  const allVoteMoves: VoteMove[] = [];
+  for (moveIndex = 0; moveIndex < mafiaGame.state.moves.length; moveIndex += 1) {
+    allVoteMoves[moveIndex] = mafiaGame.state.moves[moveIndex];
+  }
+  allVoteMoves.push(newVoteMove.move);
+  mafiaGame.state.moves = allVoteMoves;
 }
 /**
  * A MafiaGame is a Game that implements the rules of Mafia.
@@ -168,11 +183,16 @@ export default class MafiaGame extends Game<MafiaGameState, VoteMove> {
 
   /**
    * Applies a player's move to the game. In this game a move would be a vote.
+   * A move is invalid if:
+   *    -The player already voted in the current round
+   *    -A civilian voted during a Night Cycle
+   * 
    */
   public applyMove(move: GameMove<VoteMove>): void {
     if (this.state.status !== 'IN_PROGRESS') {
       throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
     }
+    addMoveToMafiaGameState(this, move);
   }
 
   /**

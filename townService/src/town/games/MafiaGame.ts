@@ -1,5 +1,5 @@
 import Game from './Game';
-import { GameMove, GameState, MafiaGameState, PlayerID, VoteMove } from '../../types/CoveyTownSocket';
+import { GameMove, MafiaGameState, PlayerID, VoteMove } from '../../types/CoveyTownSocket';
 import Player from '../../lib/Player';
 import InvalidParametersError, {
   GAME_FULL_MESSAGE,
@@ -7,7 +7,6 @@ import InvalidParametersError, {
   PLAYER_ALREADY_IN_GAME_MESSAGE,
   PLAYER_NOT_IN_GAME_MESSAGE,
 } from '../../lib/InvalidParametersError';
-import { move } from 'ramda';
 
 /**
  * A helper function to roll a dice.
@@ -186,7 +185,6 @@ export default class MafiaGame extends Game<MafiaGameState, VoteMove> {
    * A move is invalid if:
    *    -The player already voted in the current round
    *    -A civilian voted during a Night Cycle
-   * 
    */
   public applyMove(move: GameMove<VoteMove>): void {
     if (this.state.status !== 'IN_PROGRESS') {

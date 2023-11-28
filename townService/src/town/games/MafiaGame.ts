@@ -1,5 +1,5 @@
 import Game from './Game';
-import { GameMove, MafiaGameState, PlayerID, VoteMove } from '../../types/CoveyTownSocket';
+import { GameMove, MafiaGameState, PlayerID, MafiaMove } from '../../types/CoveyTownSocket';
 import Player from '../../lib/Player';
 import InvalidParametersError, {
   GAME_FULL_MESSAGE,
@@ -20,7 +20,7 @@ function getRandomIntInclusive(min: number, max: number): number {
 /**
  * A MafiaGame is a Game that implements the rules of Mafia.
  */
-export default class MafiaGame extends Game<MafiaGameState, VoteMove> {
+export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
   public constructor() {
     super({
       moves: [],
@@ -44,14 +44,14 @@ export default class MafiaGame extends Game<MafiaGameState, VoteMove> {
         if (diceRoll === 1 && !this.state.police) {
           this.state.police = {
             id: player.id,
-            status: 'Alive',
+            status: 'Active',
           };
           roleAssigned = true;
         }
         if (diceRoll === 2 && !this.state.doctor) {
           this.state.doctor = {
             id: player.id,
-            status: 'Alive',
+            status: 'Active',
           };
           roleAssigned = true;
         }
@@ -59,14 +59,14 @@ export default class MafiaGame extends Game<MafiaGameState, VoteMove> {
           if (!this.state.villagers[0]) {
             this.state.villagers[0] = {
               id: player.id,
-              status: 'Alive',
+              status: 'Active',
             };
             roleAssigned = true;
           }
           if (!this.state.villagers[1]) {
             this.state.villagers[1] = {
               id: player.id,
-              status: 'Alive',
+              status: 'Active',
             };
             roleAssigned = true;
           }
@@ -75,14 +75,14 @@ export default class MafiaGame extends Game<MafiaGameState, VoteMove> {
           if (!this.state.mafias[0]) {
             this.state.mafias[0] = {
               id: player.id,
-              status: 'Alive',
+              status: 'Active',
             };
             roleAssigned = true;
           }
           if (!this.state.mafias[1]) {
             this.state.mafias[1] = {
               id: player.id,
-              status: 'Alive',
+              status: 'Active',
             };
             roleAssigned = true;
           }
@@ -97,14 +97,14 @@ export default class MafiaGame extends Game<MafiaGameState, VoteMove> {
           if (!this.state.villagers[2]) {
             this.state.villagers[2] = {
               id: player.id,
-              status: 'Alive',
+              status: 'Active',
             };
             roleAssigned = true;
           }
           if (!this.state.villagers[3]) {
             this.state.villagers[3] = {
               id: player.id,
-              status: 'Alive',
+              status: 'Active',
             };
             roleAssigned = true;
           }
@@ -113,7 +113,7 @@ export default class MafiaGame extends Game<MafiaGameState, VoteMove> {
           if (!this.state.mafias[2]) {
             this.state.mafias[2] = {
               id: player.id,
-              status: 'Alive',
+              status: 'Active',
             };
             roleAssigned = true;
           }
@@ -131,7 +131,7 @@ export default class MafiaGame extends Game<MafiaGameState, VoteMove> {
     let playerIndex: number;
     if (this.state.mafias) {
       for (playerIndex = 0; playerIndex < this.state.mafias?.length; playerIndex += 1) {
-        if (this.state.mafias[playerIndex]?.status === 'Alive') {
+        if (this.state.mafias[playerIndex]?.status === 'Active') {
           return false;
         }
       }
@@ -174,10 +174,30 @@ export default class MafiaGame extends Game<MafiaGameState, VoteMove> {
   /**
    * Applies a player's move to the game. In this game a move would be a vote.
    */
-  public applyMove(move: GameMove<VoteMove>): void {
+  public applyMove(move: GameMove<MafiaMove>): void {
+    //this._validateMove(move); TODO IMPLEMENT
+    this._applyMove(move.move);
+  }
+
+  /* TODO IMPLEMENT
+  private _validateMove(move: MafiaMove){
     if (this.state.status !== 'IN_PROGRESS') {
       throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
     }
+  }
+  */
+
+
+  private _applyMove(move: MafiaMove): void {
+    this.state = {
+      ...this.state,
+      moves: [...this.state.moves, move],
+    };
+    this._checkForGameEnding();
+  }
+
+  private _checkForGameEnding() {
+    //TODO: Implement
   }
 
   /**

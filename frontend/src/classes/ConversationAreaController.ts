@@ -94,8 +94,9 @@ export default class ConversationAreaController extends (EventEmitter as new () 
   toConversationAreaModel(): ConversationAreaModel {
     return {
       id: this.id,
-      occupantsByID: this.occupants.map(player => player.id),
+      occupants: this.occupants.map(player => player.id),
       topic: this.topic,
+      type: 'ConversationArea',
     };
   }
 
@@ -110,7 +111,7 @@ export default class ConversationAreaController extends (EventEmitter as new () 
     playerFinder: (playerIDs: string[]) => PlayerController[],
   ): ConversationAreaController {
     const ret = new ConversationAreaController(convAreaModel.id, convAreaModel.topic);
-    ret.occupants = playerFinder(convAreaModel.occupantsByID);
+    ret.occupants = playerFinder(convAreaModel.occupants);
     return ret;
   }
 }

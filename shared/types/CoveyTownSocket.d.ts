@@ -65,11 +65,11 @@ export interface BoundingBox {
   height: number;
 };
 
-export interface ConversationArea extends Interactable{
+export interface ConversationArea extends Interactable {
   topic?: string;
 };
 
-export interface ViewingArea extends Interactable{
+export interface ViewingArea extends Interactable {
   video?: string;
   isPlaying: boolean;
   elapsedTimeSec: number;
@@ -117,7 +117,7 @@ export interface MafiaMove {
  * The state of the game is represented as a list of moves, and the playerIDs of the players (2 villagers, 2 mafia, one police, one doctor)
  * When player join, they will be assign to the roles randonly
  */
-export type PlayerStatus = 'Alive' | 'Deceased';
+export type PlayerStatus = 'Active' | 'Spectator';
 
 export interface PlayerState {
   id: PlayerID;
@@ -127,8 +127,8 @@ export interface PlayerState {
 export type TimeOfDay = 'Day' | 'Night';
 export interface MafiaGameState extends WinnableGameState {
   moves: ReadonlyArray<MafiaMove>;
-  villagers?: [PlayerState, PlaterState, PlayerState?, PlayerState?, PlayerState?];
-  mafias?: [PlayerState, PlayerState, PlayerState?];
+  villagers?: PlayerState[];
+  mafias?: PlayerState[];
   police?: PlayerState;
   doctor?: PlayerState;
   phase?: TimeOfDay;

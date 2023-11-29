@@ -204,6 +204,7 @@ describe('Mafia Game', () => {
       });
     });
     it('should throw an error if the players is already in the game', () => {
+      expect(game.state).toBe('WAITING_TO_START');
       const player1 = createPlayerForTesting();
       game.join(player1);
       expect(() => game.join(player1)).toThrowError(PLAYER_ALREADY_IN_GAME_MESSAGE);
@@ -230,6 +231,7 @@ describe('Mafia Game', () => {
       game.join(player9);
       game.join(player10);
       const player11 = createPlayerForTesting();
+      expect(game.state).toBe('IN_PROGRESS');
       expect(() => game.join(player11)).toThrowError(GAME_FULL_MESSAGE);
     });
   });

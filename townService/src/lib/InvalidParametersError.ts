@@ -29,4 +29,3 @@ export default class InvalidParametersError extends Error {
   }
 }
 
-export const INVALID_COMMAND_MESSAGE = 'Invalid command';

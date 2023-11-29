@@ -17,6 +17,9 @@ export const PLAYER_ALREADY_DEAD_MESSAGE = 'Player already killed by mafia in pr
  */
 export const PLAYER_NOT_IN_GAME_MESSAGE = 'Player is not in this game';
 export const PLAYER_ALREADY_IN_GAME_MESSAGE = 'Player is already in this game';
+export const INVALID_COMMAND_MESSAGE = 'Invalid command';
+export const INVALID_MOVE_MESSAGE = 'Invalid move';
+
 export default class InvalidParametersError extends Error {
   public message: string;
 

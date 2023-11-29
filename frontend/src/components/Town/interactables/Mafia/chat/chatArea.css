@@ -1,0 +1,16 @@
+.chatContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  .chatMessages {
+    overflow-y: auto;
+    flex-grow: 1;
+  }
+  
+  .chatInput {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }

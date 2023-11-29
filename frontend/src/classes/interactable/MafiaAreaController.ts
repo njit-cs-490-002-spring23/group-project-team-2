@@ -30,13 +30,60 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
   }
 
   /**
+   * Returns the player with the 'Police' role, if there is one, or undefined otherwise
+   */
+  get police(): PlayerController | undefined {
+    const police = this._model.game?.state.police?.id;
+    if (police) {
+      return this.occupants.find(eachOccupant => eachOccupant.id === police);
+    }
+    return undefined;
+  }
+
+  /**
+   * Returns the player with the 'Doctor' role, if there is one, or undefined otherwise
+   */
+  get doctor(): PlayerController | undefined {
+    const doctor = this._model.game?.state.doctor?.id;
+    if (doctor) {
+      return this.occupants.find(eachOccupant => eachOccupant.id === doctor);
+    }
+    return undefined;
+  }
+
+  /**
+   * Returns the players with the 'Mafia' role, if there is one, or undefined otherwise
+   */
+  get mafias(): PlayerController[] | undefined {
+    const mafias = this._model.game?.state.mafias;
+    const mafiaID = mafias?.filter(mafia => mafia !== undefined).map(mafia => mafia?.id);
+    if (mafiaID) {
+      return this.occupants.filter(eachOccupant => mafiaID.includes(eachOccupant.id));
+    }
+    return undefined;
+  }
+
+  /**
+   * Returns the players with the 'Villagers' role, if there is one, or undefined otherwise
+   */
+  get villagers(): PlayerController[] | undefined {
+    const villagers = this._model.game?.state.villagers;
+    const villagerID = villagers
+      ?.filter(villager => villager !== undefined)
+      .map(villager => villager?.id);
+    if (villagerID) {
+      return this.occupants.filter(eachOccupant => villagerID.includes(eachOccupant.id));
+    }
+    return undefined;
+  }
+
+  /**
    * Returns the count of players with the role 'Villager' who are alive.
    */
   get villagerAlive(): number {
     if (this._model.game?.state.villagers) {
-      return this._model.game.state.villagers.filter(
-        villager => villager && villager.status === 'Alive',
-      ).length;
+      return this._model.game.state.villagers.filter(villager => villager.status === 'Active')
+        .length;
     }
     return 0;
   }
@@ -46,8 +93,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    */
   get mafiasAlive(): integer {
     if (this._model.game?.state.mafias) {
-      return this._model.game.state.mafias.filter(mafia => mafia && mafia.status === 'Alive')
-        .length;
+      return this._model.game.state.mafias.filter(mafia => mafia.status === 'Active').length;
     }
     return 0;
   }
@@ -57,7 +103,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    */
   get doctorAlive(): number {
     // Check if the doctor is defined and alive in the game state
-    if (this._model.game?.state.doctor?.status === 'Alive') {
+    if (this._model.game?.state.doctor?.status === 'Active') {
       return 1;
     }
     return 0;
@@ -68,7 +114,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    */
   get policeAlive(): integer {
     // Check if the doctor is defined and alive in the game state
-    if (this._model.game?.state.police?.status === 'Alive') {
+    if (this._model.game?.state.police?.status === 'Active') {
       return 1;
     }
     return 0;
@@ -78,10 +124,8 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    * Returns the total count of players at the beginning of the game.
    */
   get startCountPlayer(): number {
-    const totalVillagers =
-      this._model.game?.state.villagers?.filter(villager => villager !== undefined).length || 0;
-    const totalMafias =
-      this._model.game?.state.mafias?.filter(mafia => mafia !== undefined).length || 0;
+    const totalVillagers = this._model.game?.state.villagers?.length || 0;
+    const totalMafias = this._model.game?.state.mafias?.length || 0;
     const doctor = 1;
     const police = 1;
     return totalVillagers + totalMafias + doctor + police;
@@ -153,18 +197,19 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
   /**
    * Returns the winners of the game
    */
-  get winners(): PlayerController[] {
+  get winners(): PlayerController[] | undefined {
     const winners = this._model.game?.state.winners;
     const winnerList: PlayerController[] = [];
-    if (winners) {
+    if (this._model.game?.state.status === 'OVER' && winners) {
       winners.forEach(winnerId => {
         const winner = this.occupants.find(eachOccupant => eachOccupant.id === winnerId);
         if (winner) {
           winnerList.push(winner);
         }
       });
+      return winnerList;
     }
-    return winnerList;
+    return undefined;
   }
 
   /**
@@ -181,6 +226,9 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
     return 'WAITING_TO_START';
   }
 
+  /**
+   * Returns true if the current player is a player in this game
+   */
   get isPlayer(): boolean {
     return this._model.game?.players.includes(this._townController.ourPlayer.id) || false;
   }
@@ -210,19 +258,19 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
       const newMafiaGamePlayersAlive: PlayerID[] = [];
       // Check and add villagers, mafia, doctor, and police that are alive
       newState.state.villagers?.forEach(villager => {
-        if (villager && villager.status === 'Alive') {
+        if (villager.status === 'Active') {
           newMafiaGamePlayersAlive.push(villager.id);
         }
       });
       newState.state.mafias?.forEach(mafia => {
-        if (mafia && mafia.status === 'Alive') {
+        if (mafia.status === 'Active') {
           newMafiaGamePlayersAlive.push(mafia.id);
         }
       });
-      if (newState.state.doctor?.status === 'Alive') {
+      if (newState.state.doctor?.status === 'Active') {
         newMafiaGamePlayersAlive.push(newState.state.doctor.id);
       }
-      if (newState.state.police?.status === 'Alive') {
+      if (newState.state.police?.status === 'Active') {
         newMafiaGamePlayersAlive.push(newState.state.police.id);
       }
       if (!_.isEqual(newMafiaGamePlayersAlive, this._mafiaGamePlayersAlive)) {

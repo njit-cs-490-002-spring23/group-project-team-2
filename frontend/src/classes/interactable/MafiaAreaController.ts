@@ -56,9 +56,9 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    */
   get mafias(): PlayerController[] | undefined {
     const mafias = this._model.game?.state.mafias;
-    const mafiaID = mafias?.filter(mafia => mafia !== undefined).map(mafia => mafia?.id);
-    if (mafiaID) {
-      return this.occupants.filter(eachOccupant => mafiaID.includes(eachOccupant.id));
+    if (mafias) {
+      const mafiaIDs = mafias.map(mafia => mafia.id);
+      return this.occupants.filter(eachOccupant => mafiaIDs.includes(eachOccupant.id));
     }
     return undefined;
   }
@@ -68,11 +68,9 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    */
   get villagers(): PlayerController[] | undefined {
     const villagers = this._model.game?.state.villagers;
-    const villagerID = villagers
-      ?.filter(villager => villager !== undefined)
-      .map(villager => villager?.id);
-    if (villagerID) {
-      return this.occupants.filter(eachOccupant => villagerID.includes(eachOccupant.id));
+    if (villagers) {
+      const villagerIDs = villagers.map(villager => villager.id);
+      return this.occupants.filter(eachOccupant => villagerIDs.includes(eachOccupant.id));
     }
     return undefined;
   }

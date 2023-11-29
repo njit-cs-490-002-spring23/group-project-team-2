@@ -132,7 +132,7 @@ export default class TownGameScene extends Phaser.Scene {
     this.load.tilemapTiledJSON('map', this._resourcePathPrefix + '/assets/tilemaps/indoors.json');
     this.load.atlas(
       'atlas',
-      this._resourcePathPrefix + '/assets/atlas/atlas.png',
+      this._resourcePathPrefix + '/assets/atlas/atlasMafia.png',
       this._resourcePathPrefix + '/assets/atlas/atlas.json',
     );
   }
@@ -411,7 +411,7 @@ export default class TownGameScene extends Phaser.Scene {
     const sprite = this.physics.add
       .sprite(spawnPoint.x, spawnPoint.y, 'atlas', 'misa-front')
       .setSize(30, 30)
-      .setOffset(0, 30)
+      .setOffset(0, 23)
       .setDepth(6);
     const label = this.add
       .text(spawnPoint.x, spawnPoint.y - 20, '(You)', {

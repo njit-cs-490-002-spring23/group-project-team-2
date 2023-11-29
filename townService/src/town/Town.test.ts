@@ -397,7 +397,7 @@ describe('Town', () => {
       });
       it('Should not throw an error for any interactable area that is not a viewing area', () => {
         expect(() =>
-          interactableUpdateHandler({ id: 'Name1', topic: nanoid(), occupantsByID: [] }),
+          interactableUpdateHandler({ id: 'Name1', topic: nanoid(), occupants: [], type: 'ConversationArea'} as ConversationArea),
         ).not.toThrowError();
       });
       it('Should not throw an error if there is no such viewing area', () => {

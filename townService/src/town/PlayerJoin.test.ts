@@ -1,6 +1,6 @@
 import { createPlayerForTesting, isIdInArray } from '../TestUtils';
 import Player from '../lib/Player';
-import MafiaGame from '../game/MafiaGame';
+import MafiaGame from '../games/MafiaGame';
 import {
   PLAYER_ALREADY_IN_GAME_MESSAGE,
   GAME_FULL_MESSAGE,
@@ -17,50 +17,37 @@ const validRole = (role: string[], players: Player[]) => {
   return roleCount;
 };
 
+const playerJoining = (numberOfPlayersNeeded: number, game: MafiaGame) => {
+  const players = [];
+  for (let playerNumber = 0; playerNumber < numberOfPlayersNeeded; playerNumber++) {
+    const player = createPlayerForTesting();
+    game.join(player);
+    players.push(player);
+  }
+  return players;
+};
+
 describe('Mafia Game', () => {
   let game: MafiaGame;
   beforeEach(() => {
     game = new MafiaGame();
   });
   describe('Joining', () => {
-    let player1: Player;
-    let player2: Player;
-    let player3: Player;
-    let player4: Player;
-    let player5: Player;
-    let player6: Player;
-    let player7: Player;
-    let player8: Player;
-    let player9: Player;
-    let player10: Player;
     describe('6 players', () => {
+      let players: Player[];
       beforeEach(() => {
-        player1 = createPlayerForTesting();
-        player2 = createPlayerForTesting();
-        player3 = createPlayerForTesting();
-        player4 = createPlayerForTesting();
-        player5 = createPlayerForTesting();
-        player6 = createPlayerForTesting();
-        game.join(player1);
-        game.join(player2);
-        game.join(player3);
-        game.join(player4);
-        game.join(player5);
-        game.join(player6);
+        players = playerJoining(6, game);
       });
       it('only 2 villagers are present', () => {
         const { villagers } = game.state.villagers;
-        const players = [player1, player2, player3, player4, player5, player6];
         expect(validRole(villagers, players)).toEqual(2);
       });
       it('only 2 mafia are present', () => {
         const { mafia } = game.state.mafia;
-        const players = [player1, player2, player3, player4, player5, player6];
         expect(validRole(mafia, players)).toEqual(2);
       });
       it('only 1 doctor', () => {
         const { doctor } = game.state.doctor;
-        const players = [player1, player2, player3, player4, player5, player6];
         let checkDoctor = 0;
         for (let i = 0; i < players.length; i++) {
           if (doctor.id === players[i].id) {
@@ -71,7 +58,6 @@ describe('Mafia Game', () => {
       });
       it('only 1 police officer', () => {
         const { police } = game.state.police;
-        const players = [player1, player2, player3, player4, player5, player6];
         let checkPolice = 0;
         for (let i = 0; i < players.length; i++) {
           if (police.id === players[i].id) {
@@ -82,35 +68,20 @@ describe('Mafia Game', () => {
       });
     });
     describe('7 players', () => {
+      let players: Player[];
       beforeEach(() => {
-        player1 = createPlayerForTesting();
-        player2 = createPlayerForTesting();
-        player3 = createPlayerForTesting();
-        player4 = createPlayerForTesting();
-        player5 = createPlayerForTesting();
-        player6 = createPlayerForTesting();
-        player7 = createPlayerForTesting();
-        game.join(player1);
-        game.join(player2);
-        game.join(player3);
-        game.join(player4);
-        game.join(player5);
-        game.join(player6);
-        game.join(player7);
+        players = playerJoining(7, game);
       });
       it('only 3 villagers are present', () => {
         const { villagers } = game.state.villagers;
-        const players = [player1, player2, player3, player4, player5, player6];
         expect(validRole(villagers, players)).toEqual(3);
       });
       it('only 2 mafia are present', () => {
         const { mafia } = game.state.mafia;
-        const players = [player1, player2, player3, player4, player5, player6];
         expect(validRole(mafia, players)).toEqual(2);
       });
       it('only 1 doctor', () => {
         const { doctor } = game.state.doctor;
-        const players = [player1, player2, player3, player4, player5, player6];
         let checkDoctor = 0;
         for (let i = 0; i < players.length; i++) {
           if (doctor.id === players[i].id) {
@@ -121,7 +92,6 @@ describe('Mafia Game', () => {
       });
       it('only 1 police officer', () => {
         const { police } = game.state.police;
-        const players = [player1, player2, player3, player4, player5, player6];
         let checkPolice = 0;
         for (let i = 0; i < players.length; i++) {
           if (police.id === players[i].id) {
@@ -132,37 +102,20 @@ describe('Mafia Game', () => {
       });
     });
     describe('8 players', () => {
+      let players: Player[];
       beforeEach(() => {
-        player1 = createPlayerForTesting();
-        player2 = createPlayerForTesting();
-        player3 = createPlayerForTesting();
-        player4 = createPlayerForTesting();
-        player5 = createPlayerForTesting();
-        player6 = createPlayerForTesting();
-        player7 = createPlayerForTesting();
-        player8 = createPlayerForTesting();
-        game.join(player1);
-        game.join(player2);
-        game.join(player3);
-        game.join(player4);
-        game.join(player5);
-        game.join(player6);
-        game.join(player7);
-        game.join(player8);
+        players = playerJoining(8, game);
       });
       it('only 3 villagers are present', () => {
         const { villagers } = game.state.villagers;
-        const players = [player1, player2, player3, player4, player5, player6];
         expect(validRole(villagers, players)).toEqual(3);
       });
       it('only 3 mafia are present', () => {
         const { mafia } = game.state.mafia;
-        const players = [player1, player2, player3, player4, player5, player6];
         expect(validRole(mafia, players)).toEqual(3);
       });
       it('only 1 doctor', () => {
         const { doctor } = game.state.doctor;
-        const players = [player1, player2, player3, player4, player5, player6];
         let checkDoctor = 0;
         for (let i = 0; i < players.length; i++) {
           if (doctor.id === players[i].id) {
@@ -173,7 +126,6 @@ describe('Mafia Game', () => {
       });
       it('only 1 police officer', () => {
         const { police } = game.state.police;
-        const players = [player1, player2, player3, player4, player5, player6];
         let checkPolice = 0;
         for (let i = 0; i < players.length; i++) {
           if (police.id === players[i].id) {
@@ -184,39 +136,20 @@ describe('Mafia Game', () => {
       });
     });
     describe('9 players', () => {
+      let players: Player[];
       beforeEach(() => {
-        player1 = createPlayerForTesting();
-        player2 = createPlayerForTesting();
-        player3 = createPlayerForTesting();
-        player4 = createPlayerForTesting();
-        player5 = createPlayerForTesting();
-        player6 = createPlayerForTesting();
-        player7 = createPlayerForTesting();
-        player8 = createPlayerForTesting();
-        player9 = createPlayerForTesting();
-        game.join(player1);
-        game.join(player2);
-        game.join(player3);
-        game.join(player4);
-        game.join(player5);
-        game.join(player6);
-        game.join(player7);
-        game.join(player8);
-        game.join(player9);
+        players = playerJoining(9, game);
       });
       it('only 4 villagers are present', () => {
         const { villagers } = game.state.villagers;
-        const players = [player1, player2, player3, player4, player5, player6];
         expect(validRole(villagers, players)).toEqual(4);
       });
       it('only 3 mafia are present', () => {
         const { mafia } = game.state.mafia;
-        const players = [player1, player2, player3, player4, player5, player6];
         expect(validRole(mafia, players)).toEqual(3);
       });
       it('only 1 doctor', () => {
         const { doctor } = game.state.doctor;
-        const players = [player1, player2, player3, player4, player5, player6];
         let checkDoctor = 0;
         for (let i = 0; i < players.length; i++) {
           if (doctor.id === players[i].id) {
@@ -227,7 +160,6 @@ describe('Mafia Game', () => {
       });
       it('only 1 police officer', () => {
         const { police } = game.state.police;
-        const players = [player1, player2, player3, player4, player5, player6];
         let checkPolice = 0;
         for (let i = 0; i < players.length; i++) {
           if (police.id === players[i].id) {
@@ -238,41 +170,20 @@ describe('Mafia Game', () => {
       });
     });
     describe('10 players', () => {
+      let players: Player[];
       beforeEach(() => {
-        player1 = createPlayerForTesting();
-        player2 = createPlayerForTesting();
-        player3 = createPlayerForTesting();
-        player4 = createPlayerForTesting();
-        player5 = createPlayerForTesting();
-        player6 = createPlayerForTesting();
-        player7 = createPlayerForTesting();
-        player8 = createPlayerForTesting();
-        player9 = createPlayerForTesting();
-        player10 = createPlayerForTesting();
-        game.join(player1);
-        game.join(player2);
-        game.join(player3);
-        game.join(player4);
-        game.join(player5);
-        game.join(player6);
-        game.join(player7);
-        game.join(player8);
-        game.join(player9);
-        game.join(player10);
+        players = playerJoining(10, game);
       });
       it('only 5 villagers are present', () => {
         const { villagers } = game.state.villagers;
-        const players = [player1, player2, player3, player4, player5, player6];
         expect(validRole(villagers, players)).toEqual(5);
       });
       it('only 3 mafia are present', () => {
         const { mafia } = game.state.mafia;
-        const players = [player1, player2, player3, player4, player5, player6];
         expect(validRole(mafia, players)).toEqual(3);
       });
       it('only 1 doctor', () => {
         const { doctor } = game.state.doctor;
-        const players = [player1, player2, player3, player4, player5, player6];
         let checkDoctor = 0;
         for (let i = 0; i < players.length; i++) {
           if (doctor.id === players[i].id) {
@@ -283,7 +194,6 @@ describe('Mafia Game', () => {
       });
       it('only 1 police officer', () => {
         const { police } = game.state.police;
-        const players = [player1, player2, player3, player4, player5, player6];
         let checkPolice = 0;
         for (let i = 0; i < players.length; i++) {
           if (police.id === players[i].id) {
@@ -294,22 +204,21 @@ describe('Mafia Game', () => {
       });
     });
     it('should throw an error if the players is already in the game', () => {
-      player1 = createPlayerForTesting();
+      const player1 = createPlayerForTesting();
       game.join(player1);
       expect(() => game.join(player1)).toThrowError(PLAYER_ALREADY_IN_GAME_MESSAGE);
-      player2 = createPlayerForTesting();
     });
     it('should throw an error if the game is full', () => {
-      player1 = createPlayerForTesting();
-      player2 = createPlayerForTesting();
-      player3 = createPlayerForTesting();
-      player4 = createPlayerForTesting();
-      player5 = createPlayerForTesting();
-      player6 = createPlayerForTesting();
-      player7 = createPlayerForTesting();
-      player8 = createPlayerForTesting();
-      player9 = createPlayerForTesting();
-      player10 = createPlayerForTesting();
+      const player1 = createPlayerForTesting();
+      const player2 = createPlayerForTesting();
+      const player3 = createPlayerForTesting();
+      const player4 = createPlayerForTesting();
+      const player5 = createPlayerForTesting();
+      const player6 = createPlayerForTesting();
+      const player7 = createPlayerForTesting();
+      const player8 = createPlayerForTesting();
+      const player9 = createPlayerForTesting();
+      const player10 = createPlayerForTesting();
       game.join(player1);
       game.join(player2);
       game.join(player3);
@@ -320,7 +229,6 @@ describe('Mafia Game', () => {
       game.join(player8);
       game.join(player9);
       game.join(player10);
-
       const player11 = createPlayerForTesting();
       expect(() => game.join(player11)).toThrowError(GAME_FULL_MESSAGE);
     });

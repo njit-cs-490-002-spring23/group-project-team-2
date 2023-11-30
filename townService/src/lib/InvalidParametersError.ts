@@ -28,4 +28,3 @@ export default class InvalidParametersError extends Error {
     this.message = message;
   }
 }
-

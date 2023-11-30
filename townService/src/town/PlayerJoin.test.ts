@@ -1,6 +1,6 @@
 import { createPlayerForTesting, isIdInArray } from '../TestUtils';
 import Player from '../lib/Player';
-import MafiaGame from '../games/MafiaGame';
+import MafiaGame from './games/MafiaGame';
 import {
   PLAYER_ALREADY_IN_GAME_MESSAGE,
   GAME_FULL_MESSAGE,
@@ -47,20 +47,20 @@ describe('Mafia Game', () => {
         expect(validRole(mafia, players)).toEqual(2);
       });
       it('only 1 doctor', () => {
-        const { doctor } = game.state.doctor;
+        const doctor = game.state.doctor;
         let checkDoctor = 0;
         for (let i = 0; i < players.length; i++) {
-          if (doctor.id === players[i].id) {
+          if ((doctor?.id as string) === players[i].id) {
             checkDoctor++;
           }
         }
         expect(checkDoctor).toBe(1);
       });
       it('only 1 police officer', () => {
-        const { police } = game.state.police;
+        const police = game.state.police;
         let checkPolice = 0;
         for (let i = 0; i < players.length; i++) {
-          if (police.id === players[i].id) {
+          if ((police?.id as string) === players[i].id) {
             checkPolice++;
           }
         }

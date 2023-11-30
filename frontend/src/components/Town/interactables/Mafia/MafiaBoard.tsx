@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { Text, Box, Button, chakra, Container, useToast } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import MafiaAreaController from '../../../../classes/interactable/MafiaAreaController';
 import { PlayerID } from '../../../../types/CoveyTownSocket';
-import { ChatArea } from './chat/ChatComponent';
+// import { ChatArea } from './chat/ChatComponent';
 
 export type MafiaGameProps = {
   gameAreaController: MafiaAreaController;
@@ -11,25 +12,26 @@ export type MafiaGameProps = {
 /**
  * A component that will render the mafia board, styled
  */
-/* eslint-disable-next-line */
 const StyledMafiaGameBoard = chakra(Container, {
   baseStyle: {
     display: 'flex',
     flexDirection: 'column',
-    width: '500px',
-    minHeight: '400px',
+    width: 'auto',
+    minHeight: '200px',
     padding: '20px',
     justifyContent: 'center',
     alignItems: 'center',
     background: 'darkgray',
     borderRadius: '10px',
+    position: 'relative',
+    top: '5px',
+    right: '2px',
   },
 });
 
 /**
  * A component that will render a single player in the Mafia game, styledd
  */
-/* eslint-disable-next-line */
 const StyledMafiaPlayer = chakra(Button, {
   baseStyle: {
     justifyContent: 'left',
@@ -54,37 +56,39 @@ const StyledMafiaPlayer = chakra(Button, {
   },
 });
 
-/**
- * A component that will render the timer, styledd
- */
-/* eslint-disable-next-line */
+// A component that will render the game timer, styled
 const StyledTimer = chakra(Text, {
   baseStyle: {
-    fontSize: '24px',
+    fontSize: '20px',
     fontWeight: 'bold',
     color: 'black',
+    marginLeft: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    padding: '2px',
+    borderRadius: '5px',
+    position: 'absolute',
+    top: '10px',
+    right: '10px',
   },
 });
 
 export default function MafiaBoard({ gameAreaController }: MafiaGameProps): JSX.Element {
   const [players, setPlayers] = useState<PlayerID[]>(gameAreaController.playersAlive);
-  const [currentPhase, setCurrentPhase] = useState(gameAreaController.currentPhase);
   const [isPlayerTurn, setIsPlayerTurn] = useState(gameAreaController.isPlayerTurn);
   const [timer, setTimer] = useState(30);
   const toast = useToast();
 
   useEffect(() => {
     setTimer(30);
-  }, [currentPhase]);
+  }, [players]);
 
   useEffect(() => {
     gameAreaController.addListener('turnChanged', setIsPlayerTurn);
     gameAreaController.addListener('playerAliveChanged', setPlayers);
-    gameAreaController.addListener('phaseChanged', setCurrentPhase);
     return () => {
       gameAreaController.removeListener('turnChanged', setIsPlayerTurn);
       gameAreaController.removeListener('playerAliveChanged', setPlayers);
-      gameAreaController.removeListener('phaseChanged', setCurrentPhase);
     };
   }, [gameAreaController]);
   return (
@@ -96,26 +100,29 @@ export default function MafiaBoard({ gameAreaController }: MafiaGameProps): JSX.
           }}>
           Time Left: {timer} seconds
         </StyledTimer>
-        {players.map((player, index) => (
-          <StyledMafiaPlayer
-            key={index}
-            onClick={async () => {
-              try {
-                await gameAreaController.makeMove(player as PlayerID);
-              } catch (error) {
-                toast({
-                  title: 'Error',
-                  description: 'Error Making Move',
-                  status: 'error',
-                });
-              }
-            }}
-            disabled={!isPlayerTurn}>
-            {gameAreaController.observers.find(p => p.id === player)?.userName}
-          </StyledMafiaPlayer>
-        ))}
+        {players.map((player, index) => {
+          return (
+            <StyledMafiaPlayer
+              key={index}
+              onClick={async () => {
+                try {
+                  await gameAreaController.makeMove(player as PlayerID);
+                } catch (error) {
+                  toast({
+                    title: 'Error',
+                    description: (error as Error).toString(),
+                    status: 'error',
+                  });
+                }
+              }}
+              disabled={!isPlayerTurn}
+              aria-label={`Player ${index + 1}`}>
+              {players}
+            </StyledMafiaPlayer>
+          );
+        })}
       </StyledMafiaGameBoard>
-      <ChatArea />
+      {/*   <ChatArea /> */}
     </Box>
   );
 }

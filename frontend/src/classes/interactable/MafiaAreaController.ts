@@ -16,11 +16,17 @@ export const NO_GAME_IN_PROGRESS_ERROR = 'No game in progress';
 export type MafiaEvents = GameEventTypes & {
   playerAliveChanged: (playersAlive: PlayerID[]) => void;
   turnChanged: (isPlayerTurn: boolean) => void;
-  phaseChanged: (currentPhase: TimeOfDay) => void;
 };
 
 export default class MafiaAreaController extends GameAreaController<MafiaGameState, MafiaEvents> {
-  protected _mafiaGamePlayersAlive: PlayerID[] = [];
+  protected _mafiaGamePlayersAlive: PlayerID[] = [
+    'player1',
+    'player2',
+    'player3',
+    'player4',
+    'player5',
+    'player6',
+  ];
 
   /*
    * Returns the players who are alive alive.
@@ -143,8 +149,11 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
   /**
    * Returns the current phase, day or night.
    */
-  get currentPhase(): TimeOfDay {
-    return this._model.game?.state.phase || 'Day';
+  get currentPhase(): TimeOfDay | undefined {
+    if (this._model.game?.state?.status === 'IN_PROGRESS') {
+      return this._model.game?.state?.phase;
+    }
+    return undefined;
   }
 
   /**
@@ -266,7 +275,6 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    */
 
   protected _updateFrom(newModel: GameArea<MafiaGameState>): void {
-    const pastPhase = this.currentPhase;
     const pastPhaseTurn = this.isPlayerTurn;
     super._updateFrom(newModel);
     const newState = newModel.game;
@@ -296,8 +304,6 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
     }
     const currentPhaseTurn = this.isPlayerTurn;
     if (pastPhaseTurn != currentPhaseTurn) this.emit('turnChanged', this.isPlayerTurn);
-    const currentPhase = this.currentPhase;
-    if (pastPhase != currentPhase) this.emit('phaseChanged', currentPhase);
   }
 
   /**

@@ -45,8 +45,8 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    * Returns the count of players with the role 'Mafia' who are alive.
    */
   get mafiasAlive(): integer {
-    if (this._model.game?.state.mafias) {
-      return this._model.game.state.mafias.filter(mafia => mafia && mafia.status === 'Active')
+    if (this._model.game?.state.mafia) {
+      return this._model.game.state.mafia.filter(mafia => mafia && mafia.status === 'Active')
         .length;
     }
     return 0;
@@ -81,7 +81,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
     const totalVillagers =
       this._model.game?.state.villagers?.filter(villager => villager !== undefined).length || 0;
     const totalMafias =
-      this._model.game?.state.mafias?.filter(mafia => mafia !== undefined).length || 0;
+      this._model.game?.state.mafia?.filter(mafia => mafia !== undefined).length || 0;
     const doctor = 1;
     const police = 1;
     return totalVillagers + totalMafias + doctor + police;
@@ -110,7 +110,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    */
   get role(): 'Mafia' | 'Doctor' | 'Police' | 'Villager' {
     const playerId = this._townController.ourPlayer.id;
-    if (this._model.game?.state.mafias?.some(mafia => mafia?.id === playerId)) {
+    if (this._model.game?.state.mafia?.some(mafia => mafia?.id === playerId)) {
       return 'Mafia';
     } else if (this._model.game?.state.doctor?.id === playerId) {
       return 'Doctor';
@@ -214,7 +214,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
           newMafiaGamePlayersAlive.push(villager.id);
         }
       });
-      newState.state.mafias?.forEach(mafia => {
+      newState.state.mafia?.forEach(mafia => {
         if (mafia && mafia.status === 'Active') {
           newMafiaGamePlayersAlive.push(mafia.id);
         }

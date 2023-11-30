@@ -119,7 +119,7 @@ export interface MafiaMove {
  */
 export type PlayerStatus = 'Active' | 'Spectator';
 
-export interface PlayerState {
+export type PlayerState = {
   id: PlayerID;
   status: PlayerStatus;
 }
@@ -128,7 +128,7 @@ export type TimeOfDay = 'Day' | 'Night';
 export interface MafiaGameState extends WinnableGameState {
   moves: ReadonlyArray<MafiaMove>;
   villagers?: PlayerState[];
-  mafias?: PlayerState[];
+  mafia?: PlayerState[];
   police?: PlayerState;
   doctor?: PlayerState;
   phase?: TimeOfDay;

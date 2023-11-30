@@ -170,10 +170,28 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
     const currentPhase = this.currentPhase;
     const playerId = this._townController.ourPlayer.id;
     const playerRole = this.role;
-
-    // Is player alive
-    if (!this._mafiaGamePlayersAlive.includes(playerId)) {
-      return false;
+    if (playerRole === 'Mafia') {
+      const player = this._model.game?.state.mafias?.filter(mafia => mafia?.id === playerId);
+      if (player && player[0].status === 'Spectator') {
+        return false;
+      }
+    } else if (playerRole === 'Villager') {
+      const player = this._model.game?.state.villagers?.filter(
+        villager => villager?.id === playerId,
+      );
+      if (player && player[0].status === 'Spectator') {
+        return false;
+      }
+    } else if (playerRole === 'Doctor') {
+      const player = this._model.game?.state.doctor;
+      if (player?.status === 'Spectator') {
+        return false;
+      }
+    } else if (playerRole === 'Police') {
+      const player = this._model.game?.state.police;
+      if (player?.status === 'Spectator') {
+        return false;
+      }
     }
     if (currentPhase === 'Day') {
       return true;

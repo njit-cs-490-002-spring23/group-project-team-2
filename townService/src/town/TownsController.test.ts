@@ -231,8 +231,8 @@ describe('TownsController integration tests', () => {
       const initialData = getLastEmittedEvent(player.socket, 'initialize');
       const conversationArea = createConversationForTesting({
         boundingBox: { x: 10, y: 10, width: 1, height: 1 },
-        conversationID: initialData.interactables.find(
-          eachInteractable => 'occupantsByID' in eachInteractable,
+        conversationID: initialData.interactables.find(eachInteractable =>
+          isConversationArea(eachInteractable),
         )?.id,
       });
       await controller.createConversationArea(

@@ -1,14 +1,14 @@
 import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
+import InvalidParametersError from '../lib/InvalidParametersError';
 import Player from '../lib/Player';
 import {
   BoundingBox,
+  ConversationArea as ConversationAreaModel,
   InteractableCommand,
   InteractableCommandReturnType,
-  ConversationArea as ConversationAreaModel,
   TownEmitter,
 } from '../types/CoveyTownSocket';
 import InteractableArea from './InteractableArea';
-import InvalidParametersError from '../lib/InvalidParametersError';
 
 export default class ConversationArea extends InteractableArea {
   /* The topic of the conversation area, or undefined if it is not set */
@@ -27,7 +27,7 @@ export default class ConversationArea extends InteractableArea {
    * @param townEmitter a broadcast emitter that can be used to emit updates to players
    */
   public constructor(
-    { topic, id }: ConversationAreaModel,
+    { topic, id }: Omit<ConversationAreaModel, 'type'>,
     coordinates: BoundingBox,
     townEmitter: TownEmitter,
   ) {
@@ -79,15 +79,7 @@ export default class ConversationArea extends InteractableArea {
       throw new Error(`Malformed viewing area ${name}`);
     }
     const rect: BoundingBox = { x: mapObject.x, y: mapObject.y, width, height };
-    return new ConversationArea(
-      {
-        id: name,
-        occupants: [],
-        type: 'ConversationArea',
-      },
-      rect,
-      broadcastEmitter,
-    );
+    return new ConversationArea({ id: name, occupants: [] }, rect, broadcastEmitter);
   }
 
   // eslint-disable-next-line class-methods-use-this

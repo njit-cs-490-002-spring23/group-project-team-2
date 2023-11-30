@@ -9,11 +9,11 @@ import {
 import { PlayerState } from '../types/CoveyTownSocket';
 
 function roleIDs(roles: PlayerState[]): string[] {
-  const IDs: string[] = [];
-  for (let i = 0 ; i < roles.length ; i++) {
-    IDs.push(roles[i].id);
+  const ids: string[] = [];
+  for (let i = 0; i < roles.length; i++) {
+    ids.push(roles[i].id);
   }
-  return IDs;
+  return ids;
 }
 
 function validRole(roles: string[], players: Player[]): number {
@@ -24,7 +24,7 @@ function validRole(roles: string[], players: Player[]): number {
     }
   }
   return roleCount;
-};
+}
 
 const playerJoining = (numberOfPlayersNeeded: number, game: MafiaGame) => {
   const players = [];
@@ -215,15 +215,13 @@ describe('Mafia Game', () => {
           createPlayerForTesting(),
           createPlayerForTesting(),
         ];
-        for(let i = 0 ; i < players.length ; i++)
-          game.join(players[i]);
+        for (let i = 0; i < players.length; i++) game.join(players[i]);
       });
       it('if all mafia memebers leave the game while the game is in progress the villagers should win', () => {
         expect(game.state).toBe('IN_PROGRESS');
         const mafia = roleIDs(game.state.mafia as PlayerState[]);
-        for(let i = 0 ; i < players.length ; i++) 
-          if (isIdInArray(mafia, players[i].id))
-            game.leave(players[i]);
+        for (let i = 0; i < players.length; i++)
+          if (isIdInArray(mafia, players[i].id)) game.leave(players[i]);
         expect(game.state).toBe('OVER');
         expect(game.state.winnerTeam).toBe('CIVILIANS_TEAM');
       });

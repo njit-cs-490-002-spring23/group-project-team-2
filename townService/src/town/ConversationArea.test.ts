@@ -16,14 +16,14 @@ describe('ConversationArea', () => {
   beforeEach(() => {
     mockClear(townEmitter);
     testArea = new ConversationArea(
-      { 
+      {
         topic,
         id,
         occupants: [],
-        type: 'ConversationArea'
+        type: 'ConversationArea',
       },
       testAreaBox,
-      townEmitter
+      townEmitter,
     );
     newPlayer = new Player(nanoid(), mock<TownEmitter>());
     testArea.add(newPlayer);

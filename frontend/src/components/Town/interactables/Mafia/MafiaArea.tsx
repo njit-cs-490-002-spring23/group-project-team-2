@@ -68,7 +68,7 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
     gameAreaController.addListener('gameUpdated', updateGameState);
     const onGameEnd = () => {
       const winnerTeam = gameAreaController.winnerTeam;
-      const isOurPlayerAWinner = gameAreaController.winners.includes(townController.ourPlayer);
+      const isOurPlayerAWinner = gameAreaController.winners?.includes(townController.ourPlayer);
       if (isOurPlayerAWinner) {
         toast({
           title: 'Game over',
@@ -142,7 +142,7 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
       </b>
       <List aria-label='list of players in the game'>
         {players.map((player, index) => (
-          <ListItem key={index}>{player}</ListItem>
+          <ListItem key={index}>{player}: Alive</ListItem>
         ))}
       </List>
       <MafiaBoard gameAreaController={gameAreaController} />
@@ -160,7 +160,7 @@ export default function MafiaAreaWrapper(): JSX.Element {
       controller.leaveGame();
     }
   }, [townController, gameArea]);
-  if (gameArea && gameArea.getData('type') === 'TicTacToe') {
+  if (gameArea && gameArea.getData('type') === 'Mafia') {
     return (
       <Modal isOpen={true} onClose={closeModal} closeOnOverlayClick={false}>
         <ModalOverlay />

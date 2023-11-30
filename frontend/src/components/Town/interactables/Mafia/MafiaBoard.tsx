@@ -3,7 +3,7 @@ import { Text, Box, Button, chakra, Container, useToast } from '@chakra-ui/react
 import React, { useEffect, useState } from 'react';
 import MafiaAreaController from '../../../../classes/interactable/MafiaAreaController';
 import { PlayerID } from '../../../../types/CoveyTownSocket';
-// import { ChatArea } from './chat/ChatComponent';
+import { ChatArea } from './chat/ChatComponent';
 
 export type MafiaGameProps = {
   gameAreaController: MafiaAreaController;
@@ -15,12 +15,14 @@ export type MafiaGameProps = {
 const StyledMafiaGameBoard = chakra(Container, {
   baseStyle: {
     display: 'flex',
-    flexDirection: 'column',
-    width: 'auto',
-    minHeight: '200px',
-    padding: '20px',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
+    padding: '50px 10px 10px',
+    gap: '10px',
+    width: 'auto',
+    minHeight: '200px',
     background: 'darkgray',
     borderRadius: '10px',
     position: 'relative',
@@ -36,16 +38,16 @@ const StyledMafiaPlayer = chakra(Button, {
   baseStyle: {
     justifyContent: 'left',
     alignItems: 'center',
-    padding: '10px',
+    padding: '8px',
     width: 'auto',
-    height: '80px',
-    fontSize: '20px',
+    height: '70px',
+    fontSize: '18px',
     fontWeight: 'bold',
     backgroundColor: 'black',
     color: 'white',
     borderRadius: '20px',
     _hover: {
-      bg: 'gray',
+      bg: 'grey',
     },
     _active: {
       bg: 'red',
@@ -117,12 +119,12 @@ export default function MafiaBoard({ gameAreaController }: MafiaGameProps): JSX.
               }}
               disabled={!isPlayerTurn}
               aria-label={`Player ${index + 1}`}>
-              {players}
+              {player}
             </StyledMafiaPlayer>
           );
         })}
       </StyledMafiaGameBoard>
-      {/*   <ChatArea /> */}
+      <ChatArea />
     </Box>
   );
 }

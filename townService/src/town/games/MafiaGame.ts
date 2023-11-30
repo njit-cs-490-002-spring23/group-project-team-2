@@ -71,16 +71,16 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
             roleAssigned = true;
           }
         }
-        if (diceRoll === 4 && this.state.mafias) {
-          if (!this.state.mafias[0]) {
-            this.state.mafias[0] = {
+        if (diceRoll === 4 && this.state.mafia) {
+          if (!this.state.mafia[0]) {
+            this.state.mafia[0] = {
               id: player.id,
               status: 'Active',
             };
             roleAssigned = true;
           }
-          if (!this.state.mafias[1]) {
-            this.state.mafias[1] = {
+          if (!this.state.mafia[1]) {
+            this.state.mafia[1] = {
               id: player.id,
               status: 'Active',
             };
@@ -109,9 +109,9 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
             roleAssigned = true;
           }
         }
-        if (diceRoll === 2 && this.state.mafias) {
-          if (!this.state.mafias[2]) {
-            this.state.mafias[2] = {
+        if (diceRoll === 2 && this.state.mafia) {
+          if (!this.state.mafia[2]) {
+            this.state.mafia[2] = {
               id: player.id,
               status: 'Active',
             };
@@ -129,9 +129,9 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
    */
   private _allMafiaIsDead(): boolean {
     let playerIndex: number;
-    if (this.state.mafias) {
-      for (playerIndex = 0; playerIndex < this.state.mafias?.length; playerIndex += 1) {
-        if (this.state.mafias[playerIndex]?.status === 'Active') {
+    if (this.state.mafia) {
+      for (playerIndex = 0; playerIndex < this.state.mafia?.length; playerIndex += 1) {
+        if (this.state.mafia[playerIndex]?.status === 'Active') {
           return false;
         }
       }
@@ -167,9 +167,9 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
         winningTeam.push(this.state.villagers[playerIndex].id);
       }
     }
-    if (this.state.mafias) {
-      for (playerIndex = 0; playerIndex < this.state.mafias.length; playerIndex += 1) {
-        winningTeam.push(this.state.mafias[playerIndex].id);
+    if (this.state.mafia) {
+      for (playerIndex = 0; playerIndex < this.state.mafia.length; playerIndex += 1) {
+        winningTeam.push(this.state.mafia[playerIndex].id);
       }
     }
     return winningTeam;

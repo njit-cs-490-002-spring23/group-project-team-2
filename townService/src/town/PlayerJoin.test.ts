@@ -7,7 +7,7 @@ import {
   PLAYER_NOT_IN_GAME_MESSAGE,
 } from '../lib/InvalidParametersError';
 
-const validRole = (role: string[], players: Player[]) => {
+function validRole (role: string[], players: Player[]): number {
   let roleCount = 0;
   for (let i = 0; i < players.length; i++) {
     if (isIdInArray(role, players[i].id)) {
@@ -39,7 +39,7 @@ describe('Mafia Game', () => {
         players = playerJoining(6, game);
       });
       it('only 2 villagers are present', () => {
-        const { villagers } = game.state.villagers;
+        const villagers = game.state.villagers;
         expect(validRole(villagers, players)).toEqual(2);
       });
       it('only 2 mafia are present', () => {

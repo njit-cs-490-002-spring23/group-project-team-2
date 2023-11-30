@@ -176,7 +176,7 @@ describe('InteractableArea', () => {
       expect(
         testArea.overlaps(
           new ConversationArea(
-            { id: 'testArea', occupants: [], type: 'ConversationArea' },
+            { id: 'testArea', occupants: [] },
             intersectBox,
             mock<TownEmitter>(),
           ),
@@ -218,7 +218,7 @@ describe('InteractableArea', () => {
         expect(
           testArea.overlaps(
             new ConversationArea(
-              { id: 'testArea', occupants: [], type: 'ConversationArea' },
+              { id: 'testArea', occupants: [] },
               intersectBox,
               mock<TownEmitter>(),
             ),
@@ -259,7 +259,7 @@ describe('InteractableArea', () => {
       expect(
         testArea.overlaps(
           new ConversationArea(
-            { id: 'testArea', occupants: [], type: 'ConversationArea' },
+            { id: 'testArea', occupants: [] },
             intersectBox,
             mock<TownEmitter>(),
           ),

@@ -21,6 +21,7 @@ import {
   PlayerLocation,
   ServerToClientEvents,
   SocketData,
+  TownEmitter,
   ViewingArea,
 } from './types/CoveyTownSocket';
 
@@ -36,8 +37,9 @@ export function createConversationForTesting(params?: {
 }): ConversationArea {
   return {
     id: params?.conversationID || nanoid(),
-    occupantsByID: [],
+    occupants: [],
     topic: params?.conversationTopic || nanoid(),
+    type: 'ConversationArea',
   };
 }
 
@@ -193,6 +195,14 @@ export function expectArraysToContainSameMembers<T>(actual: T[], expected: T[]):
   expected.forEach(expectedVal =>
     expect(actual.find(actualVal => actualVal === expectedVal)).toBeDefined(),
   );
+}
+
+export function createPlayerForTesting(): Player {
+  return new Player(`username${nanoid()}`, mock<TownEmitter>());
+}
+
+export function isIdInArray(arr: string[], id: string) {
+  return arr.includes(id);
 }
 
 export function isViewingArea(interactable: Interactable): interactable is ViewingArea {

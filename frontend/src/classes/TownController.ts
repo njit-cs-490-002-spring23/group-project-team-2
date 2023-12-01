@@ -15,6 +15,7 @@ import {
   ChatMessage,
   CoveyTownSocket,
   GameState,
+  Interactable as InteractableAreaModel,
   InteractableCommand,
   InteractableCommandBase,
   InteractableCommandResponse,
@@ -23,7 +24,6 @@ import {
   PlayerLocation,
   TownSettingsUpdate,
   ViewingArea as ViewingAreaModel,
-  Interactable as InteractableAreaModel,
 } from '../types/CoveyTownSocket';
 import { isConversationArea, isViewingArea, isMafiaArea } from '../types/TypeUtils';
 import ConversationAreaController from './ConversationAreaController';
@@ -36,8 +36,8 @@ import InteractableAreaController, {
 } from './interactable/InteractableAreaController';
 import MafiaAreaController from './interactable/MafiaAreaController';
 
-const SOCKET_COMMAND_TIMEOUT_MS = 5000;
 const CALCULATE_NEARBY_PLAYERS_DELAY = 300;
+const SOCKET_COMMAND_TIMEOUT_MS = 5000;
 
 export type ConnectionProperties = {
   userName: string;
@@ -85,6 +85,8 @@ export type TownEvents = {
    * the town controller's record of viewing areas.
    */
   viewingAreasChanged: (newViewingAreas: ViewingAreaController[]) => void;
+
+  interactableAreasChanged: () => void;
   /**
    * An event that indicates that a new chat message has been received, which is the parameter passed to the listener
    */
@@ -448,22 +450,19 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
      * events (@see ViewingAreaController and @see ConversationAreaController)
      */
     this._socket.on('interactableUpdate', interactable => {
-      if (isConversationArea(interactable)) {
-        const updatedConversationArea = this.conversationAreas.find(c => c.id === interactable.id);
-        if (updatedConversationArea) {
-          const emptyNow = updatedConversationArea.isEmpty();
-          updatedConversationArea.topic = interactable.topic;
-          updatedConversationArea.occupants = this._playersByIDs(interactable.occupants);
-          const emptyAfterChange = updatedConversationArea.isEmpty();
-          if (emptyNow !== emptyAfterChange) {
-            this.emit('conversationAreasChanged', this._conversationAreasInternal);
+      try {
+        const controller = this._interactableControllers.find(c => c.id === interactable.id);
+        if (controller) {
+          const activeBefore = controller.isActive();
+          controller.updateFrom(interactable, this._playersByIDs(interactable.occupants));
+          const activeNow = controller.isActive();
+          if (activeBefore !== activeNow) {
+            this.emit('interactableAreasChanged');
           }
         }
-      } else if (isViewingArea(interactable)) {
-        const updatedViewingArea = this._viewingAreas.find(
-          eachArea => eachArea.id === interactable.id,
-        );
-        updatedViewingArea?.updateFrom(interactable);
+      } catch (err) {
+        console.error('Error updating interactable', interactable);
+        console.trace(err);
       }
     });
   }
@@ -622,9 +621,10 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
 
         this._conversationAreas = [];
         this._viewingAreas = [];
+        this._interactableControllers = [];
         initialData.interactables.forEach(eachInteractable => {
           if (isConversationArea(eachInteractable)) {
-            this._conversationAreasInternal.push(
+            this._conversationAreas.push(
               ConversationAreaController.fromConversationAreaModel(
                 eachInteractable,
                 this._playersByIDs.bind(this),

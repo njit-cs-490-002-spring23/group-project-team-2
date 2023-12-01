@@ -1,9 +1,13 @@
 import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
+import InvalidParametersError from '../lib/InvalidParametersError';
 import Player from '../lib/Player';
 import {
   BoundingBox,
+  InteractableCommand,
+  InteractableCommandReturnType,
   TownEmitter,
   ViewingArea as ViewingAreaModel,
+  ViewingAreaUpdateCommand,
 } from '../types/CoveyTownSocket';
 import InteractableArea from './InteractableArea';
 
@@ -109,5 +113,16 @@ export default class ViewingArea extends InteractableArea {
       rect,
       townEmitter,
     );
+  }
+
+  public handleCommand<CommandType extends InteractableCommand>(
+    command: CommandType,
+  ): InteractableCommandReturnType<CommandType> {
+    if (command.type === 'ViewingAreaUpdate') {
+      const viewingArea = command as ViewingAreaUpdateCommand;
+      this.updateModel(viewingArea.update);
+      return {} as InteractableCommandReturnType<CommandType>;
+    }
+    throw new InvalidParametersError('Unknown command type');
   }
 }

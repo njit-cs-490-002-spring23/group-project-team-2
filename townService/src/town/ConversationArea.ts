@@ -1,8 +1,11 @@
 import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
+import InvalidParametersError from '../lib/InvalidParametersError';
 import Player from '../lib/Player';
 import {
   BoundingBox,
   ConversationArea as ConversationAreaModel,
+  InteractableCommand,
+  InteractableCommandReturnType,
   TownEmitter,
 } from '../types/CoveyTownSocket';
 import InteractableArea from './InteractableArea';
@@ -85,5 +88,12 @@ export default class ConversationArea extends InteractableArea {
       rect,
       broadcastEmitter,
     );
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  public handleCommand<
+    CommandType extends InteractableCommand,
+  >(): InteractableCommandReturnType<CommandType> {
+    throw new InvalidParametersError('Unknown command type');
   }
 }

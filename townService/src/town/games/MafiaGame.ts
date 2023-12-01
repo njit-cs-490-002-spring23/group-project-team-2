@@ -246,6 +246,7 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
       this.state = {
         ...this.state,
         status: 'IN_PROGRESS',
+        phase: 'Day',
       };
     }
   }

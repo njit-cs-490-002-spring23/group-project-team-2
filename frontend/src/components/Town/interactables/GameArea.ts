@@ -7,7 +7,7 @@ export default class GameArea extends Interactable {
     super.addedToScene();
     this.setTintFill();
     this.setAlpha(0.3);
-    this.setDepth(-1);
+    this.setDepth(1);
     this.scene.add.text(
       this.x - this.displayWidth / 2,
       this.y + this.displayHeight / 2,

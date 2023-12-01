@@ -54,6 +54,8 @@ export default function SelectVideoModal({
         video,
         isPlaying: true,
         elapsedTimeSec: 0,
+        occupants: [],
+        type: 'ViewingArea',
       };
       try {
         await coveyTownController.createViewingArea(request);

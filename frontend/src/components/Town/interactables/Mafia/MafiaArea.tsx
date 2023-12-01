@@ -156,11 +156,13 @@ export default function MafiaAreaWrapper(): JSX.Element {
   const closeModal = useCallback(() => {
     if (gameArea) {
       townController.interactEnd(gameArea);
+      townController.unPause();
       const controller = townController.getGameAreaController(gameArea);
       controller.leaveGame();
     }
   }, [townController, gameArea]);
-  if (gameArea && gameArea.getData('type') === 'TicTacToe') {
+  if (gameArea && gameArea.getData('type') === 'Mafia') {
+    townController.pause();
     return (
       <Modal isOpen={true} onClose={closeModal} closeOnOverlayClick={false}>
         <ModalOverlay />

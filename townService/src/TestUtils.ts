@@ -37,8 +37,9 @@ export function createConversationForTesting(params?: {
 }): ConversationArea {
   return {
     id: params?.conversationID || nanoid(),
-    occupantsByID: [],
+    occupants: [],
     topic: params?.conversationTopic || nanoid(),
+    type: 'ConversationArea',
   };
 }
 

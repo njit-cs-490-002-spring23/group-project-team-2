@@ -1,3 +1,5 @@
+import { type } from "os";
+
 export type TownJoinResponse = {
   /** Unique ID that represents this player * */
   userID: string;
@@ -14,13 +16,18 @@ export type TownJoinResponse = {
   /** Is this a private town? * */
   isPubliclyListed: boolean;
   /** Current state of interactables in this town */
-  interactables: Interactable[];
+  interactables: TypedInteractable[];
 }
-
-export type Interactable = ViewingArea | ConversationArea;
 export type TownSettingsUpdate = {
   friendlyName?: string;
   isPubliclyListed?: boolean;
+}
+
+export type InteractableType = 'ConversationArea' | 'ViewingArea' | 'MafiaArea';
+export interface Interactable {
+  type: InteractableType;
+  id: InteractableID;
+  occupants: PlayerID[];
 }
 
 export type Direction = 'front' | 'back' | 'left' | 'right';
@@ -43,17 +50,12 @@ export interface PlayerLocation {
   moving: boolean;
   interactableID?: string;
 };
+
 export type ChatMessage = {
   author: string;
   sid: string;
   body: string;
   dateCreated: Date;
-};
-
-export interface ConversationArea {
-  id: string;
-  topic?: string;
-  occupantsByID: string[];
 };
 
 export interface BoundingBox {
@@ -63,8 +65,11 @@ export interface BoundingBox {
   height: number;
 };
 
-export interface ViewingArea {
-  id: string;
+export interface ConversationArea extends Interactable {
+  topic?: string;
+};
+
+export interface ViewingArea extends Interactable {
   video?: string;
   isPlaying: boolean;
   elapsedTimeSec: number;
@@ -102,7 +107,7 @@ export interface GameMove<MoveType> {
 /**
  * Type for a move in Mafia Game
  */
-export interface VoteMove {
+export interface MafiaMove {
   playerVoting: PlayerID;
   playerVoted: PlayerID;
 }
@@ -112,18 +117,18 @@ export interface VoteMove {
  * The state of the game is represented as a list of moves, and the playerIDs of the players (2 villagers, 2 mafia, one police, one doctor)
  * When player join, they will be assign to the roles randonly
  */
-export type PlayerStatus = 'Alive' | 'Deceased';
+export type PlayerStatus = 'Active' | 'Spectator';
 
-export interface PlayerState {
+export type PlayerState = {
   id: PlayerID;
   status: PlayerStatus;
 }
 
 export type TimeOfDay = 'Day' | 'Night';
 export interface MafiaGameState extends WinnableGameState {
-  moves: ReadonlyArray<VoteMove>;
-  villagers?: [PlayerState, PlaterState, PlayerState?, PlayerState?, PlayerState?];
-  mafias?: [PlayerState, PlayerState, PlayerState?];
+  moves: ReadonlyArray<MafiaMove>;
+  villagers?: PlayerState[];
+  mafia?: PlayerState[];
   police?: PlayerState;
   doctor?: PlayerState;
   phase?: TimeOfDay;
@@ -184,7 +189,7 @@ interface InteractableCommandBase {
   type: string;
 }
 
-export type InteractableCommand =  ViewingAreaUpdateCommand | JoinGameCommand | GameMoveCommand<VoteMove> | LeaveGameCommand;
+export type InteractableCommand =  ViewingAreaUpdateCommand | JoinGameCommand | GameMoveCommand<MafiaMove> | LeaveGameCommand;
 export interface ViewingAreaUpdateCommand  {
   type: 'ViewingAreaUpdate';
   update: ViewingArea;
@@ -204,7 +209,7 @@ export interface GameMoveCommand<MoveType> {
 export type InteractableCommandReturnType<CommandType extends InteractableCommand> = 
   CommandType extends JoinGameCommand ? { gameID: string}:
   CommandType extends ViewingAreaUpdateCommand ? undefined :
-  CommandType extends GameMoveCommand<VoteMove> ? undefined :
+  CommandType extends GameMoveCommand<MafiaMove> ? undefined :
   CommandType extends LeaveGameCommand ? undefined :
   never;
 

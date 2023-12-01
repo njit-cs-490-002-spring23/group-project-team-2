@@ -8,6 +8,8 @@ import Interactable from './Interactable';
 import ConversationArea from './interactables/ConversationArea';
 import Transporter from './interactables/Transporter';
 import ViewingArea from './interactables/ViewingArea';
+import MafiaArea from './interactables/Mafia/MafiaArea';
+import PromptTransporter from './interactables/PromptTransporter';
 import GameArea from './interactables/GameArea';
 
 // Still not sure what the right type is here... "Interactable" doesn't do it
@@ -21,6 +23,10 @@ function interactableTypeForObjectType(type: string): any {
     return ViewingArea;
   } else if (type == 'GameArea') {
     return GameArea;
+  } else if (type == 'PromptTransporter') {
+    return PromptTransporter;
+  } else if (type == 'MafiaArea') {
+    return MafiaArea;
   } else {
     throw new Error(`Unknown object type: ${type}`);
   }
@@ -126,7 +132,7 @@ export default class TownGameScene extends Phaser.Scene {
     this.load.tilemapTiledJSON('map', this._resourcePathPrefix + '/assets/tilemaps/indoors.json');
     this.load.atlas(
       'atlas',
-      this._resourcePathPrefix + '/assets/atlas/atlas.png',
+      this._resourcePathPrefix + '/assets/atlas/atlasMafia.png',
       this._resourcePathPrefix + '/assets/atlas/atlas.json',
     );
   }
@@ -404,8 +410,8 @@ export default class TownGameScene extends Phaser.Scene {
     // player's body.
     const sprite = this.physics.add
       .sprite(spawnPoint.x, spawnPoint.y, 'atlas', 'misa-front')
-      .setSize(30, 40)
-      .setOffset(0, 24)
+      .setSize(30, 30)
+      .setOffset(0, 23)
       .setDepth(6);
     const label = this.add
       .text(spawnPoint.x, spawnPoint.y - 20, '(You)', {

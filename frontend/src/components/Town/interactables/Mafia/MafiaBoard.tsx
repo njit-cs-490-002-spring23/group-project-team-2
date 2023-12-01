@@ -132,7 +132,7 @@ export default function MafiaBoard({ gameAreaController }: MafiaGameProps): JSX.
               }}
               disabled={!isPlayerTurn}
               aria-label={`Player ${index + 1}`}>
-              {gameAreaController.observers.find(p => p.id === player)?.userName}
+              {gameAreaController.players.find(p => p.id === player)?.userName}
             </StyledMafiaPlayer>
           );
         })}

@@ -278,7 +278,6 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
     const newState = newModel.game;
     if (newState) {
       const newBoard: PlayerID[] = [];
-      // Check and add villagers, mafia, doctor, and police that are alive
       newState.state.villagers?.forEach(villager => {
         if (villager.status === 'Active') {
           newBoard.push(villager.id);
@@ -295,15 +294,15 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
       if (newState.state.police?.status === 'Active') {
         newBoard.push(newState.state.police.id);
       }
-      if (!_.isEqual(newBoard, this._board)) {
+      if (newBoard !== this._board) {
         this._board = newBoard;
         this.emit('boardChanged', this._board);
       }
     }
     const currentPhaseTurn = this.isPlayerTurn;
-    if (pastPhaseTurn != currentPhaseTurn) this.emit('turnChanged', this.isPlayerTurn);
+    if (pastPhaseTurn !== currentPhaseTurn) this.emit('turnChanged', this.isPlayerTurn);
     const currentPhase = this.currentPhase;
-    if (pastPhase != currentPhase) this.emit('phaseChanged', currentPhase);
+    if (pastPhase !== currentPhase) this.emit('phaseChanged', currentPhase);
     const currentStatus = this.status;
     if (pastStatus !== currentStatus) this.emit('statusChanged', currentStatus);
   }

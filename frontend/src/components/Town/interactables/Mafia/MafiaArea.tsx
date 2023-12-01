@@ -32,8 +32,7 @@ function gameStatusMessage(controller: MafiaAreaController): string {
     const isPlayerTurn = controller.isPlayerTurn;
 
     if (phase === 'Day') {
-      return `Game in progress, Day Stage, its your turn to vote'
-      }`;
+      return `Game in progress, Day Stage, its your turn to vote`;
     } else {
       return `Game in progress, Night Stage, ${
         isPlayerTurn ? 'perform your night action' : 'waiting for the night to end'

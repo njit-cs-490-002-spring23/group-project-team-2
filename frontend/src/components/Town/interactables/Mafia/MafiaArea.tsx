@@ -40,7 +40,7 @@ function gameStatusMessage(controller: MafiaAreaController): string {
       }`;
     }
   } else if (controller.status === 'WAITING_TO_START') {
-    return 'Game not yet started. Waiting for more players.';
+    return 'Game not yet started.';
   } else if (controller.status === 'OVER') {
     return 'Game over.';
   } else {

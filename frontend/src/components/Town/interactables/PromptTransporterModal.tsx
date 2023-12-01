@@ -40,6 +40,7 @@ export default function PromptTransporterModal(): JSX.Element {
 
   const onTransport = () => {
     transportPrompt?.transport();
+    coveyTownController.ourPlayer.setJoined = transportPrompt?.destinationType() as string;
     onClose();
   };
 

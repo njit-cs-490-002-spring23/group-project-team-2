@@ -21,7 +21,7 @@ export default class PromptTransporter extends Transporter {
       this.x - this.displayWidth / 2,
       this.y - this.displayHeight / 2,
       this.name,
-      { color: '#FFFFFF', backgroundColor: '#000000' },
+      { color: '#FFFFFF', backgroundColor: '#CC0000' },
     );
   }
 
@@ -32,7 +32,7 @@ export default class PromptTransporter extends Transporter {
           this.scene.scale.width / 2,
           this.scene.scale.height / 2,
           this.getData('infoText') as string,
-          { color: '#000000', backgroundColor: '#FFFFFF' },
+          { color: '#FFFFFF', backgroundColor: '#CC0000' },
         )
         .setScrollFactor(0)
         .setDepth(30);
@@ -51,5 +51,9 @@ export default class PromptTransporter extends Transporter {
 
   public transport(): void {
     super.overlap();
+  }
+
+  public destinationType(): string {
+    return this.getData('dest');
   }
 }

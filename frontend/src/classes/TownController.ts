@@ -20,6 +20,7 @@ import {
   InteractableCommandBase,
   InteractableCommandResponse,
   InteractableID,
+  InteractableType,
   PlayerID,
   PlayerLocation,
   TownSettingsUpdate,
@@ -618,20 +619,17 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
         this._players = initialData.currentPlayers.map(eachPlayerModel =>
           PlayerController.fromPlayerModel(eachPlayerModel),
         );
-
-        this._conversationAreas = [];
-        this._viewingAreas = [];
         this._interactableControllers = [];
         initialData.interactables.forEach(eachInteractable => {
           if (isConversationArea(eachInteractable)) {
-            this._conversationAreas.push(
+            this._interactableControllers.push(
               ConversationAreaController.fromConversationAreaModel(
                 eachInteractable,
                 this._playersByIDs.bind(this),
               ),
             );
           } else if (isViewingArea(eachInteractable)) {
-            this._viewingAreas.push(new ViewingAreaController(eachInteractable));
+            this._interactableControllers.push(new ViewingAreaController(eachInteractable));
           } else if (isMafiaArea(eachInteractable)) {
             this._interactableControllers.push(
               new MafiaAreaController(eachInteractable.id, eachInteractable, this),

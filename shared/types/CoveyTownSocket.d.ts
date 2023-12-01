@@ -122,7 +122,7 @@ export type PlayerState = {
   status: PlayerStatus;
 }
 
-export type TimeOfDay = 'Day' | 'Night';
+export type TimeOfDay = 'Day' | 'Night' | undefined;
 export interface MafiaGameState extends WinnableGameState {
   moves: ReadonlyArray<MafiaMove>;
   villagers?: PlayerState[];

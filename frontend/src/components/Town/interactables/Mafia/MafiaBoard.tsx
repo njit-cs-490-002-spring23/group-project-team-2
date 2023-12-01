@@ -43,7 +43,7 @@ const StyledMafiaPlayer = chakra(Button, {
     height: '70px',
     fontSize: '18px',
     fontWeight: 'bold',
-    backgroundColor: 'black',
+    backgroundColor: 'lightgrey',
     color: 'white',
     borderRadius: '20px',
     _hover: {
@@ -119,7 +119,7 @@ export default function MafiaBoard({ gameAreaController }: MafiaGameProps): JSX.
               }}
               disabled={!isPlayerTurn}
               aria-label={`Player ${index + 1}`}>
-              {player}
+              {gameAreaController.observers.find(p => p.id === player)?.userName}
             </StyledMafiaPlayer>
           );
         })}

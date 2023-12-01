@@ -47,43 +47,30 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
             status: 'Active',
           };
           roleAssigned = true;
-        }
-        if (diceRoll === 2 && !this.state.doctor) {
+        } else if (diceRoll === 2 && !this.state.doctor) {
           this.state.doctor = {
             id: player.id,
             status: 'Active',
           };
           roleAssigned = true;
-        }
-        if (diceRoll === 3 && this.state.villagers) {
-          if (!this.state.villagers[0]) {
-            this.state.villagers[0] = {
+        } else if (diceRoll === 3) {
+          if (!this.state.villagers) {
+            this.state.villagers = [];
+          } else if (this.state.villagers.length < 2) {
+            this.state.villagers.push({
               id: player.id,
               status: 'Active',
-            };
+            });
             roleAssigned = true;
           }
-          if (!this.state.villagers[1]) {
-            this.state.villagers[1] = {
+        } else if (diceRoll === 4) {
+          if (!this.state.mafia) {
+            this.state.mafia = [];
+          } else if (this.state.mafia.length < 2) {
+            this.state.mafia.push({
               id: player.id,
               status: 'Active',
-            };
-            roleAssigned = true;
-          }
-        }
-        if (diceRoll === 4 && this.state.mafia) {
-          if (!this.state.mafia[0]) {
-            this.state.mafia[0] = {
-              id: player.id,
-              status: 'Active',
-            };
-            roleAssigned = true;
-          }
-          if (!this.state.mafia[1]) {
-            this.state.mafia[1] = {
-              id: player.id,
-              status: 'Active',
-            };
+            });
             roleAssigned = true;
           }
         }
@@ -93,28 +80,26 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
       maxDiceNumber = 2;
       while (!roleAssigned) {
         diceRoll = getRandomIntInclusive(minDiceNumber, maxDiceNumber);
-        if (diceRoll === 1 && this.state.villagers) {
-          if (!this.state.villagers[2]) {
-            this.state.villagers[2] = {
+        if (diceRoll === 1) {
+          if (!this.state.villagers) {
+            this.state.villagers = [];
+          }
+          if (this.state?.villagers?.length > 2) {
+            this.state.villagers.push({
               id: player.id,
               status: 'Active',
-            };
+            });
             roleAssigned = true;
           }
-          if (!this.state.villagers[3]) {
-            this.state.villagers[3] = {
-              id: player.id,
-              status: 'Active',
-            };
-            roleAssigned = true;
+        } else if (diceRoll === 2) {
+          if (!this.state.mafia) {
+            this.state.mafia = [];
           }
-        }
-        if (diceRoll === 2 && this.state.mafia) {
-          if (!this.state.mafia[2]) {
-            this.state.mafia[2] = {
+          if (this.state?.mafia?.length > 2) {
+            this.state.mafia.push({
               id: player.id,
               status: 'Active',
-            };
+            });
             roleAssigned = true;
           }
         }
@@ -217,15 +202,51 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     if (this._players.includes(player)) {
       throw new InvalidParametersError(PLAYER_ALREADY_IN_GAME_MESSAGE);
     }
-    if (this._players.length === 0) {
-      this._randomlyAssignRoleTo(player);
-      this.state.status = 'WAITING_TO_START';
-    }
-    if (this._players.length < 6) {
-      this._randomlyAssignRoleTo(player);
-    }
-    if (this._players.length === 10) {
+    if (!this.state.police) {
+      this.state = {
+        ...this.state,
+        police: { id: player.id, status: 'Active' },
+      };
+    } else if (!this.state.doctor) {
+      this.state = {
+        ...this.state,
+        doctor: { id: player.id, status: 'Active' },
+      };
+    } else if (!this.state.mafia) {
+      this.state.mafia = [];
+      this.state.mafia.push({
+        id: player.id,
+        status: 'Active',
+      });
+    } else if (this.state.mafia.length === 1) {
+      this.state.mafia.push({
+        id: player.id,
+        status: 'Active',
+      });
+    } else if (!this.state.villagers) {
+      this.state.villagers = [];
+      this.state.villagers.push({
+        id: player.id,
+        status: 'Active',
+      });
+    } else if (this.state.villagers.length === 1) {
+      this.state.villagers.push({
+        id: player.id,
+        status: 'Active',
+      });
+    } else {
       throw new InvalidParametersError(GAME_FULL_MESSAGE);
+    }
+    if (
+      this.state.doctor &&
+      this.state.police &&
+      this.state.mafia?.length === 2 &&
+      this.state.villagers?.length === 2
+    ) {
+      this.state = {
+        ...this.state,
+        status: 'IN_PROGRESS',
+      };
     }
   }
 

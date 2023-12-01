@@ -19,7 +19,7 @@ export type MafiaEvents = GameEventTypes & {
 };
 
 export default class MafiaAreaController extends GameAreaController<MafiaGameState, MafiaEvents> {
-  protected _board: string[] = ['player1', 'player2', 'player3', 'player4', 'player5', 'player6'];
+  protected _board: string[] = [];
 
   /*
    * Returns the players who are alive alive.
@@ -173,15 +173,13 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
     const playerId = this._townController.ourPlayer.id;
     const playerRole = this.role;
     if (playerRole === 'Mafia') {
-      const player = this._model.game?.state.mafia?.filter(mafia => mafia?.id === playerId);
-      if (player && player[0].status === 'Spectator') {
+      const player = this._model.game?.state.mafia?.find(mafia => mafia?.id === playerId);
+      if (player?.status === 'Spectator') {
         return false;
       }
     } else if (playerRole === 'Villager') {
-      const player = this._model.game?.state.villagers?.filter(
-        villager => villager?.id === playerId,
-      );
-      if (player && player[0].status === 'Spectator') {
+      const player = this._model.game?.state.villagers?.find(villager => villager?.id === playerId);
+      if (player?.status === 'Spectator') {
         return false;
       }
     } else if (playerRole === 'Doctor') {

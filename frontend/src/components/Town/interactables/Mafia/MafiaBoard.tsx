@@ -78,24 +78,32 @@ const StyledTimer = chakra(Text, {
 export default function MafiaBoard({ gameAreaController }: MafiaGameProps): JSX.Element {
   const [players, setPlayers] = useState<string[]>(gameAreaController.board);
   const [isPlayerTurn, setIsPlayerTurn] = useState(gameAreaController.isPlayerTurn);
+  const [currentPhase, setCurrentPhase] = useState(gameAreaController.currentPhase);
+  const [status, setStatus] = useState(gameAreaController.status)
   const [timer, setTimer] = useState(30);
   const toast = useToast();
 
   useEffect(() => {
     setTimer(30);
-    const tick = () => {
-      setTimer(prevTimer => (prevTimer > 0 ? prevTimer - 1 : 0));
-    };
-    const timerId = setInterval(tick, 1000);
-    return () => clearInterval(timerId);
-  }, [isPlayerTurn]);
+    if (status === 'IN_PROGRESS') {
+      const tick = () => {
+        setTimer(prevTimer => (prevTimer > 0 ? prevTimer - 1 : 0));
+      };
+      const timerId = setInterval(tick, 1000);
+      return () => clearInterval(timerId);
+    }
+  }, [currentPhase, status]);
 
   useEffect(() => {
     gameAreaController.addListener('turnChanged', setIsPlayerTurn);
     gameAreaController.addListener('boardChanged', setPlayers);
+    gameAreaController.addListener('phaseChanged', setCurrentPhase);
+    gameAreaController.addListener('statusChanged', setStatus);
     return () => {
       gameAreaController.removeListener('turnChanged', setIsPlayerTurn);
       gameAreaController.removeListener('boardChanged', setPlayers);
+      gameAreaController.removeListener('phaseChanged', setCurrentPhase);
+      gameAreaController.removeListener('statusChanged', setStatus);
     };
   }, [gameAreaController]);
   return (

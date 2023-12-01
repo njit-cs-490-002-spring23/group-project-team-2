@@ -14,6 +14,7 @@ import ConversationArea from './ConversationArea';
 import InteractableArea, { PLAYER_SPRITE_HEIGHT, PLAYER_SPRITE_WIDTH } from './InteractableArea';
 
 class TestInteractableArea extends InteractableArea {
+  // eslint-disable-next-line class-methods-use-this
   public handleCommand<
     CommandType extends InteractableCommand,
   >(): InteractableCommandReturnType<CommandType> {
@@ -175,7 +176,7 @@ describe('InteractableArea', () => {
       expect(
         testArea.overlaps(
           new ConversationArea(
-            { id: 'testArea', occupants: [], type: 'ConversationArea'},
+            { id: 'testArea', occupants: [], type: 'ConversationArea' },
             intersectBox,
             mock<TownEmitter>(),
           ),
@@ -217,7 +218,7 @@ describe('InteractableArea', () => {
         expect(
           testArea.overlaps(
             new ConversationArea(
-              { id: 'testArea', occupants: [], type: 'ConversationArea'},
+              { id: 'testArea', occupants: [], type: 'ConversationArea' },
               intersectBox,
               mock<TownEmitter>(),
             ),
@@ -258,7 +259,7 @@ describe('InteractableArea', () => {
       expect(
         testArea.overlaps(
           new ConversationArea(
-            { id: 'testArea', occupants: [], type: 'ConversationArea'},
+            { id: 'testArea', occupants: [], type: 'ConversationArea' },
             intersectBox,
             mock<TownEmitter>(),
           ),

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { Text, Box, Button, chakra, Container, useToast } from '@chakra-ui/react';
+import { Text, Box, Button, chakra, Container, useToast, Image } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import MafiaAreaController from '../../../../classes/interactable/MafiaAreaController';
 import { PlayerID } from '../../../../types/CoveyTownSocket';
@@ -24,6 +24,9 @@ const StyledMafiaGameBoard = chakra(Container, {
     width: 'auto',
     minHeight: '200px',
     background: 'darkgray',
+    backgroundImage: "url('https://pbs.twimg.com/media/Eake3ZtU4AAPsHV?format=jpg&name=4096x4096')",
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
     borderRadius: '10px',
     position: 'relative',
     top: '5px',
@@ -43,7 +46,7 @@ const StyledMafiaPlayer = chakra(Button, {
     height: '70px',
     fontSize: '18px',
     fontWeight: 'bold',
-    backgroundColor: 'lightgrey',
+    backgroundColor: 'black',
     color: 'white',
     borderRadius: '20px',
     _hover: {
@@ -53,7 +56,7 @@ const StyledMafiaPlayer = chakra(Button, {
       bg: 'red',
     },
     _disabled: {
-      opacity: 0.5,
+      opacity: 0.8,
     },
   },
 });
@@ -111,7 +114,7 @@ export default function MafiaBoard({ gameAreaController }: MafiaGameProps): JSX.
       <StyledMafiaGameBoard aria-label='Mafia Display'>
         <StyledTimer
           sx={{
-            color: timer < 10 ? 'red' : 'black',
+            color: timer < 10 ? 'red' : 'green',
           }}>
           Time Left: {timer} seconds
         </StyledTimer>

@@ -172,6 +172,9 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
     const currentPhase = this.currentPhase;
     const playerId = this._townController.ourPlayer.id;
     const playerRole = this.role;
+    if (this._model.game?.state.status !== 'IN_PROGRESS') {
+      return false;
+    }
     if (playerRole === 'Mafia') {
       const player = this._model.game?.state.mafia?.find(mafia => mafia?.id === playerId);
       if (player?.status === 'Spectator') {

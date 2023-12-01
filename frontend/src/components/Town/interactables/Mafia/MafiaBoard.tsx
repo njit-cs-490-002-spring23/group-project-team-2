@@ -83,7 +83,12 @@ export default function MafiaBoard({ gameAreaController }: MafiaGameProps): JSX.
 
   useEffect(() => {
     setTimer(30);
-  }, [players]);
+    const tick = () => {
+      setTimer(prevTimer => (prevTimer > 0 ? prevTimer - 1 : 0));
+    };
+    const timerId = setInterval(tick, 1000);
+    return () => clearInterval(timerId);
+  }, [isPlayerTurn]);
 
   useEffect(() => {
     gameAreaController.addListener('turnChanged', setIsPlayerTurn);

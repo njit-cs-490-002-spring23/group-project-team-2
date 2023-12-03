@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { Text, Box, Button, chakra, Container, useToast, Image } from '@chakra-ui/react';
+import { Text, Box, Button, chakra, Container, useToast } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import MafiaAreaController from '../../../../classes/interactable/MafiaAreaController';
 import { PlayerID } from '../../../../types/CoveyTownSocket';
@@ -82,7 +82,7 @@ export default function MafiaBoard({ gameAreaController }: MafiaGameProps): JSX.
   const [players, setPlayers] = useState<string[]>(gameAreaController.board);
   const [isPlayerTurn, setIsPlayerTurn] = useState(gameAreaController.isPlayerTurn);
   const [currentPhase, setCurrentPhase] = useState(gameAreaController.currentPhase);
-  const [status, setStatus] = useState(gameAreaController.status)
+  const [status, setStatus] = useState(gameAreaController.status);
   const [timer, setTimer] = useState(30);
   const toast = useToast();
 

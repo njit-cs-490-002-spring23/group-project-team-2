@@ -172,7 +172,7 @@ export default function MafiaAreaWrapper(): JSX.Element {
   const townController = useTownController();
   const closeModal = useCallback(() => {
     if (gameArea) {
-      townController.unPause;
+      townController.unPause();
       townController.interactEnd(gameArea);
       const controller = townController.getGameAreaController(gameArea);
       controller.leaveGame();

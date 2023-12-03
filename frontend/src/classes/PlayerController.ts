@@ -21,7 +21,7 @@ export default class PlayerController extends (EventEmitter as new () => TypedEm
   public gameObjects?: PlayerGameObjects;
 
   /* Extra members */
-  private _joined: string = 'Town';
+  private _joined = 'Town';
 
   public get getJoined() {
     return this._joined;

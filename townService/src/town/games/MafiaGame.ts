@@ -1,12 +1,15 @@
 import Game from './Game';
-import { GameMove, MafiaGameState, PlayerID, VoteMove } from '../../types/CoveyTownSocket';
+import { GameMove, MafiaGameState, PlayerID, PlayerState, VoteMove } from '../../types/CoveyTownSocket';
 import Player from '../../lib/Player';
 import InvalidParametersError, {
+  CIVILIAN_VOTED_ON_NIGHT_CYCLE,
   GAME_FULL_MESSAGE,
   GAME_NOT_IN_PROGRESS_MESSAGE,
   PLAYER_ALREADY_IN_GAME_MESSAGE,
   PLAYER_NOT_IN_GAME_MESSAGE,
 } from '../../lib/InvalidParametersError';
+import { none } from 'ramda';
+import { response } from 'express';
 
 /**
  * A helper function to roll a dice.
@@ -31,6 +34,27 @@ function addMoveToMafiaGameState(mafiaGame: MafiaGame, newVoteMove: GameMove<Vot
   allVoteMoves.push(newVoteMove.move);
   mafiaGame.state.moves = allVoteMoves;
 }
+/**
+ * A helper function that checks the validity of a Civilian vote
+ * If the civilian vote is invalid, returns the respective InvalidParametersError.
+ * If the civilian vote is valid, returns None.
+ * @param this the current running MafiaGame instance
+ * @return InvalidParametersError or None
+ */
+function checkCivilianVote(game: MafiaGame, playerVote: GameMove<VoteMove>): InvalidParametersError | undefined {
+  let civilianTeam: PlayerState[] | undefined = game.state.villagers;
+  let police: PlayerState | undefined = game.state.police;
+  if (police?.id === playerVote.gameID) {
+    return new InvalidParametersError(CIVILIAN_VOTED_ON_NIGHT_CYCLE);
+  }
+  game.state.villagers?.forEach((villager) => {
+    if (villager.id === playerVote.gameID) {
+      return new InvalidParametersError(CIVILIAN_VOTED_ON_NIGHT_CYCLE);
+    }
+  })
+  return undefined;
+}
+
 /**
  * A MafiaGame is a Game that implements the rules of Mafia.
  */
@@ -182,14 +206,17 @@ export default class MafiaGame extends Game<MafiaGameState, VoteMove> {
 
   /**
    * Applies a player's move to the game. In this game a move would be a vote.
+   * Validates the move before applying it. If the move is invalid, throws an InvalidParametersError with
+   * the error message specified below.
    * A move is invalid if:
-   *    -The player already voted in the current round
-   *    -A civilian voted during a Night Cycle
+   *    -The player already voted in the current round (PLAYER_ALREADY_VOTED_MESSAGE)
+   *    -A civilian voted during a Night Cycle (CIVILIAN_VOTED_ON_NIGHT_CYCLE)
    */
   public applyMove(move: GameMove<VoteMove>): void {
     if (this.state.status !== 'IN_PROGRESS') {
       throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
     }
+    
     addMoveToMafiaGameState(this, move);
   }
 

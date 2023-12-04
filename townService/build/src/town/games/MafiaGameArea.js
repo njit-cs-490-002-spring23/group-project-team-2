@@ -1,0 +1,59 @@
+import InvalidParametersError, { GAME_ID_MISSMATCH_MESSAGE, GAME_NOT_IN_PROGRESS_MESSAGE, INVALID_COMMAND_MESSAGE, } from '../../lib/InvalidParametersError';
+import GameArea from './GameArea';
+import MafiaGame from './MafiaGame';
+export default class MafiaGameArea extends GameArea {
+    _interactableType = 'MafiaArea';
+    getType() {
+        return this._interactableType;
+    }
+    _stateUpdated(updatedState) {
+        if (updatedState.state.status === 'OVER') {
+            const gameID = this._game?.id;
+            if (gameID && !this._history.find(eachResult => eachResult.gameID === gameID)) {
+            }
+        }
+        this._emitAreaChanged();
+    }
+    handleCommand(command, player) {
+        if (command.type === 'GameMove') {
+            const game = this._game;
+            if (!game) {
+                throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
+            }
+            if (this._game?.id !== command.gameID) {
+                throw new InvalidParametersError(GAME_ID_MISSMATCH_MESSAGE);
+            }
+            game.applyMove({
+                gameID: command.gameID,
+                playerID: player.id,
+                move: command.move,
+            });
+            this._stateUpdated(game.toModel());
+            return undefined;
+        }
+        if (command.type === 'JoinGame') {
+            let game = this._game;
+            if (!game || game.state.status === 'OVER') {
+                game = new MafiaGame();
+                this._game = game;
+            }
+            game.join(player);
+            this._stateUpdated(game.toModel());
+            return { gameID: game.id };
+        }
+        if (command.type === 'LeaveGame') {
+            const game = this._game;
+            if (!game) {
+                throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
+            }
+            if (this._game?.id !== command.gameID) {
+                throw new InvalidParametersError(GAME_ID_MISSMATCH_MESSAGE);
+            }
+            game.leave(player);
+            this._stateUpdated(game.toModel());
+            return undefined;
+        }
+        throw new InvalidParametersError(INVALID_COMMAND_MESSAGE);
+    }
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiTWFmaWFHYW1lQXJlYS5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uLy4uLy4uLy4uL3NyYy90b3duL2dhbWVzL01hZmlhR2FtZUFyZWEudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUEsT0FBTyxzQkFBc0IsRUFBRSxFQUM3Qix5QkFBeUIsRUFDekIsNEJBQTRCLEVBQzVCLHVCQUF1QixHQUN4QixNQUFNLGtDQUFrQyxDQUFDO0FBUzFDLE9BQU8sUUFBUSxNQUFNLFlBQVksQ0FBQztBQUNsQyxPQUFPLFNBQVMsTUFBTSxhQUFhLENBQUM7QUFPcEMsTUFBTSxDQUFDLE9BQU8sT0FBTyxhQUFjLFNBQVEsUUFBbUI7SUFDcEQsaUJBQWlCLEdBQXFCLFdBQVcsQ0FBQztJQUVoRCxPQUFPO1FBQ2YsT0FBTyxJQUFJLENBQUMsaUJBQWlCLENBQUM7SUFDaEMsQ0FBQztJQUVPLGFBQWEsQ0FBQyxZQUEwQztRQUM5RCxJQUFJLFlBQVksQ0FBQyxLQUFLLENBQUMsTUFBTSxLQUFLLE1BQU0sRUFBRTtZQUV4QyxNQUFNLE1BQU0sR0FBRyxJQUFJLENBQUMsS0FBSyxFQUFFLEVBQUUsQ0FBQztZQUM5QixJQUFJLE1BQU0sSUFBSSxDQUFDLElBQUksQ0FBQyxRQUFRLENBQUMsSUFBSSxDQUFDLFVBQVUsQ0FBQyxFQUFFLENBQUMsVUFBVSxDQUFDLE1BQU0sS0FBSyxNQUFNLENBQUMsRUFBRTthQUU5RTtTQUNGO1FBQ0QsSUFBSSxDQUFDLGdCQUFnQixFQUFFLENBQUM7SUFDMUIsQ0FBQztJQXdCTSxhQUFhLENBQ2xCLE9BQW9CLEVBQ3BCLE1BQWM7UUFFZCxJQUFJLE9BQU8sQ0FBQyxJQUFJLEtBQUssVUFBVSxFQUFFO1lBQy9CLE1BQU0sSUFBSSxHQUFHLElBQUksQ0FBQyxLQUFLLENBQUM7WUFDeEIsSUFBSSxDQUFDLElBQUksRUFBRTtnQkFDVCxNQUFNLElBQUksc0JBQXNCLENBQUMsNEJBQTRCLENBQUMsQ0FBQzthQUNoRTtZQUNELElBQUksSUFBSSxDQUFDLEtBQUssRUFBRSxFQUFFLEtBQUssT0FBTyxDQUFDLE1BQU0sRUFBRTtnQkFDckMsTUFBTSxJQUFJLHNCQUFzQixDQUFDLHlCQUF5QixDQUFDLENBQUM7YUFDN0Q7WUFDRCxJQUFJLENBQUMsU0FBUyxDQUFDO2dCQUNiLE1BQU0sRUFBRSxPQUFPLENBQUMsTUFBTTtnQkFDdEIsUUFBUSxFQUFFLE1BQU0sQ0FBQyxFQUFFO2dCQUNuQixJQUFJLEVBQUUsT0FBTyxDQUFDLElBQUk7YUFDbkIsQ0FBQyxDQUFDO1lBQ0gsSUFBSSxDQUFDLGFBQWEsQ0FBQyxJQUFJLENBQUMsT0FBTyxFQUFFLENBQUMsQ0FBQztZQUNuQyxPQUFPLFNBQXVELENBQUM7U0FDaEU7UUFDRCxJQUFJLE9BQU8sQ0FBQyxJQUFJLEtBQUssVUFBVSxFQUFFO1lBQy9CLElBQUksSUFBSSxHQUFHLElBQUksQ0FBQyxLQUFLLENBQUM7WUFDdEIsSUFBSSxDQUFDLElBQUksSUFBSSxJQUFJLENBQUMsS0FBSyxDQUFDLE1BQU0sS0FBSyxNQUFNLEVBQUU7Z0JBRXpDLElBQUksR0FBRyxJQUFJLFNBQVMsRUFBRSxDQUFDO2dCQUN2QixJQUFJLENBQUMsS0FBSyxHQUFHLElBQUksQ0FBQzthQUNuQjtZQUNELElBQUksQ0FBQyxJQUFJLENBQUMsTUFBTSxDQUFDLENBQUM7WUFDbEIsSUFBSSxDQUFDLGFBQWEsQ0FBQyxJQUFJLENBQUMsT0FBTyxFQUFFLENBQUMsQ0FBQztZQUNuQyxPQUFPLEVBQUUsTUFBTSxFQUFFLElBQUksQ0FBQyxFQUFFLEVBQWdELENBQUM7U0FDMUU7UUFDRCxJQUFJLE9BQU8sQ0FBQyxJQUFJLEtBQUssV0FBVyxFQUFFO1lBQ2hDLE1BQU0sSUFBSSxHQUFHLElBQUksQ0FBQyxLQUFLLENBQUM7WUFDeEIsSUFBSSxDQUFDLElBQUksRUFBRTtnQkFDVCxNQUFNLElBQUksc0JBQXNCLENBQUMsNEJBQTRCLENBQUMsQ0FBQzthQUNoRTtZQUNELElBQUksSUFBSSxDQUFDLEtBQUssRUFBRSxFQUFFLEtBQUssT0FBTyxDQUFDLE1BQU0sRUFBRTtnQkFDckMsTUFBTSxJQUFJLHNCQUFzQixDQUFDLHlCQUF5QixDQUFDLENBQUM7YUFDN0Q7WUFDRCxJQUFJLENBQUMsS0FBSyxDQUFDLE1BQU0sQ0FBQyxDQUFDO1lBQ25CLElBQUksQ0FBQyxhQUFhLENBQUMsSUFBSSxDQUFDLE9BQU8sRUFBRSxDQUFDLENBQUM7WUFDbkMsT0FBTyxTQUF1RCxDQUFDO1NBQ2hFO1FBQ0QsTUFBTSxJQUFJLHNCQUFzQixDQUFDLHVCQUF1QixDQUFDLENBQUM7SUFDNUQsQ0FBQztDQUNGIn0=

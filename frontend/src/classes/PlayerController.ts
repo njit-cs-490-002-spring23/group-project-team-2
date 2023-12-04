@@ -20,6 +20,18 @@ export default class PlayerController extends (EventEmitter as new () => TypedEm
 
   public gameObjects?: PlayerGameObjects;
 
+  /* Extra members */
+  private _joined = 'Town';
+
+  public get getJoined() {
+    return this._joined;
+  }
+
+  public set setJoined(hasJoined: string) {
+    this._joined = hasJoined;
+  }
+  /* Extra members */
+
   constructor(id: string, userName: string, location: PlayerLocation) {
     super();
     this._id = id;

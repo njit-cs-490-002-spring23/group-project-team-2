@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { Text, Box, Button, chakra, Container, useToast } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import MafiaAreaController from '../../../../classes/interactable/MafiaAreaController';
@@ -11,18 +12,25 @@ export type MafiaGameProps = {
 /**
  * A component that will render the mafia board, styled
  */
-
 const StyledMafiaGameBoard = chakra(Container, {
   baseStyle: {
     display: 'flex',
-    flexDirection: 'column',
-    width: '500px',
-    minHeight: '400px',
-    padding: '20px',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
+    padding: '50px 10px 10px',
+    gap: '10px',
+    width: 'auto',
+    minHeight: '200px',
     background: 'darkgray',
+    backgroundImage: "url('https://pbs.twimg.com/media/Eake3ZtU4AAPsHV?format=jpg&name=4096x4096')",
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
     borderRadius: '10px',
+    position: 'relative',
+    top: '5px',
+    right: '2px',
   },
 });
 
@@ -33,56 +41,72 @@ const StyledMafiaPlayer = chakra(Button, {
   baseStyle: {
     justifyContent: 'left',
     alignItems: 'center',
-    padding: '10px',
+    padding: '8px',
     width: 'auto',
-    height: '80px',
-    fontSize: '20px',
+    height: '70px',
+    fontSize: '18px',
     fontWeight: 'bold',
     backgroundColor: 'black',
     color: 'white',
     borderRadius: '20px',
     _hover: {
-      bg: 'gray',
+      bg: 'grey',
     },
     _active: {
       bg: 'red',
     },
     _disabled: {
-      opacity: 0.5,
+      opacity: 0.8,
     },
   },
 });
 
-/**
- * A component that will render the timer, styledd
- */
+// A component that will render the game timer, styled
 const StyledTimer = chakra(Text, {
   baseStyle: {
-    fontSize: '24px',
+    fontSize: '20px',
     fontWeight: 'bold',
     color: 'black',
+    marginLeft: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    padding: '2px',
+    borderRadius: '5px',
+    position: 'absolute',
+    top: '10px',
+    right: '10px',
   },
 });
 
 export default function MafiaBoard({ gameAreaController }: MafiaGameProps): JSX.Element {
-  const [players, setPlayers] = useState<PlayerID[]>(gameAreaController.playersAlive);
-  const [currentPhase, setCurrentPhase] = useState(gameAreaController.currentPhase);
+  const [players, setPlayers] = useState<string[]>(gameAreaController.board);
   const [isPlayerTurn, setIsPlayerTurn] = useState(gameAreaController.isPlayerTurn);
+  const [currentPhase, setCurrentPhase] = useState(gameAreaController.currentPhase);
+  const [status, setStatus] = useState(gameAreaController.status);
   const [timer, setTimer] = useState(30);
   const toast = useToast();
 
   useEffect(() => {
     setTimer(30);
-  }, [currentPhase]);
+    if (status === 'IN_PROGRESS') {
+      const tick = () => {
+        setTimer(prevTimer => (prevTimer > 0 ? prevTimer - 1 : 0));
+      };
+      const timerId = setInterval(tick, 1000);
+      return () => clearInterval(timerId);
+    }
+  }, [currentPhase, status]);
 
   useEffect(() => {
     gameAreaController.addListener('turnChanged', setIsPlayerTurn);
-    gameAreaController.addListener('playerAliveChanged', setPlayers);
+    gameAreaController.addListener('boardChanged', setPlayers);
     gameAreaController.addListener('phaseChanged', setCurrentPhase);
+    gameAreaController.addListener('statusChanged', setStatus);
     return () => {
       gameAreaController.removeListener('turnChanged', setIsPlayerTurn);
-      gameAreaController.removeListener('playerAliveChanged', setPlayers);
+      gameAreaController.removeListener('boardChanged', setPlayers);
       gameAreaController.removeListener('phaseChanged', setCurrentPhase);
+      gameAreaController.removeListener('statusChanged', setStatus);
     };
   }, [gameAreaController]);
   return (
@@ -90,28 +114,31 @@ export default function MafiaBoard({ gameAreaController }: MafiaGameProps): JSX.
       <StyledMafiaGameBoard aria-label='Mafia Display'>
         <StyledTimer
           sx={{
-            color: timer < 10 ? 'red' : 'black',
+            color: timer < 10 ? 'red' : 'green',
           }}>
           Time Left: {timer} seconds
         </StyledTimer>
-        {players.map((player, index) => (
-          <StyledMafiaPlayer
-            key={index}
-            onClick={async () => {
-              try {
-                await gameAreaController.makeMove(player as PlayerID);
-              } catch (error) {
-                toast({
-                  title: 'Error',
-                  description: 'Error Making Move',
-                  status: 'error',
-                });
-              }
-            }}
-            disabled={!isPlayerTurn}>
-            {gameAreaController.observers.find(p => p.id === player)?.userName}
-          </StyledMafiaPlayer>
-        ))}
+        {players.map((player, index) => {
+          return (
+            <StyledMafiaPlayer
+              key={index}
+              onClick={async () => {
+                try {
+                  await gameAreaController.makeMove(player as PlayerID);
+                } catch (error) {
+                  toast({
+                    title: 'Error',
+                    description: (error as Error).toString(),
+                    status: 'error',
+                  });
+                }
+              }}
+              disabled={!isPlayerTurn}
+              aria-label={`Player ${index + 1}`}>
+              {gameAreaController.players.find(p => p.id === player)?.userName}
+            </StyledMafiaPlayer>
+          );
+        })}
       </StyledMafiaGameBoard>
       <ChatArea />
     </Box>

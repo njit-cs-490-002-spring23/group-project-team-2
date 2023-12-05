@@ -1,5 +1,5 @@
 import Game from './Game';
-import { GameMove, MafiaGameState, PlayerID, MafiaMove } from '../../types/CoveyTownSocket';
+import { GameMove, MafiaGameState, PlayerID, MafiaMove, TimeOfDay } from '../../types/CoveyTownSocket';
 import Player from '../../lib/Player';
 import InvalidParametersError, {
   GAME_FULL_MESSAGE,
@@ -183,6 +183,30 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     // this._checkForGameEnding(); TODO: IMPLEMNENT
   }
 
+  private _roleCheck(player: Player) {
+    const playerid = player.id;
+    if (this.state.doctor?.id === playerid) {
+      return 'Doctor';
+    }
+    if (this.state.police?.id === playerid) {
+      return 'Police';
+    }
+    if (this.state.mafia) {
+      for (let playerIndex = 0; playerIndex < this.state.mafia.length; playerIndex++) {
+        if (this.state.mafia[playerIndex].id === playerid) {
+          return 'Mafia';
+        }
+      }
+    }
+    if (this.state.villagers) {
+      for (let playerIndex = 0; playerIndex < this.state.villagers.length; playerIndex++) {
+        if (this.state.villagers[playerIndex].id === playerid) {
+          return 'Villager';
+        }
+      }
+    }
+    return undefined;
+  }
   /*
   private _checkForGameEnding() {
     // TODO: Implement

@@ -272,7 +272,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
   protected _updateFrom(newModel: GameArea<MafiaGameState>): void {
     const pastStatus = this.status;
     const pastPhase = this.currentPhase;
-    const pastPhaseTurn = this.isPlayerTurn;
+    const pastTurn = this.isPlayerTurn;
     super._updateFrom(newModel);
     const newState = newModel.game;
     if (newState) {
@@ -282,24 +282,29 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
           newBoard.push(villager.id);
         }
       });
+
       newState.state.mafia?.forEach(mafia => {
         if (mafia.status === 'Active') {
           newBoard.push(mafia.id);
         }
       });
-      if (newState.state.doctor?.status === 'Active') {
-        newBoard.push(newState.state.doctor.id);
+
+      const doctor = newState.state.doctor;
+      if (doctor?.status === 'Active') {
+        newBoard.push(doctor.id);
       }
-      if (newState.state.police?.status === 'Active') {
-        newBoard.push(newState.state.police.id);
+
+      const police = newState.state.police;
+      if (police?.status === 'Active') {
+        newBoard.push(police.id);
       }
       if (newBoard !== this._board) {
         this._board = newBoard;
         this.emit('boardChanged', this._board);
       }
     }
-    const currentPhaseTurn = this.isPlayerTurn;
-    if (pastPhaseTurn !== currentPhaseTurn) this.emit('turnChanged', this.isPlayerTurn);
+    const currentTurn = this.isPlayerTurn;
+    if (pastTurn !== currentTurn) this.emit('turnChanged', this.isPlayerTurn);
     const currentPhase = this.currentPhase;
     if (pastPhase !== currentPhase) this.emit('phaseChanged', currentPhase);
     const currentStatus = this.status;
@@ -327,6 +332,26 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
         playerVoting: this._townController.ourPlayer.id,
         playerVoted: name,
       },
+    });
+  }
+
+  /**
+   * Sends a request to the server to count the votes and Eliminate a player.
+   * Uses the this._townController.sendInteractableCommand method to send the request.
+   * The request should be of type 'countVotes',
+   * and send the gameID provided by `this._instanceID`.
+   *
+   * If the game is not in progress, throws an error NO_GAME_IN_PROGRESS_ERROR
+   *
+   */
+  public async countVotes() {
+    const instanceID = this._instanceID;
+    if (!instanceID || this._model.game?.state.status !== 'IN_PROGRESS') {
+      throw new Error(NO_GAME_IN_PROGRESS_ERROR);
+    }
+    await this._townController.sendInteractableCommand(this.id, {
+      type: 'countVotes',
+      gameID: instanceID,
     });
   }
 }

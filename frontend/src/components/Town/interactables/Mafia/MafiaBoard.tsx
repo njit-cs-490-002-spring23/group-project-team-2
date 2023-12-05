@@ -98,6 +98,22 @@ export default function MafiaBoard({ gameAreaController }: MafiaGameProps): JSX.
   }, [currentPhase, status]);
 
   useEffect(() => {
+    if (timer === 0) {
+      (async () => {
+        try {
+          await gameAreaController.countVotes();
+        } catch (error) {
+          toast({
+            title: 'Error',
+            description: (error as Error).toString(),
+            status: 'error',
+          });
+        }
+      })();
+    }
+  }, [timer, gameAreaController, toast]);
+
+  useEffect(() => {
     gameAreaController.addListener('turnChanged', setIsPlayerTurn);
     gameAreaController.addListener('boardChanged', setPlayers);
     gameAreaController.addListener('phaseChanged', setCurrentPhase);

@@ -1,10 +1,19 @@
 import Game from './Game';
-import { GameMove, MafiaGameState, PlayerID, MafiaMove, TimeOfDay } from '../../types/CoveyTownSocket';
+import {
+  GameMove,
+  MafiaGameState,
+  PlayerID,
+  MafiaMove,
+  TimeOfDay
+} from '../../types/CoveyTownSocket';
 import Player from '../../lib/Player';
 import InvalidParametersError, {
   GAME_FULL_MESSAGE,
   GAME_NOT_IN_PROGRESS_MESSAGE,
+  MOVE_NOT_YOUR_TURN_MESSAGE,
+  PLAYER_ALREADY_DEAD_MESSAGE,
   PLAYER_ALREADY_IN_GAME_MESSAGE,
+  PLAYER_ALREADY_VOTED_MESSAGE,
   PLAYER_NOT_IN_GAME_MESSAGE,
 } from '../../lib/InvalidParametersError';
 
@@ -124,6 +133,38 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     return true;
   }
 
+  private _isAlive(playerid: string): boolean {
+    if (this._roleCheck(playerid) === 'Doctor') {
+      if (this.state.doctor?.status === 'Active') {
+        return true;
+      }
+    }
+    if (this._roleCheck(playerid) === 'Police') {
+      if (this.state.police?.status === 'Active') {
+        return true;
+      }
+    }
+    if (this.state.mafia) {
+      for (let mafiaIndex = 0; mafiaIndex < this.state.mafia.length; mafiaIndex++) {
+        if (this.state.mafia[mafiaIndex].id === playerid) {
+          if (this.state.mafia[mafiaIndex].status === 'Active') {
+            return true;
+          }
+        }
+      }
+    }
+    if (this.state.villagers) {
+      for (let villagerIndex = 0; villagerIndex < this.state.villagers.length; villagerIndex++) {
+        if (this.state.villagers[villagerIndex].id === playerid) {
+          if (this.state.villagers[villagerIndex].status === 'Active') {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
   /**
    * A helper function that updates the status of the WinnableGameState winnerTeam value
    * @return void
@@ -164,14 +205,28 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
    * Applies a player's move to the game. In this game a move would be a vote.
    */
   public applyMove(move: GameMove<MafiaMove>): void {
-    this._validateMove(/* TODO: Use move here */);
+    this._validateMove(move);
     this._applyMove(move.move);
   }
 
-  private _validateMove(/* move: MafiaMove */) {
+  private _validateMove(move: GameMove<MafiaMove>): void {
     // TODO: Use move in this function.
+    const playerid = move.playerID;
+    for (const m of this.state.moves) {
+      if (m.playerVoting === playerid) {
+        throw new InvalidParametersError(PLAYER_ALREADY_VOTED_MESSAGE);
+      }
+      if (this._isAlive(m.playerVoted)) {
+        throw new InvalidParametersError(PLAYER_ALREADY_DEAD_MESSAGE);
+      }
+    }
     if (this.state.status !== 'IN_PROGRESS') {
       throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
+    }
+    if (this.state.phase === 'Night') {
+      if (this._roleCheck(playerid) !== 'Mafia' || this._roleCheck(playerid) !== 'Doctor') {
+        throw new InvalidParametersError(MOVE_NOT_YOUR_TURN_MESSAGE);
+      }
     }
   }
 
@@ -180,11 +235,10 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
       ...this.state,
       moves: [...this.state.moves, move],
     };
-    // this._checkForGameEnding(); TODO: IMPLEMNENT
+    // this._checkForGameEnding();
   }
 
-  private _roleCheck(player: Player) {
-    const playerid = player.id;
+  private _roleCheck(playerid: string) {
     if (this.state.doctor?.id === playerid) {
       return 'Doctor';
     }
@@ -207,11 +261,6 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     }
     return undefined;
   }
-  /*
-  private _checkForGameEnding() {
-    // TODO: Implement
-  }
-  */
 
   /**
    * Adds a player to the game

@@ -25,7 +25,7 @@ import useTownController from '../../../../hooks/useTownController';
 import { GameStatus, InteractableID } from '../../../../types/CoveyTownSocket';
 import GameAreaInteractable from '../GameArea';
 import MafiaBoard from './MafiaBoard';
-
+import { PlayerID } from '../../../../types/CoveyTownSocket';
 function gameStatusMessage(controller: MafiaAreaController): string {
   if (controller.status === 'IN_PROGRESS') {
     const phase = controller.currentPhase;
@@ -45,6 +45,38 @@ function gameStatusMessage(controller: MafiaAreaController): string {
   } else {
     return 'Unknown game status.';
   }
+}
+
+function isPlayerAlive(controller: MafiaAreaController, id: PlayerID): string {
+  const villagers = controller.villagersState;
+  if (villagers) {
+    villagers?.forEach(villager => {
+      if (villager.id === id) {
+        return villager.status;
+      }
+    });
+  }
+  const mafias = controller.mafiasState;
+  if (mafias) {
+    mafias?.forEach(mafia => {
+      if (mafia.id === id) {
+        return mafia.status;
+      }
+    });
+  }
+  const doctor = controller.doctorState;
+  if (doctor) {
+    if (doctor.id === id) {
+      return doctor.status;
+    }
+  }
+  const police = controller.policeState;
+  if (police) {
+    if (police.id === id) {
+      return police.status;
+    }
+  }
+  return 'No Status';
 }
 
 function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.Element {
@@ -157,7 +189,11 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
       </b>
       <List aria-label='list of players in the game'>
         {players && players.length > 0 ? (
-          players.map((player, index) => <ListItem key={index}>{player.userName}</ListItem>)
+          players.map((player, index) => (
+            <ListItem key={index}>
+              {player.userName} {isPlayerAlive(gameAreaController, player.id)}
+            </ListItem>
+          ))
         ) : (
           <ListItem>(No player yet!)</ListItem>
         )}

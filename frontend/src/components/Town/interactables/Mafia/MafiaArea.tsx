@@ -32,9 +32,9 @@ function gameStatusMessage(controller: MafiaAreaController): string {
     const isPlayerTurn = controller.isPlayerTurn;
 
     if (phase === 'Day') {
-      return `Game in progress, Day Stage, its your turn to vote`;
+      return `Game in progress. Day Stage, its your turn to vote`;
     } else {
-      return `Game in progress, Night Stage, ${
+      return `Game in progress. Night Stage, ${
         isPlayerTurn ? 'perform your night action' : 'waiting for the night to end'
       }`;
     }
@@ -50,19 +50,17 @@ function gameStatusMessage(controller: MafiaAreaController): string {
 function isPlayerAlive(controller: MafiaAreaController, id: PlayerID): string {
   const villagers = controller.villagersState;
   if (villagers) {
-    villagers?.forEach(villager => {
-      if (villager.id === id) {
-        return villager.status;
-      }
-    });
+    const villagerPlayer = villagers.filter(villager => villager.id === id);
+    if (villagerPlayer.length > 0) {
+      return villagerPlayer[0].status;
+    }
   }
   const mafias = controller.mafiasState;
   if (mafias) {
-    mafias?.forEach(mafia => {
-      if (mafia.id === id) {
-        return mafia.status;
-      }
-    });
+    const mafiaPlayer = mafias.filter(mafia => mafia.id === id);
+    if (mafiaPlayer.length > 0) {
+      return mafiaPlayer[0].status;
+    }
   }
   const doctor = controller.doctorState;
   if (doctor) {

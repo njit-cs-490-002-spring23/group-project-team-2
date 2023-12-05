@@ -191,7 +191,7 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
         {players && players.length > 0 ? (
           players.map((player, index) => (
             <ListItem key={index}>
-              {player.userName} {isPlayerAlive(gameAreaController, player.id)}
+              {player.userName}: {isPlayerAlive(gameAreaController, player.id)}
             </ListItem>
           ))
         ) : (

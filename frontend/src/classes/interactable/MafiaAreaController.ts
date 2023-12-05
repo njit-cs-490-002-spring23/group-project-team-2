@@ -198,7 +198,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
   /**
    * Returns players' role
    */
-  get role(): 'Mafia' | 'Doctor' | 'Police' | 'Villager' {
+  get role(): 'Mafia' | 'Doctor' | 'Police' | 'Villager' | undefined {
     const playerId = this._townController.ourPlayer.id;
     if (this._model.game?.state.mafia?.some(mafia => mafia?.id === playerId)) {
       return 'Mafia';
@@ -206,8 +206,10 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
       return 'Doctor';
     } else if (this._model.game?.state.police?.id === playerId) {
       return 'Police';
-    } else {
+    } else if (this._model.game?.state.villagers?.some(villager => villager?.id === playerId)) {
       return 'Villager';
+    } else {
+      return undefined;
     }
   }
 

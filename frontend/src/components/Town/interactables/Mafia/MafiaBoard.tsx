@@ -78,12 +78,30 @@ const StyledTimer = chakra(Text, {
   },
 });
 
+// A component that will render player roles, styled
+const StyledRole = chakra(Text, {
+  baseStyle: {
+    fontSize: '20px',
+    fontWeight: 'bold',
+    color: 'black',
+    marginLeft: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    padding: '2px',
+    borderRadius: '5px',
+    position: 'absolute',
+    top: '10px',
+    left: '10px',
+  },
+});
+
 export default function MafiaBoard({ gameAreaController }: MafiaGameProps): JSX.Element {
   const [players, setPlayers] = useState<string[]>(gameAreaController.board);
   const [isPlayerTurn, setIsPlayerTurn] = useState(gameAreaController.isPlayerTurn);
   const [currentPhase, setCurrentPhase] = useState(gameAreaController.currentPhase);
   const [status, setStatus] = useState(gameAreaController.status);
   const [timer, setTimer] = useState(30);
+  const role = gameAreaController.role;
   const toast = useToast();
 
   useEffect(() => {
@@ -128,6 +146,7 @@ export default function MafiaBoard({ gameAreaController }: MafiaGameProps): JSX.
   return (
     <Box>
       <StyledMafiaGameBoard aria-label='Mafia Display'>
+        <StyledRole>{role}</StyledRole>
         <StyledTimer
           sx={{
             color: timer < 10 ? 'red' : 'green',

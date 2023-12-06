@@ -310,9 +310,6 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
       if (m.playerVoting === playerid) {
         throw new InvalidParametersError(PLAYER_ALREADY_VOTED_MESSAGE);
       }
-      if (!this._isPlayerAlive(m.playerVoted)) {
-        throw new InvalidParametersError(PLAYER_ALREADY_DEAD_MESSAGE);
-      }
     }
     if (this.state.phase === 'Night') {
       if (this._roleCheck(playerid) === 'Villager') {

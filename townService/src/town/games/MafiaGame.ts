@@ -209,6 +209,35 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     return false;
   }
 
+  private _isTeamCount(team: Teams): number {
+    let count = 0;
+    if (team === 'MAFIAS_TEAM') {
+      if (this.state.mafia) {
+        for (let mafiaIndex = 0; mafiaIndex < this.state.mafia.length; mafiaIndex++) {
+          if (this.state.mafia[mafiaIndex].status === 'Active') {
+            count++;
+          }
+        }
+      }
+    }
+    if (team === 'CIVILIANS_TEAM') {
+      if (this.state.doctor?.status === 'Active') {
+        count++;
+      }
+      if (this.state.police?.status === 'Active') {
+        count++;
+      }
+      if (this.state.villagers) {
+        for (let villagerIndex = 0; villagerIndex < this.state.villagers.length; villagerIndex++) {
+          if (this.state.villagers[villagerIndex].status === 'Active') {
+            count++;
+          }
+        }
+      }
+    }
+    return count;
+  }
+
   /**
    * A helper function that updates the status of the WinnableGameState winnerTeam value
    * @return void

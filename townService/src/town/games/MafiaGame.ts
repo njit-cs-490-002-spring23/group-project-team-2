@@ -314,8 +314,8 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     }
     if (this.state.phase === 'Night') {
       if (
-        this._roleCheck(playerid) !== 'Mafia' ||
-        this._roleCheck(playerid) !== 'Doctor' ||
+        this._roleCheck(playerid) !== 'Mafia' &&
+        this._roleCheck(playerid) !== 'Doctor' &&
         this._roleCheck(playerid) !== 'Police'
       ) {
         throw new InvalidParametersError(MOVE_NOT_YOUR_TURN_MESSAGE);

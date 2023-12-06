@@ -256,7 +256,7 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
    * else:
    * @returns an array of all mafia members PlayerID
    */
-  private _getWinningTeam(): PlayerID[] {
+  private _getWinningTeam(): void {
     let playerIndex: number;
     const winningTeam: PlayerID[] = [];
     if (
@@ -276,7 +276,7 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
         winningTeam.push(this.state.mafia[playerIndex].id);
       }
     }
-    return winningTeam;
+    this.state.winners = winningTeam;
   }
 
   /**
@@ -286,10 +286,12 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
   private _checkForGameEnding(): void {
     if (this._isTeamAlive('CIVILIANS_TEAM') && !this._isTeamAlive('MAFIAS_TEAM')) {
       this.state.status = 'OVER';
+      this._getWinningTeam();
       this.state.winnerTeam = 'CIVILIANS_TEAM';
     }
     if (this._isTeamCount('MAFIAS_TEAM') >= this._isTeamCount('CIVILIANS_TEAM')) {
       this.state.status = 'OVER';
+      this._getWinningTeam();
       this.state.winnerTeam = 'MAFIAS_TEAM';
     }
   }
@@ -313,11 +315,7 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
       }
     }
     if (this.state.phase === 'Night') {
-      if (
-        this._roleCheck(playerid) !== 'Mafia' &&
-        this._roleCheck(playerid) !== 'Doctor' &&
-        this._roleCheck(playerid) !== 'Police'
-      ) {
+      if (this._roleCheck(playerid) === 'Villager') {
         throw new InvalidParametersError(MOVE_NOT_YOUR_TURN_MESSAGE);
       }
     }

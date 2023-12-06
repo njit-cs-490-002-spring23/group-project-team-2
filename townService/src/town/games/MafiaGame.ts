@@ -284,13 +284,13 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
    * and at least one memeber of the other team is alive.
    */
   private _checkForGameEnding(): void {
-    if (this._isTeamAlive('MAFIAS_TEAM') && !this._isTeamAlive('CIVILIANS_TEAM')) {
-      this.state.status = 'OVER';
-      this.state.winnerTeam = 'MAFIAS_TEAM';
-    }
     if (this._isTeamAlive('CIVILIANS_TEAM') && !this._isTeamAlive('MAFIAS_TEAM')) {
       this.state.status = 'OVER';
       this.state.winnerTeam = 'CIVILIANS_TEAM';
+    }
+    if (this._isTeamCount('MAFIAS_TEAM') >= this._isTeamCount('CIVILIANS_TEAM')) {
+      this.state.status = 'OVER';
+      this.state.winnerTeam = 'MAFIAS_TEAM';
     }
   }
 
@@ -410,18 +410,13 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
    * @throws InvalidParametersError if the player is not in the game (PLAYER_NOT_IN_GAME_MESSAGE)
    */
   public _leave(player: Player): void {
-    let currentGameStatus = this.state.status;
     const minNumberOfPlayers = 6;
     // const maxNumberOfPlayers = 10;
     if (!this._players.includes(player)) {
       throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
     }
-    if (this._players.length === minNumberOfPlayers && currentGameStatus === 'IN_PROGRESS') {
-      currentGameStatus = 'OVER';
-      this.state.winners = this._getWinningTeam();
-    }
-    if (this.state.status === 'OVER') {
-      // this._setWinnerTeam(); TODO Implement this function so it can get used here.
+    if (this._players.length === minNumberOfPlayers && this.state.status === 'IN_PROGRESS') {
+      this._checkForGameEnding();
     }
   }
 }

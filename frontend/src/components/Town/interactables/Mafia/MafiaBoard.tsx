@@ -175,7 +175,8 @@ export default function MafiaBoard({ gameAreaController }: MafiaGameProps): JSX.
           );
         })}
       </StyledMafiaGameBoard>
-      <ChatArea />
+      {(currentPhase === 'Day' ||
+        (currentPhase === 'Night' && gameAreaController.role === 'Mafia')) && <ChatArea />}
     </Box>
   );
 }

@@ -301,16 +301,16 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
   private _validateMove(move: GameMove<MafiaMove>): void {
     // TODO: Use move in this function.
     const playerid = move.playerID;
+    if (this.state.status !== 'IN_PROGRESS') {
+      throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
+    }
     for (const m of this.state.moves) {
       if (m.playerVoting === playerid) {
         throw new InvalidParametersError(PLAYER_ALREADY_VOTED_MESSAGE);
       }
-      if (this._isPlayerAlive(m.playerVoted)) {
+      if (!this._isPlayerAlive(m.playerVoted)) {
         throw new InvalidParametersError(PLAYER_ALREADY_DEAD_MESSAGE);
       }
-    }
-    if (this.state.status !== 'IN_PROGRESS') {
-      throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
     }
     if (this.state.phase === 'Night') {
       if (

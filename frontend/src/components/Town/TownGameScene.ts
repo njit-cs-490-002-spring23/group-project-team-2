@@ -132,7 +132,7 @@ export default class TownGameScene extends Phaser.Scene {
     this.load.tilemapTiledJSON('map', this._resourcePathPrefix + '/assets/tilemaps/indoors.json');
     this.load.atlas(
       'atlas',
-      this._resourcePathPrefix + '/assets/atlas/atlasMafia.png',
+      this._resourcePathPrefix + '/assets/atlas/atlas.png',
       this._resourcePathPrefix + '/assets/atlas/atlas.json',
     );
   }
@@ -201,6 +201,8 @@ export default class TownGameScene extends Phaser.Scene {
   }
 
   update() {
+    const prefix: string = this.coveyTownController.ourPlayer.getJoined;
+
     if (this._paused) {
       return;
     }
@@ -218,31 +220,31 @@ export default class TownGameScene extends Phaser.Scene {
       switch (primaryDirection) {
         case 'left':
           body.setVelocityX(-speed);
-          gameObjects.sprite.anims.play('misa-left-walk', true);
+          gameObjects.sprite.anims.play(prefix.concat('-left-walk'), true);
           break;
         case 'right':
           body.setVelocityX(speed);
-          gameObjects.sprite.anims.play('misa-right-walk', true);
+          gameObjects.sprite.anims.play(prefix.concat('-right-walk'), true);
           break;
         case 'front':
           body.setVelocityY(speed);
-          gameObjects.sprite.anims.play('misa-front-walk', true);
+          gameObjects.sprite.anims.play(prefix.concat('-front-walk'), true);
           break;
         case 'back':
           body.setVelocityY(-speed);
-          gameObjects.sprite.anims.play('misa-back-walk', true);
+          gameObjects.sprite.anims.play(prefix.concat('-back-walk'), true);
           break;
         default:
           // Not moving
           gameObjects.sprite.anims.stop();
           // If we were moving, pick and idle frame to use
           if (prevVelocity.x < 0) {
-            gameObjects.sprite.setTexture('atlas', 'misa-left');
+            gameObjects.sprite.setTexture('atlas', prefix.concat('-left'));
           } else if (prevVelocity.x > 0) {
-            gameObjects.sprite.setTexture('atlas', 'misa-right');
+            gameObjects.sprite.setTexture('atlas', prefix.concat('-right'));
           } else if (prevVelocity.y < 0) {
-            gameObjects.sprite.setTexture('atlas', 'misa-back');
-          } else if (prevVelocity.y > 0) gameObjects.sprite.setTexture('atlas', 'misa-front');
+            gameObjects.sprite.setTexture('atlas', prefix.concat('-back'));
+          } else if (prevVelocity.y > 0) gameObjects.sprite.setTexture('atlas', prefix.concat('-front'));
           break;
       }
 
@@ -315,6 +317,8 @@ export default class TownGameScene extends Phaser.Scene {
   }
 
   create() {
+    const prefix = this.coveyTownController.ourPlayer.getJoined;
+
     this._map = this.make.tilemap({ key: 'map' });
 
     /* Parameters are the name you gave the tileset in Tiled and then the key of the
@@ -409,7 +413,7 @@ export default class TownGameScene extends Phaser.Scene {
     // has a bit of whitespace, so I'm using setSize & setOffset to control the size of the
     // player's body.
     const sprite = this.physics.add
-      .sprite(spawnPoint.x, spawnPoint.y, 'atlas', 'misa-front')
+      .sprite(spawnPoint.x, spawnPoint.y, 'atlas', prefix.concat('-front'))
       .setSize(30, 30)
       .setOffset(0, 23)
       .setDepth(6);
@@ -440,6 +444,7 @@ export default class TownGameScene extends Phaser.Scene {
     // Create the player's walking animations from the texture atlas. These are stored in the global
     // animation manager so any sprite can access them.
     const { anims } = this;
+    
     anims.create({
       key: 'misa-left-walk',
       frames: anims.generateFrameNames('atlas', {
@@ -484,6 +489,50 @@ export default class TownGameScene extends Phaser.Scene {
       frameRate: 10,
       repeat: -1,
     });
+     anims.create({
+      key: 'mafia-left-walk',
+      frames: anims.generateFrameNames('atlas', {
+        prefix: 'mafia-left-walk.',
+        start: 0,
+        end: 3,
+        zeroPad: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    anims.create({
+      key: 'mafia-right-walk',
+      frames: anims.generateFrameNames('atlas', {
+        prefix: 'mafia-right-walk.',
+        start: 0,
+        end: 3,
+        zeroPad: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    anims.create({
+      key: 'mafia-front-walk',
+      frames: anims.generateFrameNames('atlas', {
+        prefix: 'mafia-front-walk.',
+        start: 0,
+        end: 3,
+        zeroPad: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    anims.create({
+      key: 'mafia-back-walk',
+      frames: anims.generateFrameNames('atlas', {
+        prefix: 'mafia-back-walk.',
+        start: 0,
+        end: 3,
+        zeroPad: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
 
     const camera = this.cameras.main;
     camera.startFollow(this.coveyTownController.ourPlayer.gameObjects.sprite);
@@ -512,9 +561,10 @@ export default class TownGameScene extends Phaser.Scene {
   }
 
   createPlayerSprites(player: PlayerController) {
+    const prefix = this.coveyTownController.ourPlayer.getJoined;
     if (!player.gameObjects) {
       const sprite = this.physics.add
-        .sprite(player.location.x, player.location.y, 'atlas', 'misa-front')
+        .sprite(player.location.x, player.location.y, 'atlas', prefix.concat('-front'))
         .setSize(30, 40)
         .setOffset(0, 24);
       const label = this.add.text(

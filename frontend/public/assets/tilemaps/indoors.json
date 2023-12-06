@@ -843,7 +843,7 @@
                         {
                          "name":"dest",
                          "type":"string",
-                         "value":"'Mafia'"
+                         "value":"'mafia'"
                         }, 
                         {
                          "name":"infoText",
@@ -916,7 +916,7 @@
                         {
                          "name":"dest",
                          "type":"string",
-                         "value":"'Town'"
+                         "value":"'mafia'"
                         }, 
                         {
                          "name":"infoText",

@@ -21,14 +21,14 @@ export default class PlayerController extends (EventEmitter as new () => TypedEm
   public gameObjects?: PlayerGameObjects;
 
   /* Extra members */
-  private _joined = 'Town';
+  private _skin;
 
-  public get getJoined() {
-    return this._joined;
+  public get getSkin() {
+    return this._skin;
   }
 
-  public set setJoined(hasJoined: string) {
-    this._joined = hasJoined;
+  public set setSkin(skin: string) {
+    this._skin = skin;
   }
   /* Extra members */
 
@@ -37,6 +37,7 @@ export default class PlayerController extends (EventEmitter as new () => TypedEm
     this._id = id;
     this._userName = userName;
     this._location = location;
+    this._skin = 'misa';
   }
 
   set location(newLocation: PlayerLocation) {

@@ -25,6 +25,8 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     super({
       moves: [],
       status: 'WAITING_TO_START',
+      villagers: [],
+      mafia: [],
     });
   }
 
@@ -33,77 +35,52 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
    * @param player The player that will be assigned a role in the game
    * @returns nothing. Only used for role assignment and updating the game state to reflect the role assignment.
    */
-  private _randomlyAssignRoleTo(player: Player): void {
-    let diceRoll: number;
-    let roleAssigned = false;
-    let minDiceNumber = 1;
-    let maxDiceNumber = 4;
-    if (this._players.length < 6) {
-      while (!roleAssigned) {
-        diceRoll = getRandomIntInclusive(minDiceNumber, maxDiceNumber);
-        if (diceRoll === 1 && !this.state.police) {
-          this.state.police = {
-            id: player.id,
-            status: 'Active',
-          };
-          roleAssigned = true;
-        } else if (diceRoll === 2 && !this.state.doctor) {
-          this.state.doctor = {
-            id: player.id,
-            status: 'Active',
-          };
-          roleAssigned = true;
-        } else if (diceRoll === 3) {
-          if (!this.state.villagers) {
-            this.state.villagers = [];
-          } else if (this.state.villagers.length < 2) {
-            this.state.villagers.push({
-              id: player.id,
-              status: 'Active',
-            });
-            roleAssigned = true;
-          }
-        } else if (diceRoll === 4) {
-          if (!this.state.mafia) {
-            this.state.mafia = [];
-          } else if (this.state.mafia.length < 2) {
-            this.state.mafia.push({
-              id: player.id,
-              status: 'Active',
-            });
-            roleAssigned = true;
-          }
-        }
-      }
-    } else {
-      minDiceNumber = 1;
-      maxDiceNumber = 2;
-      while (!roleAssigned) {
-        diceRoll = getRandomIntInclusive(minDiceNumber, maxDiceNumber);
-        if (diceRoll === 1) {
-          if (!this.state.villagers) {
-            this.state.villagers = [];
-          }
-          if (this.state?.villagers?.length > 2) {
-            this.state.villagers.push({
-              id: player.id,
-              status: 'Active',
-            });
-            roleAssigned = true;
-          }
-        } else if (diceRoll === 2) {
-          if (!this.state.mafia) {
-            this.state.mafia = [];
-          }
-          if (this.state?.mafia?.length > 2) {
-            this.state.mafia.push({
-              id: player.id,
-              status: 'Active',
-            });
-            roleAssigned = true;
-          }
-        }
-      }
+  private _assignRoleTo(player: Player, role: number): void {
+    if (role === 1) {
+      this.state.police = {
+        id: player.id,
+        status: 'Active',
+      };
+      return;
+    } else if (role === 2) {
+      this.state.doctor = {
+        id: player.id,
+        status: 'Active',
+      };
+      return;
+    } else if (role === 3) {
+      this.state.villagers.push({
+        id: player.id,
+        status: 'Active',
+      });
+      return;
+    } else if (role === 4) {
+      this.state.mafia.push({
+        id: player.id,
+        status: 'Active',
+      });
+      return;
+    }
+    throw new Error('Role could not be assigned.');
+  }
+
+  /**
+   * An intermediary function between join and randomlyAssignRoleTo
+   */
+  private _randomlyAssignRoles() {
+    this.state.villagers = [];
+    this.state.mafia = [];
+    const availableIndexes: number[] = [];
+    const roles = [1, 2, 3, 4, 3, 4, 3, 4, 3, 4] // Numbers representing the roles and the order they would be selected.
+    
+    // Creating a list of indexes that can be pulled from.
+    for (let i = 0; i < this._players.length; i++)
+      availableIndexes.push(i);
+
+    for (let i = 0; i < this._players.length; i++) {
+      const index = getRandomIntInclusive(0, availableIndexes.length - 1)
+      this._assignRoleTo(this._players[index], roles[i]);
+      availableIndexes.splice(index, 1);
     }
   }
 
@@ -202,52 +179,9 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     if (this._players.includes(player)) {
       throw new InvalidParametersError(PLAYER_ALREADY_IN_GAME_MESSAGE);
     }
-    if (!this.state.police) {
-      this.state = {
-        ...this.state,
-        police: { id: player.id, status: 'Active' },
-      };
-    } else if (!this.state.doctor) {
-      this.state = {
-        ...this.state,
-        doctor: { id: player.id, status: 'Active' },
-      };
-    } else if (!this.state.mafia) {
-      this.state.mafia = [];
-      this.state.mafia.push({
-        id: player.id,
-        status: 'Active',
-      });
-    } else if (this.state.mafia.length === 1) {
-      this.state.mafia.push({
-        id: player.id,
-        status: 'Active',
-      });
-    } else if (!this.state.villagers) {
-      this.state.villagers = [];
-      this.state.villagers.push({
-        id: player.id,
-        status: 'Active',
-      });
-    } else if (this.state.villagers.length === 1) {
-      this.state.villagers.push({
-        id: player.id,
-        status: 'Active',
-      });
-    } else {
-      throw new InvalidParametersError(GAME_FULL_MESSAGE);
-    }
-    if (
-      this.state.doctor &&
-      this.state.police &&
-      this.state.mafia?.length === 2 &&
-      this.state.villagers?.length === 2
-    ) {
-      this.state = {
-        ...this.state,
-        status: 'IN_PROGRESS',
-        phase: 'Day',
-      };
+    if (this._players.length > 5 && this.state.status === 'WAITING_TO_START') {
+      this.state.status = 'IN_PROGRESS';
+      this._randomlyAssignRoles
     }
   }
 

@@ -125,12 +125,12 @@ export type PlayerState = {
 export type TimeOfDay = 'Day' | 'Night' | undefined;
 export interface MafiaGameState extends WinnableGameState {
   moves: ReadonlyArray<MafiaMove>;
-  villagers?: PlayerState[];
-  mafia?: PlayerState[];
+  villagers: PlayerState[];
+  mafia: PlayerState[];
   police?: PlayerState;
   doctor?: PlayerState;
   phase?: TimeOfDay;
-  phaseTime: number;
+  phaseTime?: number;
 }
 
 export type InteractableID = string;

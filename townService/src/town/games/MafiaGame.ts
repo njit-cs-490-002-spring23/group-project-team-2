@@ -413,5 +413,8 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     if (this._players.length === minNumberOfPlayers && this.state.status === 'IN_PROGRESS') {
       this._checkForGameEnding();
     }
+    if (this._players.length < minNumberOfPlayers && this.state.status !== 'IN_PROGRESS') {
+      this.state.status = 'WAITING_TO_START';
+    }
   }
 }

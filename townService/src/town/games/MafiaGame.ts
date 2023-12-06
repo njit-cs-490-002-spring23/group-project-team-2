@@ -410,14 +410,14 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
   public _leave(player: Player): void {
     const minNumberOfPlayers = 6;
     // const maxNumberOfPlayers = 10;
-    if (this._players.length < minNumberOfPlayers) {
-      this.state.status = 'WAITING_TO_START';
-    }
     if (!this._players.includes(player)) {
       throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
     }
     if (this._players.length === minNumberOfPlayers && this.state.status === 'IN_PROGRESS') {
       this._checkForGameEnding();
+    }
+    if (this._players.length < minNumberOfPlayers && this.state.status !== 'IN_PROGRESS') {
+      this.state.status = 'WAITING_TO_START';
     }
   }
 }

@@ -32,13 +32,13 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    /**
    * Returns the players that are spectators
    */
-  get spectators(): PlayerController[] | undefined {
+  get spectators(): PlayerController[] {
     const spectators = this._model.game?.state.spectators;
     if (spectators && spectators.length > 0) {
       const spectatorIDs = spectators.map(spectator => spectator.id)
       return this.occupants.filter(eachOccupant => spectatorIDs.includes(eachOccupant.id));
     }
-    return undefined;
+    return [];
   }
 
   /**
@@ -50,7 +50,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
       const policeIDs = police.map(mafia => mafia.id)
       return this.occupants.filter(eachOccupant => policeIDs.includes(eachOccupant.id));
     }
-    return undefined;
+    return [];
   }
 
   /**
@@ -62,7 +62,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
       const doctorIDs = doctor.map(doctors => doctors.id)
       return this.occupants.filter(eachOccupant => doctorIDs.includes(eachOccupant.id));
     }
-    return undefined;
+    return [];
   }
 
   /**
@@ -74,7 +74,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
       const mafiaIDs = mafia.map(mafia => mafia.id);
       return this.occupants.filter(eachOccupant => mafiaIDs.includes(eachOccupant.id));
     }
-    return undefined;
+    return [];
   }
 
   /**

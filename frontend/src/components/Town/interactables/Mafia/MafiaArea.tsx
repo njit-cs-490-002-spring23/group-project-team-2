@@ -104,6 +104,7 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
     };
   }, [townController, gameAreaController, toast]);
 
+  townController.ourPlayer.setSkin = townController.ourPlayer.getSkin;
   let joinGame = <></>;
   if (
     (gameStatus === 'WAITING_TO_START' && !gameAreaController.isPlayer) ||
@@ -158,13 +159,12 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
         {gameStatusMessage(gameAreaController)}. {joinGame}
       </b>
       <List aria-label='list of players in the game'>
-        {players && players.length > 0 ? (
-          players.map((player, index) => <ListItem key={index}>{player.userName}</ListItem>)
+        {gameAreaController.spectators.length > 0 ? (
+          gameAreaController.spectators.map((player, index) => <ListItem key={index}>{index + 1}{') '}{player.userName}</ListItem>)
         ) : (
           <ListItem>(No player yet!)</ListItem>
         )}
       </List>
-      <MafiaBoard gameAreaController={gameAreaController} />
     </Container>
   );
 }
@@ -188,7 +188,7 @@ export default function MafiaAreaWrapper(): JSX.Element {
         <ModalContent>
           <ModalHeader>{gameArea.name}</ModalHeader>
           <ModalCloseButton />
-          <MafiaArea interactableID={gameArea.name} />;
+          <MafiaArea interactableID={gameArea.name} />
         </ModalContent>
       </Modal>
     );

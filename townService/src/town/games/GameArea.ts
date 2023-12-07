@@ -46,7 +46,7 @@ export default abstract class GameArea<
   protected abstract getType(): InteractableType;
 
   public remove(player: Player): void {
-    if (this._game && this._game.toModel().players.includes(player.id)) {
+    if (this._game) {
       this._game.leave(player);
     }
     super.remove(player);

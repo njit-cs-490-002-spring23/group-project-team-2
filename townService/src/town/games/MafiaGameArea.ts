@@ -104,4 +104,9 @@ export default class MafiaGameArea extends GameArea<MafiaGame> {
     }
     throw new InvalidParametersError(INVALID_COMMAND_MESSAGE);
   }
+
+  public remove(player: Player): void {
+    if (!this._game?.toModel().players.includes(player.id)) return;
+    super.remove(player);
+  }
 }

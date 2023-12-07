@@ -225,6 +225,7 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     } else {
       this.state.phase = 'Day';
     }
+    this.state.moves = [];
   }
 
   /**

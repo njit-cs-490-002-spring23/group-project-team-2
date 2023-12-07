@@ -29,13 +29,26 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
     return this._board;
   }
 
+   /**
+   * Returns the players that are spectators
+   */
+  get spectators(): PlayerController[] | undefined {
+    const spectators = this._model.game?.state.spectators;
+    if (spectators && spectators.length > 0) {
+      const spectatorIDs = spectators.map(spectator => spectator.id)
+      return this.occupants.filter(eachOccupant => spectatorIDs.includes(eachOccupant.id));
+    }
+    return undefined;
+  }
+
   /**
    * Returns the player with the 'Police' role, if there is one, or undefined otherwise
    */
-  get police(): PlayerController | undefined {
-    const police = this._model.game?.state.police?.id;
-    if (police) {
-      return this.occupants.find(eachOccupant => eachOccupant.id === police);
+  get police(): PlayerController[] | undefined {
+    const police = this._model.game?.state.police;
+    if (police && police.length > 0) {
+      const policeIDs = police.map(mafia => mafia.id)
+      return this.occupants.filter(eachOccupant => policeIDs.includes(eachOccupant.id));
     }
     return undefined;
   }
@@ -43,10 +56,11 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
   /**
    * Returns the player with the 'Doctor' role, if there is one, or undefined otherwise
    */
-  get doctor(): PlayerController | undefined {
-    const doctor = this._model.game?.state.doctor?.id;
-    if (doctor) {
-      return this.occupants.find(eachOccupant => eachOccupant.id === doctor);
+  get doctor(): PlayerController[] | undefined {
+    const doctor = this._model.game?.state.doctors;
+    if (doctor && doctor.length > 0) {
+      const doctorIDs = doctor.map(doctors => doctors.id)
+      return this.occupants.filter(eachOccupant => doctorIDs.includes(eachOccupant.id));
     }
     return undefined;
   }
@@ -54,10 +68,10 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
   /**
    * Returns the players with the 'Mafia' role, if there is one, or undefined otherwise
    */
-  get mafias(): PlayerController[] | undefined {
-    const mafias = this._model.game?.state.mafia;
-    if (mafias) {
-      const mafiaIDs = mafias.map(mafia => mafia.id);
+  get mafia(): PlayerController[] | undefined {
+    const mafia = this._model.game?.state.mafia;
+    if (mafia && mafia.length > 0) {
+      const mafiaIDs = mafia.map(mafia => mafia.id);
       return this.occupants.filter(eachOccupant => mafiaIDs.includes(eachOccupant.id));
     }
     return undefined;
@@ -68,7 +82,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    */
   get villagers(): PlayerController[] | undefined {
     const villagers = this._model.game?.state.villagers;
-    if (villagers) {
+    if (villagers && villagers.length > 0) {
       const villagerIDs = villagers.map(villager => villager.id);
       return this.occupants.filter(eachOccupant => villagerIDs.includes(eachOccupant.id));
     }
@@ -101,8 +115,8 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    */
   get doctorAlive(): number {
     // Check if the doctor is defined and alive in the game state
-    if (this._model.game?.state.doctor?.status === 'Active') {
-      return 1;
+    if (this._model.game?.state.doctors) {
+      return this._model.game.state.doctors.filter(doctor => doctor.status === 'Active').length;
     }
     return 0;
   }
@@ -112,8 +126,8 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    */
   get policeAlive(): integer {
     // Check if the doctor is defined and alive in the game state
-    if (this._model.game?.state.police?.status === 'Active') {
-      return 1;
+    if (this._model.game?.state.police) {
+      return this._model.game.state.police.filter(police => police.status === 'Active').length;
     }
     return 0;
   }
@@ -153,16 +167,18 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
   /**
    * Returns players' role
    */
-  get role(): 'Mafia' | 'Doctor' | 'Police' | 'Villager' {
-    const playerId = this._townController.ourPlayer.id;
-    if (this._model.game?.state.mafia?.some(mafia => mafia?.id === playerId)) {
+  get role(): 'Mafia' | 'Doctor' | 'Police' | 'Villager' | 'Spectator' {
+    const playerID = this._townController.ourPlayer.id;
+    if (this._model.game?.state.villagers?.some(villager => villager.id === playerID)) {
+      return 'Villager';
+    } else if (this._model.game?.state.mafia?.some(mafia => mafia?.id === playerID)) {
       return 'Mafia';
-    } else if (this._model.game?.state.doctor?.id === playerId) {
+    } else if (this._model.game?.state.doctors?.some(doctor => doctor.id === playerID)) {
       return 'Doctor';
-    } else if (this._model.game?.state.police?.id === playerId) {
+    } else if (this._model.game?.state.police?.some(police => police.id === playerID)) {
       return 'Police';
     } else {
-      return 'Villager';
+      return 'Spectator';
     }
   }
 
@@ -187,12 +203,12 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
         return false;
       }
     } else if (playerRole === 'Doctor') {
-      const player = this._model.game?.state.doctor;
+      const player = this._model.game?.state.doctors?.find(doctor => doctor?.id === playerId);;
       if (player?.status === 'Spectator') {
         return false;
       }
     } else if (playerRole === 'Police') {
-      const player = this._model.game?.state.police;
+      const player = this._model.game?.state.police?.find(police => police?.id === playerId);;
       if (player?.status === 'Spectator') {
         return false;
       }
@@ -287,12 +303,16 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
           newBoard.push(mafia.id);
         }
       });
-      if (newState.state.doctor?.status === 'Active') {
-        newBoard.push(newState.state.doctor.id);
-      }
-      if (newState.state.police?.status === 'Active') {
-        newBoard.push(newState.state.police.id);
-      }
+      newState.state.police?.forEach(police => {
+        if (police.status === 'Active') {
+          newBoard.push(police.id);
+        }
+      });
+      newState.state.doctors?.forEach(doctor => {
+        if (doctor.status === 'Active') {
+          newBoard.push(doctor.id);
+        }
+      });
       if (newBoard !== this._board) {
         this._board = newBoard;
         this.emit('boardChanged', this._board);

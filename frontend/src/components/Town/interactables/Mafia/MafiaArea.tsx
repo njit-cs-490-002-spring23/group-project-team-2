@@ -62,14 +62,16 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
       setGameStatus(gameAreaController.status || 'WAITING_TO_START');
       setObservers(gameAreaController.observers);
       const allPlayers = [];
+      if (gameAreaController.spectators)
+        allPlayers.push(...gameAreaController.spectators);
       if (gameAreaController.police) {
-        allPlayers.push(gameAreaController.police);
+        allPlayers.push(...gameAreaController.police);
       }
       if (gameAreaController.doctor) {
-        allPlayers.push(gameAreaController.doctor);
+        allPlayers.push(...gameAreaController.doctor);
       }
-      if (gameAreaController.mafias) {
-        allPlayers.push(...gameAreaController.mafias);
+      if (gameAreaController.mafia) {
+        allPlayers.push(...gameAreaController.mafia);
       }
       if (gameAreaController.villagers) {
         allPlayers.push(...gameAreaController.villagers);

@@ -201,7 +201,7 @@ export default class TownGameScene extends Phaser.Scene {
   }
 
   update() {
-    const prefix: string = this.coveyTownController.ourPlayer.getJoined;
+    const prefix: string = this.coveyTownController.ourPlayer.getSkin;
 
     if (this._paused) {
       return;
@@ -317,7 +317,7 @@ export default class TownGameScene extends Phaser.Scene {
   }
 
   create() {
-    const prefix = this.coveyTownController.ourPlayer.getJoined;
+    const prefix = this.coveyTownController.ourPlayer.getSkin;
 
     this._map = this.make.tilemap({ key: 'map' });
 
@@ -412,6 +412,7 @@ export default class TownGameScene extends Phaser.Scene {
     // Create a sprite with physics enabled via the physics system. The image used for the sprite
     // has a bit of whitespace, so I'm using setSize & setOffset to control the size of the
     // player's body.
+    
     const sprite = this.physics.add
       .sprite(spawnPoint.x, spawnPoint.y, 'atlas', prefix.concat('-front'))
       .setSize(30, 30)
@@ -561,7 +562,7 @@ export default class TownGameScene extends Phaser.Scene {
   }
 
   createPlayerSprites(player: PlayerController) {
-    const prefix = this.coveyTownController.ourPlayer.getJoined;
+    const prefix = this.coveyTownController.ourPlayer.getSkin;
     if (!player.gameObjects) {
       const sprite = this.physics.add
         .sprite(player.location.x, player.location.y, 'atlas', prefix.concat('-front'))

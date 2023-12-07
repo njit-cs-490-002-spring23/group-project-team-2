@@ -1,5 +1,5 @@
 import Game from './Game';
-import { GameMove, MafiaGameState, PlayerID, MafiaMove } from '../../types/CoveyTownSocket';
+import { GameMove, MafiaGameState, PlayerID, PlayerState, MafiaMove } from '../../types/CoveyTownSocket';
 import Player from '../../lib/Player';
 import InvalidParametersError, {
   GAME_FULL_MESSAGE,
@@ -25,28 +25,29 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     super({
       moves: [],
       status: 'WAITING_TO_START',
+      spectators: [],
+      police: [],
+      doctors: [],
       villagers: [],
       mafia: [],
     });
   }
 
   /**
-   * A helper function to randomly assign a player to one of the Roles in the Mafia Game.
-   * @param player The player that will be assigned a role in the game
-   * @returns nothing. Only used for role assignment and updating the game state to reflect the role assignment.
+   * A helper function to assign a player to one of the Roles in the Mafia Game.
    */
-  private _assignRoleTo(player: Player, role: number): void {
+  private _assignRoleTo(player: Player, role: number) {
     if (role === 1) {
-      this.state.police = {
+      this.state.police.push({
         id: player.id,
         status: 'Active',
-      };
+      });
       return;
     } else if (role === 2) {
-      this.state.doctor = {
+      this.state.doctors.push ({
         id: player.id,
         status: 'Active',
-      };
+      });
       return;
     } else if (role === 3) {
       this.state.villagers.push({
@@ -65,7 +66,7 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
   }
 
   /**
-   * An intermediary function between join and randomlyAssignRoleTo
+   * A helper function to randomly assign a each player to one of the Roles in the Mafia Game.
    */
   private _randomlyAssignRoles() {
     this.state.villagers = [];
@@ -82,6 +83,24 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
       this._assignRoleTo(this._players[index], roles[i]);
       availableIndexes.splice(index, 1);
     }
+  }
+
+  /**
+   * A helper function to find an remove players from the various arrays in the game state.
+   * @param players 
+   * @param player 
+   * @returns boolean
+   */
+  private _foundAndRemovedPlayer(players: PlayerState[], player: PlayerID): boolean {
+    let index = -1;
+    for (let i = 0; i < players.length; i++)
+      if (players[i].id === player) {
+        index = i;
+        break;
+      }
+    if (index === -1) return false;
+    players.splice(index, 1);
+    return true;
   }
 
   /**
@@ -122,9 +141,9 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
   private _getWinningTeam(): PlayerID[] {
     let playerIndex: number;
     const winningTeam: PlayerID[] = [];
-    if (this._allMafiaIsDead() && this.state.doctor && this.state.police && this.state.villagers) {
-      winningTeam.push(this.state.doctor?.id);
-      winningTeam.push(this.state.police?.id);
+    if (this._allMafiaIsDead() && this.state.doctors && this.state.police && this.state.villagers) {
+      //winningTeam.push(this.state.doctors?.id);
+      //winningTeam.push(this.state.polices?.id);
       for (playerIndex = 0; playerIndex < this.state.villagers?.length; playerIndex += 1) {
         winningTeam.push(this.state.villagers[playerIndex].id);
       }
@@ -176,13 +195,14 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
    * or the game is full (GAME_FULL_MESSAGE)
    */
   public _join(player: Player): void {
-    if (this._players.includes(player)) {
-      throw new InvalidParametersError(PLAYER_ALREADY_IN_GAME_MESSAGE);
-    }
-    if (this._players.length > 5 && this.state.status === 'WAITING_TO_START') {
+    if (this.state.spectators.includes({id: player.id, status: 'Spectator'})) throw new InvalidParametersError(PLAYER_ALREADY_IN_GAME_MESSAGE);
+    this.state.spectators.push({id: player.id, status: 'Spectator'});
+    /*
+    if (this.state.spectators.length > 5 && this.state.status === 'WAITING_TO_START') {
       this.state.status = 'IN_PROGRESS';
-      this._randomlyAssignRoles
+      this._randomlyAssignRoles();
     }
+    */
   }
 
   /**
@@ -197,13 +217,18 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     let currentGameStatus = this.state.status;
     const minNumberOfPlayers = 6;
     // const maxNumberOfPlayers = 10;
-    if (!this._players.includes(player)) {
-      throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
-    }
+    if (this._foundAndRemovedPlayer(this.state.spectators, player.id)) {}
+    else if (this._foundAndRemovedPlayer(this.state.police, player.id)) {}
+    else if (this._foundAndRemovedPlayer(this.state.doctors, player.id)) {}
+    else if (this._foundAndRemovedPlayer(this.state.villagers, player.id)) {}
+    else if (this._foundAndRemovedPlayer(this.state.mafia, player.id)) {}
+    else throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
+    /*
     if (this._players.length === minNumberOfPlayers && currentGameStatus === 'IN_PROGRESS') {
       currentGameStatus = 'OVER';
       this.state.winners = this._getWinningTeam();
     }
+    */
     if (this.state.status === 'OVER') {
       // this._setWinnerTeam(); TODO Implement this function so it can get used here.
     }

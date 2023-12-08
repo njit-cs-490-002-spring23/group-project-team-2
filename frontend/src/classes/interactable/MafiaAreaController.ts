@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import {
   GameArea,
   GameStatus,
@@ -17,6 +18,7 @@ export type MafiaEvents = GameEventTypes & {
   boardChanged: (board: string[]) => void;
   turnChanged: (isPlayerTurn: boolean) => void;
   phaseChanged: (currentPhase: TimeOfDay) => void;
+  roundChanged: (currentRound: number | undefined) => void;
   statusChanged: (status: GameStatus) => void;
 };
 
@@ -163,26 +165,8 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
     return 0;
   }
 
-  /**
-   * Returns the total count of players at the beginning of the game.
-   */
-  get startCountPlayer(): number {
-    const totalVillagers = this._model.game?.state.villagers?.length || 0;
-    const totalMafias = this._model.game?.state.mafia?.length || 0;
-    const doctor = 1;
-    const police = 1;
-    return totalVillagers + totalMafias + doctor + police;
-  }
-
-  /**
-   * Returns the total count of deceased players.
-   */
-  get totalDeceasedPlayers(): number {
-    const totalCount = this.startCountPlayer;
-    const alivePlayerCount =
-      this.villagerAlive + this.mafiasAlive + this.doctorAlive + this.policeAlive;
-
-    return totalCount - alivePlayerCount;
+  get currentRound(): number | undefined {
+    return this._model.game?.state.round;
   }
 
   /**
@@ -214,6 +198,17 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
   }
 
   /**
+   * Returns players' role
+   */
+  get investigation(): string[] {
+    const investigation = this._model.game?.state.investigation;
+    if (investigation) {
+      return investigation;
+    }
+    return [];
+  }
+
+  /**
    * Determines if it's the player's turn based on the game phase and player role.
    */
   get isPlayerTurn(): boolean {
@@ -221,6 +216,10 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
     const playerId = this._townController.ourPlayer.id;
     const playerRole = this.role;
     if (this._model.game?.state.status !== 'IN_PROGRESS') {
+      return false;
+    }
+    // first day check
+    if (this.currentRound === 1 && this.currentPhase === 'Day') {
       return false;
     }
     if (playerRole === 'Mafia') {
@@ -317,6 +316,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    */
 
   protected _updateFrom(newModel: GameArea<MafiaGameState>): void {
+    const pastRound = this.currentRound;
     const pastStatus = this.status;
     const pastPhase = this.currentPhase;
     const pastTurn = this.isPlayerTurn;
@@ -351,11 +351,21 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
       }
     }
     const currentTurn = this.isPlayerTurn;
-    if (pastTurn !== currentTurn) this.emit('turnChanged', this.isPlayerTurn);
+    if (!_.isEqual(pastTurn, currentTurn)) {
+      this.emit('turnChanged', this.isPlayerTurn);
+    }
     const currentPhase = this.currentPhase;
-    if (pastPhase !== currentPhase) this.emit('phaseChanged', currentPhase);
+    if (!_.isEqual(pastPhase, currentPhase)) {
+      this.emit('phaseChanged', currentPhase);
+    }
     const currentStatus = this.status;
-    if (pastStatus !== currentStatus) this.emit('statusChanged', currentStatus);
+    if (!_.isEqual(pastStatus, currentStatus)) {
+      this.emit('statusChanged', currentStatus);
+    }
+    const currentRound = this.currentRound;
+    if (!_.isEqual(pastRound, currentRound)) {
+      this.emit('roundChanged', currentRound);
+    }
   }
 
   /**

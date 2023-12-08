@@ -119,7 +119,9 @@ export default function MafiaBoard({ gameAreaController }: MafiaGameProps): JSX.
     if (timer === 0) {
       (async () => {
         try {
-          await gameAreaController.countVotes();
+          if (gameAreaController.role === 'Police') {
+            await gameAreaController.countVotes();
+          }
         } catch (error) {
           toast({
             title: 'Error',

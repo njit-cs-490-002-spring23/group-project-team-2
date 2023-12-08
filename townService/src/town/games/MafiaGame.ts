@@ -190,45 +190,6 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
   */
 
   /**
-   * Applies a player's move to the game. In this game a move would be a vote.
-   */
-  public applyVotes(): void {
-    let playerMostVoted = '';
-    const playersVotes: { [id: PlayerID]: number } = {};
-    let max = 0;
-    const votes = this.state.moves.map(move => move.playerVoted) ?? [];
-    for (const player of votes) {
-      playersVotes[player] = (playersVotes[player] || 0) + 1;
-      if (max < playersVotes[player]) {
-        max = playersVotes[player];
-        playerMostVoted = player;
-      }
-    }
-    this.state.mafia?.forEach(mafia => {
-      if (mafia.id === playerMostVoted) {
-        mafia.status = 'Spectator';
-      }
-    });
-    this.state.villagers?.forEach(villager => {
-      if (villager.id === playerMostVoted) {
-        villager.status = 'Spectator';
-      }
-    });
-    if (this.state.doctor?.id === playerMostVoted) {
-      this.state.doctor.status = 'Spectator';
-    }
-    if (this.state.police?.id === playerMostVoted) {
-      this.state.police.status = 'Spectator';
-    }
-    if (this.state.phase === 'Day') {
-      this.state.phase = 'Night';
-    } else {
-      this.state.phase = 'Day';
-    }
-    this.state.moves = [];
-  }
-
-  /**
    * Adds a player to the game
    * Updates the game's state to reflect the new player.
    * Once the first player joins the game, updates the game's status to 'WAITING_TO_START'.
@@ -312,5 +273,91 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     if (this.state.status === 'OVER') {
       // this._setWinnerTeam(); TODO Implement this function so it can get used here.
     }
+  }
+
+  /**
+   * Applies a player's move to the game. In this game a move would be a vote.
+   */
+  public applyVotes(): void {
+    let playerMostVoted = '';
+    const playersVotes: { [id: PlayerID]: number } = {};
+    let max = 0;
+    let doctorVote = '';
+    // check if day or night phase.
+    const isNightPhase = this.state.phase === 'Night';
+    // check who the doctor voted for
+    if (isNightPhase) {
+      this.state.moves.forEach(move => {
+        if (this.state.doctor?.id === move.playerVoting) {
+          doctorVote = move.playerVoted;
+        }
+      });
+      // check who the police investigated
+      this.state.moves.forEach(move => {
+        if (this.state.police?.id === move.playerVoting) {
+          if (!this.state.investigation) {
+            this.state.investigation = [];
+          }
+          this.state.investigation.push(move.playerVoted);
+        }
+      });
+      // add to round
+      const oldRound = this.state.round;
+      if (oldRound) {
+        this.state = {
+          ...this.state,
+          round: oldRound + 1,
+        };
+      }
+    }
+    // find who mafia voted for
+    const votes = isNightPhase
+      ? this.state.moves
+          .filter(move => this._roleCheck(move.playerVoting) === 'Mafia')
+          .map(move => move.playerVoted)
+      : this.state.moves.map(move => move.playerVoted) ?? [];
+    for (const player of votes) {
+      playersVotes[player] = (playersVotes[player] || 0) + 1;
+      if (max < playersVotes[player]) {
+        max = playersVotes[player];
+        playerMostVoted = player;
+      }
+    }
+
+    this.state.mafia?.forEach(mafia => {
+      if (mafia.id === playerMostVoted && mafia.id !== doctorVote) {
+        mafia.status = 'Spectator';
+      }
+    });
+    this.state.villagers?.forEach(villager => {
+      if (villager.id === playerMostVoted && villager.id !== doctorVote) {
+        villager.status = 'Spectator';
+      }
+    });
+    if (this.state.doctor?.id === playerMostVoted && this.state.doctor.id !== doctorVote) {
+      this.state.doctor.status = 'Spectator';
+    }
+    if (this.state.police?.id === playerMostVoted && this.state.police?.id !== doctorVote) {
+      this.state.police.status = 'Spectator';
+    }
+    // change phase
+    if (this.state.phase === 'Day') {
+      this.state = {
+        ...this.state,
+        phase: 'Night',
+      };
+    } else if (this.state.phase === 'Night') {
+      this.state = {
+        ...this.state,
+        phase: 'Day',
+      };
+    }
+    // clear the votes
+    this.state = {
+      ...this.state,
+      moves: [],
+    };
+    // check for game ending condtions
+    this._checkForGameEnding();
   }
 }

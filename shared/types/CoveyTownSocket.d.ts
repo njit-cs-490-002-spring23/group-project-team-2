@@ -130,6 +130,8 @@ export interface MafiaGameState extends WinnableGameState {
   police?: PlayerState;
   doctor?: PlayerState;
   phase?: TimeOfDay;
+  round?: number;
+  investigation?: PlayerID[]
 }
 
 export type InteractableID = string;

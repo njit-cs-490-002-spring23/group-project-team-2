@@ -305,9 +305,11 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     if (this.state.status !== 'IN_PROGRESS') {
       throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
     }
-    for (const m of this.state.moves) {
-      if (m.playerVoting === playerid) {
-        throw new InvalidParametersError(PLAYER_ALREADY_VOTED_MESSAGE);
+    for (let moveIndex = 0; moveIndex < this.state.moves.length; moveIndex++) {
+      if (this.state.moves[moveIndex].playerVoting === playerid) {
+        const newMoves = this.state.moves.filter(oldMove => oldMove.playerVoting !== playerid);
+        this.state.moves = newMoves;
+        break;
       }
     }
     if (this.state.phase === 'Night') {

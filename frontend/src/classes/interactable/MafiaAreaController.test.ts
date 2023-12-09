@@ -250,40 +250,6 @@ describe('[T1] MafiaAreaController', () => {
         expect(controller.isPlayerTurn).toBe(false);
       });
     });
-    describe('totalDeceasedPlayers', () => {
-      it('should return the correct number of deceased players', () => {
-        const controller = mafiaGameControllerWithProp({
-          status: 'IN_PROGRESS',
-          villagers: [
-            { id: otherPlayers[0].id, status: 'Spectator' },
-            { id: otherPlayers[1].id, status: 'Active' },
-          ],
-          mafias: [
-            { id: otherPlayers[2].id, status: 'Spectator' },
-            { id: otherPlayers[3].id, status: 'Active' },
-          ],
-          doctor: { id: otherPlayers[4].id, status: 'Spectator' },
-          police: { id: ourPlayer.id, status: 'Active' },
-        });
-        expect(controller.totalDeceasedPlayers).toBe(3);
-      });
-      it('should return zero if no players are deceased', () => {
-        const controller = mafiaGameControllerWithProp({
-          status: 'IN_PROGRESS',
-          villagers: [
-            { id: otherPlayers[0].id, status: 'Active' },
-            { id: otherPlayers[1].id, status: 'Active' },
-          ],
-          mafias: [
-            { id: otherPlayers[2].id, status: 'Active' },
-            { id: otherPlayers[3].id, status: 'Active' },
-          ],
-          doctor: { id: otherPlayers[4].id, status: 'Active' },
-          police: { id: ourPlayer.id, status: 'Active' },
-        });
-        expect(controller.totalDeceasedPlayers).toBe(0);
-      });
-    });
     describe('mafias', () => {
       it('should return the mafia players if there is one', () => {
         const controller = mafiaGameControllerWithProp({

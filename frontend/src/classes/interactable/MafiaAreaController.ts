@@ -36,7 +36,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    * Returns the player with the 'Police' role, if there is one, or undefined otherwise
    */
   get policeState(): PlayerState | undefined {
-    const police = this._model.game?.state.police;
+    const police = this._model.game?.state?.police;
     if (police) {
       return police;
     }
@@ -47,7 +47,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    * Returns the player with the 'Doctor' role, if there is one, or undefined otherwise
    */
   get doctorState(): PlayerState | undefined {
-    const doctor = this._model.game?.state.doctor;
+    const doctor = this._model.game?.state?.doctor;
     if (doctor) {
       return doctor;
     }
@@ -58,7 +58,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    * Returns the players with the 'Mafia' role, if there is one, or undefined otherwise
    */
   get mafiasState(): PlayerState[] | undefined {
-    const mafias = this._model.game?.state.mafia;
+    const mafias = this._model.game?.state?.mafia;
     if (mafias) {
       return mafias;
     }
@@ -69,7 +69,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    * Returns the players with the 'Villagers' role, if there is one, or undefined otherwise
    */
   get villagersState(): PlayerState[] | undefined {
-    const villagers = this._model.game?.state.villagers;
+    const villagers = this._model.game?.state?.villagers;
     if (villagers) {
       return villagers;
     }
@@ -166,7 +166,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
   }
 
   get currentRound(): number | undefined {
-    return this._model.game?.state.round;
+    return this._model.game?.state?.round;
   }
 
   /**

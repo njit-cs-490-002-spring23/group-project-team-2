@@ -6,7 +6,6 @@ import InvalidParametersError, {
   GAME_NOT_IN_PROGRESS_MESSAGE,
   MOVE_NOT_YOUR_TURN_MESSAGE,
   PLAYER_ALREADY_IN_GAME_MESSAGE,
-  PLAYER_ALREADY_VOTED_MESSAGE,
   PLAYER_NOT_IN_GAME_MESSAGE,
 } from '../../lib/InvalidParametersError';
 

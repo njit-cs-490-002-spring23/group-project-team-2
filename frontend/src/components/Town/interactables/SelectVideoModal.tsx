@@ -14,8 +14,8 @@ import {
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useViewingAreaController } from '../../../classes/TownController';
+import { InteractableType } from '../../../generated/client';
 import useTownController from '../../../hooks/useTownController';
-import { ViewingArea as ViewingAreaModel } from '../../../types/CoveyTownSocket';
 import ViewingArea from './ViewingArea';
 
 export default function SelectVideoModal({
@@ -49,13 +49,13 @@ export default function SelectVideoModal({
 
   const createViewingArea = useCallback(async () => {
     if (video && viewingAreaController) {
-      const request: ViewingAreaModel = {
+      const request = {
         id: viewingAreaController.id,
         video,
         isPlaying: true,
         elapsedTimeSec: 0,
         occupants: [],
-        type: 'ViewingArea',
+        type: InteractableType.VIEWING_AREA,
       };
       try {
         await coveyTownController.createViewingArea(request);

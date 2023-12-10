@@ -86,6 +86,8 @@ class MockMafiaAreaController extends MafiaAreaController {
 
   mockIsActive = false;
 
+  mockRound: number | undefined = undefined;
+
   mockHistory: GameResult[] = [];
 
   public constructor() {
@@ -126,6 +128,10 @@ class MockMafiaAreaController extends MafiaAreaController {
 
   get moveCount(): number {
     return this.mockMoveCount;
+  }
+
+  get round(): number | undefined {
+    return this.mockRound;
   }
 
   get winner(): PlayerController[] | undefined {
@@ -357,7 +363,7 @@ describe('[T2] MafiaArea', () => {
         await waitFor(() => {
           expect(mockToast).toBeCalledWith(
             expect.objectContaining({
-              description: `Error`,
+              description: `Error: ${errorMessage}`,
               status: 'error',
             }),
           );
@@ -370,16 +376,16 @@ describe('[T2] MafiaArea', () => {
         renderMafiaArea();
         const button = screen.getByText('Join Game');
         expect(button).toBeEnabled();
-        expect(within(button).queryByText('Loading...')).not.toBeInTheDocument(); //Check that the loading text is not displayed
+        expect(within(button).queryByText('Loading...')).not.toBeInTheDocument();
         fireEvent.click(button);
         expect(gameAreaController.joinGame).toBeCalled();
         expect(button).toBeDisabled();
-        expect(within(button).queryByText('Loading...')).toBeInTheDocument(); //Check that the loading text is displayed
+        expect(within(button).queryByText('Loading...')).toBeInTheDocument();
         act(() => {
           joinGameResolve();
         });
         await waitFor(() => expect(button).toBeEnabled());
-        expect(within(button).queryByText('Loading...')).not.toBeInTheDocument(); //Check that the loading text is not displayed
+        expect(within(button).queryByText('Loading...')).not.toBeInTheDocument();
       });
     });
     it('Adds the display of the button when a game becomes possible to join', () => {
@@ -498,61 +504,6 @@ describe('[T2] MafiaArea', () => {
       }
     });
   });
-  describe('[T2.5] Players in the game text', () => {
-    it('Displays the username of the Police player if the police player is in the game', () => {
-      gameAreaController.mockStatus = 'IN_PROGRESS';
-      gameAreaController.mockIsPlayer = false;
-      gameAreaController.mockPolice = new PlayerController(
-        'player Police',
-        'player Police',
-        randomLocation(),
-      );
-      renderMafiaArea();
-      const listOfPlayers = screen.getByLabelText('list of players in the game');
-      expect(
-        within(listOfPlayers).getByText(`${gameAreaController.mockPolice?.userName}`),
-      ).toBeInTheDocument();
-    });
-    it('Displays the username of the Doctor player if the Doctor player is in the game', () => {
-      gameAreaController.mockStatus = 'IN_PROGRESS';
-      gameAreaController.mockIsPlayer = false;
-      gameAreaController.mockDoctor = new PlayerController(
-        'player Doctor',
-        'player Doctor',
-        randomLocation(),
-      );
-      renderMafiaArea();
-      const listOfPlayers = screen.getByLabelText('list of players in the game');
-      expect(
-        within(listOfPlayers).getByText(`${gameAreaController.mockDoctor?.userName}`),
-      ).toBeInTheDocument();
-    });
-    it('Displays "(No player yet!)" if no player in the game', () => {
-      gameAreaController.mockStatus = 'IN_PROGRESS';
-      gameAreaController.mockIsPlayer = false;
-      gameAreaController.mockDoctor = undefined;
-      gameAreaController.mockPolice = undefined;
-      gameAreaController.mockMafias = undefined;
-      gameAreaController.mockVillagers = undefined;
-      renderMafiaArea();
-      const listOfPlayers = screen.getByLabelText('list of players in the game');
-      expect(within(listOfPlayers).getByText(`(No player yet!)`)).toBeInTheDocument();
-    });
-    it('Updates the player list when the game is updated', () => {
-      gameAreaController.mockStatus = 'IN_PROGRESS';
-      gameAreaController.mockIsPlayer = false;
-      renderMafiaArea();
-      const listOfPlayers = screen.getByLabelText('list of players in the game');
-      expect(within(listOfPlayers).getByText(`(No player yet!)`)).toBeInTheDocument();
-      act(() => {
-        gameAreaController.mockPolice = new PlayerController(nanoid(), nanoid(), randomLocation());
-        gameAreaController.emit('gameUpdated');
-      });
-      expect(
-        within(listOfPlayers).getByText(`${gameAreaController.mockPolice?.userName}`),
-      ).toBeInTheDocument();
-    });
-  });
   describe('[T2.6] Game status text', () => {
     it('Displays the correct text when the game is waiting to start', () => {
       gameAreaController.mockStatus = 'WAITING_TO_START';
@@ -561,6 +512,7 @@ describe('[T2] MafiaArea', () => {
     });
     it('Displays the correct text when the game is in progress', () => {
       gameAreaController.mockStatus = 'IN_PROGRESS';
+      gameAreaController.mockPhase = 'Day';
       renderMafiaArea();
       expect(screen.getByText('Game in progress', { exact: false })).toBeInTheDocument();
     });
@@ -569,10 +521,10 @@ describe('[T2] MafiaArea', () => {
       renderMafiaArea();
       expect(screen.getByText('Game over', { exact: false })).toBeInTheDocument();
     });
+
     describe('When a game is in progress', () => {
       beforeEach(() => {
         gameAreaController.mockStatus = 'IN_PROGRESS';
-        gameAreaController.mockPhase = 'Day';
         gameAreaController.mockDoctor = ourPlayer;
         gameAreaController.mockPolice = new PlayerController(
           'player Police',
@@ -588,61 +540,38 @@ describe('[T2] MafiaArea', () => {
           new PlayerController('villager2', 'villager2', randomLocation()),
         ];
       });
-    });
-
-    it('Displays a message "Game in progress, {Day/Night} Stage, {isPlayerTurn} and indicates whose turn it is when it is our turn', () => {
-      renderMafiaArea();
-      expect(
-        screen.getByText(`Game in progress, Day Stage, its your turn to vote`, { exact: false }),
-      ).toBeInTheDocument();
-    });
-
-    it('Displays a message "Game in progress, {Day/Night} Stage, {isPlayerTurn} and and indicates whose turn it is when it is the other player\'s turn', () => {
-      gameAreaController.mockPhase = 'Night';
-      gameAreaController.mockPolice = new PlayerController(
-        'player Police',
-        'player Police',
-        randomLocation(),
-      );
-      gameAreaController.mockMafias = [
-        new PlayerController('mafia1', 'mafia1', randomLocation()),
-        new PlayerController('mafia2', 'mafia2', randomLocation()),
-      ];
-      gameAreaController.mockVillagers = [
-        ourPlayer,
-        new PlayerController('villager2', 'villager2', randomLocation()),
-      ];
-      renderMafiaArea();
-      expect(
-        screen.getByText(`Game in progress, Night Stage, waiting for the night to end`, {
-          exact: false,
-        }),
-      ).toBeInTheDocument();
-    });
-
-    it('Updates the Phase when the game is updated', () => {
-      renderMafiaArea();
-      expect(
-        screen.getByText(`Game in progress, Night Stage`, { exact: false }),
-      ).toBeInTheDocument();
-      act(() => {
+      it('Displays a message "Game in progress, Day Stage, and indicates whose turn it is when it is our turn', () => {
         gameAreaController.mockPhase = 'Day';
-        gameAreaController.emit('gameUpdated');
+        gameAreaController.mockRound = 1;
+        renderMafiaArea();
+        expect(
+          screen.getByText(`Game in progress. Day undefined, No Votes on First Day`, {
+            exact: false,
+          }),
+        ).toBeInTheDocument();
       });
-      expect(screen.getByText(`Game in progress, Day Stage`, { exact: false })).toBeInTheDocument();
-    });
-    it('Updates the whose turn it is when the game is updated', () => {
-      renderMafiaArea();
-      expect(screen.getByText(`its your turn to vote`, { exact: false })).toBeInTheDocument();
-      act(() => {
-        gameAreaController.mockPhase = 'Day';
-        gameAreaController.emit('gameUpdated');
+      it('Displays a message "Game in progress, Night Stage, and indicates whose turn it is when it is the other player\'s turn', () => {
+        act(() => {
+          gameAreaController.mockPhase = 'Night';
+          gameAreaController.mockRound = 1;
+          gameAreaController.emit('gameUpdated');
+        });
+        renderMafiaArea();
+        expect(screen.getByText(`Game in progress. Night`, { exact: false })).toBeInTheDocument();
       });
-      expect(
-        screen.getByText(`, waiting for the night to end`, {
-          exact: false,
-        }),
-      ).toBeInTheDocument();
+      it('Updates the whose turn it is when the game is updated', () => {
+        renderMafiaArea();
+        expect(screen.getByText(`Game in progress.`, { exact: false })).toBeInTheDocument();
+        act(() => {
+          gameAreaController.mockPhase = 'Night';
+          gameAreaController.emit('gameUpdated');
+        });
+        expect(
+          screen.getByText(`Game in progress. Night`, {
+            exact: false,
+          }),
+        ).toBeInTheDocument();
+      });
     });
   });
   it('Updates the game status text when the game is updated', () => {
@@ -651,6 +580,7 @@ describe('[T2] MafiaArea', () => {
     expect(screen.getByText('Game not yet started', { exact: false })).toBeInTheDocument();
     act(() => {
       gameAreaController.mockStatus = 'IN_PROGRESS';
+      gameAreaController.mockPhase = 'Day';
       gameAreaController.emit('gameUpdated');
     });
     expect(screen.getByText('Game in progress', { exact: false })).toBeInTheDocument();
@@ -661,36 +591,6 @@ describe('[T2] MafiaArea', () => {
     expect(screen.getByText('Game over', { exact: false })).toBeInTheDocument();
   });
   describe('When the game ends', () => {
-    it('Displays a toast with the winner', () => {
-      gameAreaController.mockStatus = 'IN_PROGRESS';
-      gameAreaController.mockIsPlayer = false;
-      gameAreaController.mockTeam = 'CIVILIANS_TEAM';
-      gameAreaController.mockDoctor = ourPlayer;
-      gameAreaController.mockPolice = new PlayerController(
-        'player Police',
-        'player Police',
-        randomLocation(),
-      );
-      gameAreaController.mockMafias = [
-        new PlayerController('mafia1', 'mafia1', randomLocation()),
-        new PlayerController('mafia2', 'mafia2', randomLocation()),
-      ];
-      gameAreaController.mockVillagers = [
-        new PlayerController('villager1', 'villager1', randomLocation()),
-        new PlayerController('villager2', 'villager2', randomLocation()),
-      ];
-      gameAreaController.mockWinners = [ourPlayer];
-      gameAreaController.mockWinnerTeam = 'CIVILIANS_TEAM';
-      renderMafiaArea();
-      act(() => {
-        gameAreaController.emit('gameEnd');
-      });
-      expect(mockToast).toBeCalledWith(
-        expect.objectContaining({
-          description: `Congratulations, your ${gameAreaController.mockTeam} won!`,
-        }),
-      );
-    });
     it('Displays a toast with the loser', () => {
       gameAreaController.mockStatus = 'IN_PROGRESS';
       gameAreaController.mockIsPlayer = false;

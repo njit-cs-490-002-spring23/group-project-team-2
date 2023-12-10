@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useInteractable } from '../../../classes/TownController';
-import { ConversationArea } from '../../../generated/client';
+import { ConversationArea, InteractableType } from '../../../generated/client';
 import useTownController from '../../../hooks/useTownController';
 
 export default function NewConversationModal(): JSX.Element {
@@ -45,7 +45,8 @@ export default function NewConversationModal(): JSX.Element {
       const conversationToCreate: ConversationArea = {
         topic,
         id: newConversation.name,
-        occupantsByID: [],
+        occupants: [],
+        type: InteractableType.CONVERSATION_AREA,
       };
       try {
         await coveyTownController.createConversationArea(conversationToCreate);

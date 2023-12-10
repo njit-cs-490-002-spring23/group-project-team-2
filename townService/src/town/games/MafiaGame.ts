@@ -10,15 +10,6 @@ import InvalidParametersError, {
 } from '../../lib/InvalidParametersError';
 
 /**
- * A helper function to roll a dice.
- * The maximum is inclusive and the minimum is inclusive.
- */
-function getRandomIntInclusive(min: number, max: number): number {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
-/**
  * A MafiaGame is a Game that implements the rules of Mafia.
  */
 export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {

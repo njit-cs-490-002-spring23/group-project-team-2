@@ -162,8 +162,7 @@ describe('Mafia Game', () => {
         expect(validRole(police, players)).toEqual(1);
       });
     });
-    /**
-     * it('should throw an error if the players is already in the game', () => {
+    it('should throw an error if the players is already in the game', () => {
       expect(game.state.status).toBe('WAITING_TO_START');
       const player1 = createPlayerForTesting();
       game.join(player1);
@@ -190,11 +189,11 @@ describe('Mafia Game', () => {
       game.join(player8);
       game.join(player9);
       game.join(player10);
+      game.startGame();
       const player11 = createPlayerForTesting();
       expect(game.state.status).toBe('IN_PROGRESS');
       expect(() => game.join(player11)).toThrowError(GAME_FULL_MESSAGE);
     });
-     */
   });
   describe('Leaving', () => {
     it('should throw an error if the player is not in the game', () => {

@@ -361,7 +361,7 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     if (this._players.includes(player)) {
       throw new InvalidParametersError(PLAYER_ALREADY_IN_GAME_MESSAGE);
     }
-    if (this._players.length > 10) {
+    if (this._players.length >= 10) {
       throw new InvalidParametersError(GAME_FULL_MESSAGE);
     }
     /**

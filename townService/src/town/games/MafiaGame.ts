@@ -34,76 +34,70 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
    * @param player The player that will be assigned a role in the game
    * @returns nothing. Only used for role assignment and updating the game state to reflect the role assignment.
    */
-  private _randomlyAssignRoleTo(player: Player): void {
-    let diceRoll: number;
-    let roleAssigned = false;
-    let minDiceNumber = 1;
-    let maxDiceNumber = 4;
-    if (this._players.length < 6) {
-      while (!roleAssigned) {
-        diceRoll = getRandomIntInclusive(minDiceNumber, maxDiceNumber);
-        if (diceRoll === 1 && !this.state.police) {
-          this.state.police = {
-            id: player.id,
-            status: 'Active',
-          };
-          roleAssigned = true;
-        } else if (diceRoll === 2 && !this.state.doctor) {
-          this.state.doctor = {
-            id: player.id,
-            status: 'Active',
-          };
-          roleAssigned = true;
-        } else if (diceRoll === 3) {
-          if (!this.state.villagers) {
-            this.state.villagers = [];
-          } else if (this.state.villagers.length < 2) {
-            this.state.villagers.push({
-              id: player.id,
-              status: 'Active',
-            });
-            roleAssigned = true;
-          }
-        } else if (diceRoll === 4) {
-          if (!this.state.mafia) {
-            this.state.mafia = [];
-          } else if (this.state.mafia.length < 2) {
-            this.state.mafia.push({
-              id: player.id,
-              status: 'Active',
-            });
-            roleAssigned = true;
-          }
-        }
-      }
-    } else {
-      minDiceNumber = 1;
-      maxDiceNumber = 2;
-      while (!roleAssigned) {
-        diceRoll = getRandomIntInclusive(minDiceNumber, maxDiceNumber);
-        if (diceRoll === 1) {
+  private _randomlyAssignRole(): void {
+    const players = this._players;
+    let roles: number[];
+    switch (players.length) {
+      case 6:
+        roles = [1, 1, 2, 2, 3, 4];
+        break;
+      case 7:
+        roles = [1, 1, 1, 2, 2, 3, 4];
+        break;
+      case 8:
+        roles = [1, 1, 1, 2, 2, 2, 3, 4];
+        break;
+      case 9:
+        roles = [1, 1, 1, 1, 2, 2, 2, 3, 4];
+        break;
+      case 10:
+        roles = [1, 1, 1, 1, 1, 2, 2, 2, 3, 4];
+        break;
+      default:
+        roles = [1];
+    }
+    for (let rolesIndex = roles.length - 1; rolesIndex > 0; rolesIndex--) {
+      const random = Math.floor(Math.random() * (rolesIndex + 1));
+      [roles[rolesIndex], roles[random]] = [roles[random], roles[rolesIndex]];
+    }
+    for (let playerIndex = 0; playerIndex < players.length; playerIndex++) {
+      switch (roles[playerIndex]) {
+        case 1:
           if (!this.state.villagers) {
             this.state.villagers = [];
           }
-          if (this.state?.villagers?.length > 2) {
-            this.state.villagers.push({
-              id: player.id,
-              status: 'Active',
-            });
-            roleAssigned = true;
-          }
-        } else if (diceRoll === 2) {
+          this.state.villagers.push({
+            id: players[playerIndex].id,
+            status: 'Active',
+          });
+          break;
+        case 2:
           if (!this.state.mafia) {
             this.state.mafia = [];
           }
-          if (this.state?.mafia?.length > 2) {
-            this.state.mafia.push({
-              id: player.id,
+          this.state.mafia.push({
+            id: players[playerIndex].id,
+            status: 'Active',
+          });
+          break;
+        case 3:
+          if (!this.state.doctor) {
+            this.state.doctor = {
+              id: players[playerIndex].id,
               status: 'Active',
-            });
-            roleAssigned = true;
+            };
           }
-        }
+          break;
+        case 4:
+          if (!this.state.police) {
+            this.state.police = {
+              id: players[playerIndex].id,
+              status: 'Active',
+            };
+          }
+          break;
+        default:
+          break;
       }
     }
   }
@@ -334,6 +328,26 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     this._applyMove(move.move);
   }
 
+  public startGame(): void {
+    if (this._players.length >= 6 && this._players.length <= 10) {
+      this._randomlyAssignRole();
+      if (this.state.mafia && this.state.villagers) {
+        if (
+          this.state.doctor &&
+          this.state.police &&
+          this.state.mafia?.length >= 2 &&
+          this.state.villagers?.length >= 2
+        ) {
+          this.state = {
+            ...this.state,
+            status: 'IN_PROGRESS',
+            phase: 'Day',
+          };
+        }
+      }
+    }
+  }
+
   /**
    * Adds a player to the game
    * Updates the game's state to reflect the new player.
@@ -347,53 +361,26 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     if (this._players.includes(player)) {
       throw new InvalidParametersError(PLAYER_ALREADY_IN_GAME_MESSAGE);
     }
-    if (!this.state.police) {
-      this.state = {
-        ...this.state,
-        police: { id: player.id, status: 'Active' },
-      };
-    } else if (!this.state.doctor) {
-      this.state = {
-        ...this.state,
-        doctor: { id: player.id, status: 'Active' },
-      };
-    } else if (!this.state.mafia) {
-      this.state.mafia = [];
-      this.state.mafia.push({
-        id: player.id,
-        status: 'Active',
-      });
-    } else if (this.state.mafia.length === 1) {
-      this.state.mafia.push({
-        id: player.id,
-        status: 'Active',
-      });
-    } else if (!this.state.villagers) {
-      this.state.villagers = [];
-      this.state.villagers.push({
-        id: player.id,
-        status: 'Active',
-      });
-    } else if (this.state.villagers.length === 1) {
-      this.state.villagers.push({
-        id: player.id,
-        status: 'Active',
-      });
-    } else {
+    if (this._players.length > 10) {
       throw new InvalidParametersError(GAME_FULL_MESSAGE);
     }
-    if (
-      this.state.doctor &&
-      this.state.police &&
-      this.state.mafia?.length === 2 &&
-      this.state.villagers?.length === 2
-    ) {
-      this.state = {
-        ...this.state,
-        status: 'IN_PROGRESS',
-        phase: 'Day',
-      };
+    /**
+     * this._randomlyAssignRoleTo(player);
+    if (this.state.mafia && this.state.villagers) {
+      if (
+        this.state.doctor &&
+        this.state.police &&
+        this.state.mafia?.length >= 2 &&
+        this.state.villagers?.length >= 2
+      ) {
+        this.state = {
+          ...this.state,
+          status: 'IN_PROGRESS',
+          phase: 'Day',
+        };
+      }
     }
+     */
   }
 
   /**
@@ -415,6 +402,32 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     }
     if (this._players.length < minNumberOfPlayers && this.state.status !== 'IN_PROGRESS') {
       this.state.status = 'WAITING_TO_START';
+    }
+    if (this.state.status === 'IN_PROGRESS' && 'Mafia' && this._isTeamCount('MAFIAS_TEAM') === 1) {
+      this.state.status = 'OVER';
+      this.state.winnerTeam = 'CIVILIANS_TEAM';
+    }
+    if (this._roleCheck(player.id) === 'Mafia') {
+      const leavingPlayer = this.state.mafia?.find(p => p.id === player.id);
+      if (leavingPlayer) {
+        leavingPlayer.status = 'Spectator';
+      }
+    }
+    if (this._roleCheck(player.id) === 'Villager') {
+      const leavingPlayer = this.state.villagers?.find(p => p.id === player.id);
+      if (leavingPlayer) {
+        leavingPlayer.status = 'Spectator';
+      }
+    }
+    if (this._roleCheck(player.id) === 'Doctor') {
+      if (this.state.doctor) {
+        this.state.doctor.status = 'Spectator';
+      }
+    }
+    if (this._roleCheck(player.id) === 'Police') {
+      if (this.state.police) {
+        this.state.police.status = 'Spectator';
+      }
     }
   }
 }

@@ -128,15 +128,11 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
    * @returns True if the player is alive, false if the player is dead.
    */
   private _isPlayerAlive(playerid: string): boolean {
-    if (this._roleCheck(playerid) === 'Doctor') {
-      if (this.state.doctor?.status === 'Active') {
-        return true;
-      }
+    if (this._roleCheck(playerid) === 'Doctor' && this.state.doctor?.status === 'Active') {
+      return true;
     }
-    if (this._roleCheck(playerid) === 'Police') {
-      if (this.state.police?.status === 'Active') {
-        return true;
-      }
+    if (this._roleCheck(playerid) === 'Police' && this.state.police?.status === 'Active') {
+      return true;
     }
     if (this.state.mafia) {
       for (let mafiaIndex = 0; mafiaIndex < this.state.mafia.length; mafiaIndex++) {
@@ -149,10 +145,11 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     }
     if (this.state.villagers) {
       for (let villagerIndex = 0; villagerIndex < this.state.villagers.length; villagerIndex++) {
-        if (this.state.villagers[villagerIndex].id === playerid) {
-          if (this.state.villagers[villagerIndex].status === 'Active') {
-            return true;
-          }
+        if (
+          this.state.villagers[villagerIndex].id === playerid &&
+          this.state.villagers[villagerIndex].status === 'Active'
+        ) {
+          return true;
         }
       }
     }

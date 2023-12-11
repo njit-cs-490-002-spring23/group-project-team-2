@@ -253,6 +253,10 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
     return this._model.game?.players.includes(this._townController.ourPlayer.id) || false;
   }
 
+  /**
+   * Checks if the current player is the first player that joined
+   * @returns Return true if the current player is the first player that joined the game
+   */
   public firstPlayer(): boolean {
     if (this._model.game?.players[0] === this._townController.ourPlayer.id) {
       return true;

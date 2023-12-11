@@ -56,6 +56,9 @@ export default abstract class GameAreaController<
     return this.occupants.filter(eachOccupant => !this._players.includes(eachOccupant));
   }
 
+  /**
+   * Sends a request to the server to start the current in the game area.
+   */
   public async startGame() {
     await this._townController.sendInteractableCommand(this.id, {
       type: 'StartGame',

@@ -62,8 +62,16 @@ export default abstract class Game<StateType extends GameState, MoveType> {
    */
   protected abstract _leave(player: Player): void;
 
+  /**
+   * Attempt to start a game.
+   * @throws InvalidParametersError if the game doesn't have the required number of players
+   */
   protected abstract _startGame(): void;
 
+  /**
+   * Attempt to start a game.
+   * @throws InvalidParametersError if the game doesn't have the required number of players
+   */
   public startGame(): void {
     this._startGame();
   }

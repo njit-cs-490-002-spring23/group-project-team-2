@@ -23,7 +23,6 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
 
   /**
    * A helper function to randomly assign a player to one of the Roles in the Mafia Game.
-   * @param player The player that will be assigned a role in the game
    * @returns nothing. Only used for role assignment and updating the game state to reflect the role assignment.
    */
   private _randomlyAssignRole(): void {
@@ -193,6 +192,11 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     return false;
   }
 
+  /**
+   * Used to get the count of players taht are alive in said team
+   * @param team Mafia or Civilian team to check count
+   * @returns The number of players that are alive on the given team
+   */
   private _isTeamCount(team: Teams): number {
     let count = 0;
     if (team === 'MAFIAS_TEAM') {
@@ -320,6 +324,9 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     this._applyMove(move.move);
   }
 
+  /**
+   * Starts the game when the required number of players is met.
+   */
   public _startGame(): void {
     if (this._players.length >= 6 && this._players.length <= 10) {
       this._randomlyAssignRole();
@@ -358,23 +365,6 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     if (this._players.length >= 10) {
       throw new InvalidParametersError(GAME_FULL_MESSAGE);
     }
-    /**
-     * this._randomlyAssignRoleTo(player);
-    if (this.state.mafia && this.state.villagers) {
-      if (
-        this.state.doctor &&
-        this.state.police &&
-        this.state.mafia?.length >= 2 &&
-        this.state.villagers?.length >= 2
-      ) {
-        this.state = {
-          ...this.state,
-          status: 'IN_PROGRESS',
-          phase: 'Day',
-        };
-      }
-    }
-     */
   }
 
   /**

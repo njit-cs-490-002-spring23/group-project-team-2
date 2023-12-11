@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import {
   GameArea,
   GameStatus,
@@ -5,6 +6,7 @@ import {
   PlayerID,
   Teams,
   TimeOfDay,
+  PlayerState,
 } from '../../types/CoveyTownSocket';
 import PlayerController from '../PlayerController';
 import GameAreaController, { GameEventTypes } from './GameAreaController';
@@ -16,6 +18,7 @@ export type MafiaEvents = GameEventTypes & {
   boardChanged: (board: string[]) => void;
   turnChanged: (isPlayerTurn: boolean) => void;
   phaseChanged: (currentPhase: TimeOfDay) => void;
+  roundChanged: (currentRound: number | undefined) => void;
   statusChanged: (status: GameStatus) => void;
 };
 
@@ -27,6 +30,50 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    */
   get board(): string[] {
     return this._board;
+  }
+
+  /**
+   * Returns the player with the 'Police' role, if there is one, or undefined otherwise
+   */
+  get policeState(): PlayerState | undefined {
+    const police = this._model.game?.state?.police;
+    if (police) {
+      return police;
+    }
+    return undefined;
+  }
+
+  /**
+   * Returns the player with the 'Doctor' role, if there is one, or undefined otherwise
+   */
+  get doctorState(): PlayerState | undefined {
+    const doctor = this._model.game?.state?.doctor;
+    if (doctor) {
+      return doctor;
+    }
+    return undefined;
+  }
+
+  /**
+   * Returns the players with the 'Mafia' role, if there is one, or undefined otherwise
+   */
+  get mafiasState(): PlayerState[] | undefined {
+    const mafias = this._model.game?.state?.mafia;
+    if (mafias) {
+      return mafias;
+    }
+    return undefined;
+  }
+
+  /**
+   * Returns the players with the 'Villagers' role, if there is one, or undefined otherwise
+   */
+  get villagersState(): PlayerState[] | undefined {
+    const villagers = this._model.game?.state?.villagers;
+    if (villagers) {
+      return villagers;
+    }
+    return undefined;
   }
 
   /**
@@ -118,26 +165,8 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
     return 0;
   }
 
-  /**
-   * Returns the total count of players at the beginning of the game.
-   */
-  get startCountPlayer(): number {
-    const totalVillagers = this._model.game?.state.villagers?.length || 0;
-    const totalMafias = this._model.game?.state.mafia?.length || 0;
-    const doctor = 1;
-    const police = 1;
-    return totalVillagers + totalMafias + doctor + police;
-  }
-
-  /**
-   * Returns the total count of deceased players.
-   */
-  get totalDeceasedPlayers(): number {
-    const totalCount = this.startCountPlayer;
-    const alivePlayerCount =
-      this.villagerAlive + this.mafiasAlive + this.doctorAlive + this.policeAlive;
-
-    return totalCount - alivePlayerCount;
+  get currentRound(): number | undefined {
+    return this._model.game?.state?.round;
   }
 
   /**
@@ -153,7 +182,7 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
   /**
    * Returns players' role
    */
-  get role(): 'Mafia' | 'Doctor' | 'Police' | 'Villager' {
+  get role(): 'Mafia' | 'Doctor' | 'Police' | 'Villager' | undefined {
     const playerId = this._townController.ourPlayer.id;
     if (this._model.game?.state.mafia?.some(mafia => mafia?.id === playerId)) {
       return 'Mafia';
@@ -161,9 +190,22 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
       return 'Doctor';
     } else if (this._model.game?.state.police?.id === playerId) {
       return 'Police';
-    } else {
+    } else if (this._model.game?.state.villagers?.some(villager => villager?.id === playerId)) {
       return 'Villager';
+    } else {
+      return undefined;
     }
+  }
+
+  /**
+   * Returns players' role
+   */
+  get investigation(): string[] {
+    const investigation = this._model.game?.state.investigation;
+    if (investigation) {
+      return investigation;
+    }
+    return [];
   }
 
   /**
@@ -174,6 +216,10 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
     const playerId = this._townController.ourPlayer.id;
     const playerRole = this.role;
     if (this._model.game?.state.status !== 'IN_PROGRESS') {
+      return false;
+    }
+    // first day check
+    if (this.currentRound === 1 && this.currentPhase === 'Day') {
       return false;
     }
     if (playerRole === 'Mafia') {
@@ -281,9 +327,10 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    */
 
   protected _updateFrom(newModel: GameArea<MafiaGameState>): void {
+    const pastRound = this.currentRound;
     const pastStatus = this.status;
     const pastPhase = this.currentPhase;
-    const pastPhaseTurn = this.isPlayerTurn;
+    const pastTurn = this.isPlayerTurn;
     super._updateFrom(newModel);
     const newState = newModel.game;
     if (newState) {
@@ -293,28 +340,43 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
           newBoard.push(villager.id);
         }
       });
+
       newState.state.mafia?.forEach(mafia => {
         if (mafia.status === 'Active') {
           newBoard.push(mafia.id);
         }
       });
-      if (newState.state.doctor?.status === 'Active') {
-        newBoard.push(newState.state.doctor.id);
+
+      const doctor = newState.state.doctor;
+      if (doctor?.status === 'Active') {
+        newBoard.push(doctor.id);
       }
-      if (newState.state.police?.status === 'Active') {
-        newBoard.push(newState.state.police.id);
+
+      const police = newState.state.police;
+      if (police?.status === 'Active') {
+        newBoard.push(police.id);
       }
       if (newBoard !== this._board) {
         this._board = newBoard;
         this.emit('boardChanged', this._board);
       }
     }
-    const currentPhaseTurn = this.isPlayerTurn;
-    if (pastPhaseTurn !== currentPhaseTurn) this.emit('turnChanged', this.isPlayerTurn);
+    const currentTurn = this.isPlayerTurn;
+    if (!_.isEqual(pastTurn, currentTurn)) {
+      this.emit('turnChanged', this.isPlayerTurn);
+    }
     const currentPhase = this.currentPhase;
-    if (pastPhase !== currentPhase) this.emit('phaseChanged', currentPhase);
+    if (!_.isEqual(pastPhase, currentPhase)) {
+      this.emit('phaseChanged', currentPhase);
+    }
     const currentStatus = this.status;
-    if (pastStatus !== currentStatus) this.emit('statusChanged', currentStatus);
+    if (!_.isEqual(pastStatus, currentStatus)) {
+      this.emit('statusChanged', currentStatus);
+    }
+    const currentRound = this.currentRound;
+    if (!_.isEqual(pastRound, currentRound)) {
+      this.emit('roundChanged', currentRound);
+    }
   }
 
   /**
@@ -338,6 +400,26 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
         playerVoting: this._townController.ourPlayer.id,
         playerVoted: name,
       },
+    });
+  }
+
+  /**
+   * Sends a request to the server to count the votes and Eliminate a player.
+   * Uses the this._townController.sendInteractableCommand method to send the request.
+   * The request should be of type 'countVotes',
+   * and send the gameID provided by `this._instanceID`.
+   *
+   * If the game is not in progress, throws an error NO_GAME_IN_PROGRESS_ERROR
+   *
+   */
+  public async countVotes() {
+    const instanceID = this._instanceID;
+    if (!instanceID || this._model.game?.state.status !== 'IN_PROGRESS') {
+      throw new Error(NO_GAME_IN_PROGRESS_ERROR);
+    }
+    await this._townController.sendInteractableCommand(this.id, {
+      type: 'countVotes',
+      gameID: instanceID,
     });
   }
 }

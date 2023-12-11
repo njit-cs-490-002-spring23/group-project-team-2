@@ -130,6 +130,8 @@ export interface MafiaGameState extends WinnableGameState {
   police?: PlayerState;
   doctor?: PlayerState;
   phase?: TimeOfDay;
+  round?: number;
+  investigation?: PlayerID[]
 }
 
 export type InteractableID = string;
@@ -187,7 +189,7 @@ interface InteractableCommandBase {
   type: string;
 }
 
-export type InteractableCommand =  ViewingAreaUpdateCommand | JoinGameCommand | GameMoveCommand<MafiaMove> | LeaveGameCommand | StartGameCommand;
+export type InteractableCommand =  ViewingAreaUpdateCommand | JoinGameCommand | GameMoveCommand<MafiaMove> | LeaveGameCommand | CountVotesCommand | StartGameCommand;
 export interface ViewingAreaUpdateCommand  {
   type: 'ViewingAreaUpdate';
   update: ViewingArea;
@@ -207,11 +209,16 @@ export interface GameMoveCommand<MoveType> {
 export interface StartGameCommand {
   type: 'StartGame';
 }
+export interface CountVotesCommand {
+  type: 'countVotes';
+  gameID: GameInstanceID;
+}
 export type InteractableCommandReturnType<CommandType extends InteractableCommand> = 
   CommandType extends StartGameCommand ? undefined:
   CommandType extends JoinGameCommand ? { gameID: string}:
   CommandType extends ViewingAreaUpdateCommand ? undefined :
   CommandType extends GameMoveCommand<MafiaMove> ? undefined :
+  CommandType extends CountVotesCommand ? undefined :
   CommandType extends LeaveGameCommand ? undefined :
   never;
 

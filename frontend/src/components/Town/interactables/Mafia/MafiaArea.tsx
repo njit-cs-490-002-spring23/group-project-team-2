@@ -25,19 +25,23 @@ import useTownController from '../../../../hooks/useTownController';
 import { GameStatus, InteractableID } from '../../../../types/CoveyTownSocket';
 import GameAreaInteractable from '../GameArea';
 import MafiaBoard from './MafiaBoard';
+import { PlayerID } from '../../../../types/CoveyTownSocket';
 
 const REQUIRED_MIN_PLAYERS = 6;
 const MAX_PLAYERS = 10;
 
 function gameStatusMessage(controller: MafiaAreaController): string {
   if (controller.status === 'IN_PROGRESS') {
-    const phase = controller.currentPhase;
+    const round = controller.currentRound;
     const isPlayerTurn = controller.isPlayerTurn;
+    const phase = controller.currentPhase;
 
     if (phase === 'Day') {
-      return `Game in progress, Day Stage, its your turn to vote`;
-    } else {
-      return `Game in progress, Night Stage, ${
+      return `Game in progress. Day ${round}, ${
+        isPlayerTurn ? 'Vote Now' : 'No Votes on First Day'
+      }`;
+    } else if (phase === 'Night') {
+      return `Game in progress. Night ${round}, ${
         isPlayerTurn ? 'perform your night action' : 'waiting for the night to end'
       }`;
     }
@@ -45,15 +49,78 @@ function gameStatusMessage(controller: MafiaAreaController): string {
     return 'Game not yet started.';
   } else if (controller.status === 'OVER') {
     return 'Game over.';
-  } else {
-    return 'Unknown game status.';
   }
+  return 'Unknown game status.';
+}
+
+function isPlayerAlive(controller: MafiaAreaController, id: PlayerID): string {
+  const villagers = controller.villagersState;
+  if (villagers) {
+    const villagerPlayer = villagers.filter(villager => villager.id === id);
+    if (villagerPlayer.length > 0) {
+      return villagerPlayer[0].status;
+    }
+  }
+  const mafias = controller.mafiasState;
+  if (mafias) {
+    const mafiaPlayer = mafias.filter(mafia => mafia.id === id);
+    if (mafiaPlayer.length > 0) {
+      return mafiaPlayer[0].status;
+    }
+  }
+  const doctor = controller.doctorState;
+  if (doctor) {
+    if (doctor.id === id) {
+      return doctor.status;
+    }
+  }
+  const police = controller.policeState;
+  if (police) {
+    if (police.id === id) {
+      return police.status;
+    }
+  }
+  return 'No Status';
+}
+
+function getPlayerRole(controller: MafiaAreaController, id: PlayerID): string {
+  const villagers = controller.villagersState;
+  if (villagers && villagers.some(villager => villager.id === id)) {
+    return ' (Village)';
+  }
+  const mafias = controller.mafiasState;
+  if (mafias && mafias.some(mafia => mafia.id === id)) {
+    return ' (Mafia)';
+  }
+  const doctor = controller.doctorState;
+  if (doctor && doctor.id === id) {
+    return ' (Doctor)';
+  }
+  const police = controller.policeState;
+  if (police && police.id === id) {
+    return ' (Police)';
+  }
+  return 'No Role';
+}
+
+function investigation(
+  controller: MafiaAreaController,
+  id: PlayerID,
+  ourPlayer: PlayerID,
+): string | undefined {
+  if (ourPlayer !== controller.police?.id) {
+    return undefined;
+  }
+  const policeInvestigation = controller.investigation;
+  if (policeInvestigation && policeInvestigation.includes(id)) {
+    return getPlayerRole(controller, id);
+  }
+  return undefined;
 }
 
 function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.Element {
   const gameAreaController = useInteractableAreaController<MafiaAreaController>(interactableID);
   const townController = useTownController();
-
   const [gameStatus, setGameStatus] = useState<GameStatus>(gameAreaController.status);
   const [observers, setObservers] = useState<PlayerController[]>(gameAreaController.observers);
   const [joiningGame, setJoiningGame] = useState(false);
@@ -191,7 +258,12 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
       </b>
       <List aria-label='list of players in the game'>
         {players && players.length > 0 ? (
-          players.map((player, index) => <ListItem key={index}>{player.userName}</ListItem>)
+          players.map((player, index) => (
+            <ListItem key={index}>
+              {player.userName}: {isPlayerAlive(gameAreaController, player.id)}
+              {investigation(gameAreaController, player.id, townController.ourPlayer.id)}
+            </ListItem>
+          ))
         ) : (
           <ListItem>(No player yet!)</ListItem>
         )}

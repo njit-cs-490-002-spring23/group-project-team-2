@@ -63,6 +63,14 @@ export default class MafiaGameArea extends GameArea<MafiaGame> {
     command: CommandType,
     player: Player,
   ): InteractableCommandReturnType<CommandType> {
+    if (command.type === 'StartGame') {
+      const game = this._game;
+      if (game && game.state.status === 'WAITING_TO_START') {
+        game.startGame();
+        this._stateUpdated(game.toModel());
+      }
+      return undefined as InteractableCommandReturnType<CommandType>;
+    }
     if (command.type === 'GameMove') {
       const game = this._game;
       if (!game) {

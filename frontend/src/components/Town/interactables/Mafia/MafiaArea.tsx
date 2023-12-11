@@ -27,6 +27,9 @@ import GameAreaInteractable from '../GameArea';
 import MafiaBoard from './MafiaBoard';
 import { PlayerID } from '../../../../types/CoveyTownSocket';
 
+const REQUIRED_MIN_PLAYERS = 6;
+const MAX_PLAYERS = 10;
+
 function gameStatusMessage(controller: MafiaAreaController): string {
   if (controller.status === 'IN_PROGRESS') {
     const round = controller.currentRound;
@@ -122,6 +125,7 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
   const [observers, setObservers] = useState<PlayerController[]>(gameAreaController.observers);
   const [joiningGame, setJoiningGame] = useState(false);
   const [players, setPlayers] = useState<PlayerController[]>();
+  const [canStartGame, setCanStartGame] = useState(false);
   const toast = useToast();
 
   useEffect(() => {
@@ -141,7 +145,10 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
       if (gameAreaController.villagers) {
         allPlayers.push(...gameAreaController.villagers);
       }
-      setPlayers(allPlayers);
+      setPlayers(gameAreaController.players);
+      setCanStartGame(
+        allPlayers.length >= REQUIRED_MIN_PLAYERS && allPlayers.length <= MAX_PLAYERS,
+      );
     };
 
     gameAreaController.addListener('gameUpdated', updateGameState);
@@ -170,6 +177,7 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
   }, [townController, gameAreaController, toast]);
 
   let joinGame = <></>;
+  let startGame = <></>;
   if (
     (gameStatus === 'WAITING_TO_START' && !gameAreaController.isPlayer) ||
     gameStatus === 'OVER'
@@ -192,6 +200,32 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
         isLoading={joiningGame}
         disabled={joiningGame}>
         Join Game
+      </Button>
+    );
+  }
+  if (
+    gameStatus === 'WAITING_TO_START' &&
+    gameAreaController.isPlayer &&
+    gameAreaController.firstPlayer()
+  ) {
+    startGame = (
+      <Button
+        onClick={async () => {
+          setCanStartGame(true);
+          try {
+            await gameAreaController.startGame();
+          } catch (error) {
+            toast({
+              title: 'Error',
+              description: (error as Error).toString(),
+              status: 'error',
+            });
+          }
+          setCanStartGame(false);
+        }}
+        isLoading={canStartGame}
+        disabled={canStartGame}>
+        Start Game
       </Button>
     );
   }
@@ -220,7 +254,7 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
       </Accordion>
       {/*A message indicating the current game status*/}
       <b>
-        {gameStatusMessage(gameAreaController)}. {joinGame}
+        {gameStatusMessage(gameAreaController)}. {joinGame} {startGame}
       </b>
       <List aria-label='list of players in the game'>
         {players && players.length > 0 ? (

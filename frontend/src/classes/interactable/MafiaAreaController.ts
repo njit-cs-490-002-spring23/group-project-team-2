@@ -253,6 +253,13 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
     return this._model.game?.players.includes(this._townController.ourPlayer.id) || false;
   }
 
+  public firstPlayer(): boolean {
+    if (this._model.game?.players[0] === this._townController.ourPlayer.id) {
+      return true;
+    }
+    return false;
+  }
+
   /**
    * Returns true if the game is in progress
    */

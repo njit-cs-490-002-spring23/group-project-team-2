@@ -7,6 +7,7 @@ import InvalidParametersError, {
   MOVE_NOT_YOUR_TURN_MESSAGE,
   PLAYER_ALREADY_IN_GAME_MESSAGE,
   PLAYER_NOT_IN_GAME_MESSAGE,
+  GAME_NOT_ENOUGH_PLAYERS,
 } from '../../lib/InvalidParametersError';
 
 /**
@@ -319,7 +320,7 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     this._applyMove(move.move);
   }
 
-  public startGame(): void {
+  public _startGame(): void {
     if (this._players.length >= 6 && this._players.length <= 10) {
       this._randomlyAssignRole();
       if (this.state.mafia && this.state.villagers) {
@@ -336,6 +337,8 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
           };
         }
       }
+    } else {
+      throw new InvalidParametersError(GAME_NOT_ENOUGH_PLAYERS);
     }
   }
 

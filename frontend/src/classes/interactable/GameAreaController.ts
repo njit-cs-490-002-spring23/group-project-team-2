@@ -56,6 +56,12 @@ export default abstract class GameAreaController<
     return this.occupants.filter(eachOccupant => !this._players.includes(eachOccupant));
   }
 
+  public async startGame() {
+    await this._townController.sendInteractableCommand(this.id, {
+      type: 'StartGame',
+    });
+  }
+
   /**
    * Sends a request to the server to join the current game in the game area, or create a new one if there is no game in progress.
    *

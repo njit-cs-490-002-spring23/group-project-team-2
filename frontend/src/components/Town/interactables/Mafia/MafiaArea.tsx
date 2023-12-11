@@ -78,7 +78,7 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
       if (gameAreaController.villagers) {
         allPlayers.push(...gameAreaController.villagers);
       }
-      setPlayers(allPlayers);
+      setPlayers(gameAreaController.players);
       setCanStartGame(
         allPlayers.length >= REQUIRED_MIN_PLAYERS && allPlayers.length <= MAX_PLAYERS,
       );

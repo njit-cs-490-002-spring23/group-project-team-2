@@ -37,7 +37,7 @@ export default class PlayerController extends (EventEmitter as new () => TypedEm
     this._id = id;
     this._userName = userName;
     this._location = location;
-    this._skin = 'misa';
+    this._skin = 'mafia';
   }
 
   set location(newLocation: PlayerLocation) {

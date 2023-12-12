@@ -40,7 +40,7 @@ export default function PromptTransporterModal(): JSX.Element {
 
   const onTransport = () => {
     transportPrompt?.transport();
-    coveyTownController.ourPlayer.setSkin = transportPrompt?.destinationType() as string;
+    //coveyTownController.ourPlayer.setSkin = transportPrompt?.destinationType() as string;
     onClose();
   };
 

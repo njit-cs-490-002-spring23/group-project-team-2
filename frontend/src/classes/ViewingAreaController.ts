@@ -1,3 +1,4 @@
+// Code taken from IP2
 import { ViewingArea as ViewingAreaModel } from '../types/CoveyTownSocket';
 import InteractableAreaController, {
   BaseInteractableEventMap,

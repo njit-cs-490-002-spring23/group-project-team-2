@@ -184,13 +184,13 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    */
   get role(): 'Mafia' | 'Doctor' | 'Police' | 'Villager' | undefined {
     const playerId = this._townController.ourPlayer.id;
-    if (this._model.game?.state.mafia?.some(mafia => mafia?.id === playerId)) {
+    if (this._model.game?.state?.mafia?.some(mafia => mafia?.id === playerId)) {
       return 'Mafia';
-    } else if (this._model.game?.state.doctor?.id === playerId) {
+    } else if (this._model.game?.state?.doctor?.id === playerId) {
       return 'Doctor';
-    } else if (this._model.game?.state.police?.id === playerId) {
+    } else if (this._model.game?.state?.police?.id === playerId) {
       return 'Police';
-    } else if (this._model.game?.state.villagers?.some(villager => villager?.id === playerId)) {
+    } else if (this._model.game?.state?.villagers?.some(villager => villager?.id === playerId)) {
       return 'Villager';
     } else {
       return undefined;
@@ -283,10 +283,10 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    * Defaults to 'WAITING_TO_START' if the game is not in progress
    */
   get status(): GameStatus {
-    if (this._model.game?.state.status === 'IN_PROGRESS') {
+    if (this._model.game?.state?.status === 'IN_PROGRESS') {
       return 'IN_PROGRESS';
     }
-    if (this._model.game?.state.status === 'OVER') {
+    if (this._model.game?.state?.status === 'OVER') {
       return 'OVER';
     }
     return 'WAITING_TO_START';
@@ -304,7 +304,10 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
    * @returns Return true if the current player is the first player that joined the game
    */
   public firstPlayer(): boolean {
-    if (this._model.game?.players[0] === this._townController.ourPlayer.id) {
+    if (
+      this._model.game?.players &&
+      this._model.game?.players[0] === this._townController.ourPlayer.id
+    ) {
       return true;
     }
     return false;

@@ -8,7 +8,6 @@ import {
   Teams,
   TimeOfDay,
   MafiaMove,
-  PlayerID,
 } from '../../types/CoveyTownSocket';
 import PlayerController from '../PlayerController';
 import TownController from '../TownController';
@@ -49,8 +48,6 @@ describe('[T1] MafiaAreaController', () => {
     doctor,
     phase,
     winnerTeam,
-    winners,
-    investigation,
   }: {
     _id?: string;
     history?: GameResult[];
@@ -63,8 +60,6 @@ describe('[T1] MafiaAreaController', () => {
     doctor?: PlayerState;
     phase?: TimeOfDay;
     winnerTeam?: Teams;
-    winners?: PlayerID[];
-    investigation?: PlayerID[];
   }) {
     const id = _id || nanoid();
     const playerStates = [...(villagers || []), ...(mafias || [])];
@@ -362,32 +357,6 @@ describe('[T1] MafiaAreaController', () => {
         expect(controller.winnerTeam).toBe('CIVILIANS_TEAM');
       });
     });
-    /*
-    describe('winners', () => {
-      it('should return all the winners names', () => {
-        const controller = mafiaGameControllerWithProp({
-          status: 'OVER',
-          villagers: [
-            { id: ourPlayer.id, status: 'Active' },
-            { id: otherPlayers[0].id, status: 'Spectator' },
-          ],
-          mafias: [
-            { id: otherPlayers[1].id, status: 'Spectator' },
-            { id: otherPlayers[2].id, status: 'Spectator' },
-          ],
-          doctor: { id: otherPlayers[4].id, status: 'Spectator' },
-          police: { id: ourPlayer.id, status: 'Active' },
-          winners: [ourPlayer.id, otherPlayers[0].id, otherPlayers[3].id, otherPlayers[4].id],
-        });
-        expect(controller.winners).toBe([
-          ourPlayer.id,
-          otherPlayers[0].id,
-          otherPlayers[3].id,
-          otherPlayers[4].id,
-        ]);
-      });
-    });
-    */
     describe('makeMove', () => {
       it('should throw an error if the game is not in progress', async () => {
         const controller = mafiaGameControllerWithProp({});

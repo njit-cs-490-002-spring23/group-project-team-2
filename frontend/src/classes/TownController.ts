@@ -1,3 +1,4 @@
+// Implementations taken from IP2
 import assert from 'assert';
 import EventEmitter from 'events';
 import _ from 'lodash';

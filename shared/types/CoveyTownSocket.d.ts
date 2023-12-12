@@ -1,3 +1,5 @@
+
+// Interactable interface and Interactable command Code Taken from IP2
 export type TownJoinResponse = {
   /** Unique ID that represents this player * */
   userID: string;

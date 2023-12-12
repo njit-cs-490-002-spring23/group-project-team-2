@@ -1,5 +1,5 @@
 import Game from './Game';
-import { GameMove, MafiaGameState, PlayerID, PlayerState, MafiaMove } from '../../types/CoveyTownSocket';
+import { GameMove, MafiaGameState, PlayerID, PlayerState, MafiaMove, Teams } from '../../types/CoveyTownSocket';
 import Player from '../../lib/Player';
 import InvalidParametersError, {
   GAME_FULL_MESSAGE,
@@ -9,6 +9,12 @@ import InvalidParametersError, {
   PLAYER_NOT_IN_GAME_MESSAGE,
   GAME_NOT_ENOUGH_PLAYERS,
 } from '../../lib/InvalidParametersError';
+
+function getRandomIntInclusive(min: number, max: number): number {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
 
 /**
  * A MafiaGame is a Game that implements the rules of Mafia.
@@ -101,28 +107,12 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
    * @param playerid Takes the player's id.
    * @returns The role which the player is playing
    */
-  private _roleCheck(playerid: string) {
-    if (this.state.doctor?.id === playerid) {
-      return 'Doctor';
-    }
-    if (this.state.police?.id === playerid) {
-      return 'Police';
-    }
-    if (this.state.mafia) {
-      for (let playerIndex = 0; playerIndex < this.state.mafia.length; playerIndex++) {
-        if (this.state.mafia[playerIndex].id === playerid) {
-          return 'Mafia';
-        }
-      }
-    }
-    if (this.state.villagers) {
-      for (let playerIndex = 0; playerIndex < this.state.villagers.length; playerIndex++) {
-        if (this.state.villagers[playerIndex].id === playerid) {
-          return 'Villager';
-        }
-      }
-    }
-    return undefined;
+  private _playerRole(playerID: string) {
+    if (this.state.villagers?.some(villager => villager.id === playerID)) return 'Villager';
+    else if (this.state.mafia?.some(mafia => mafia?.id === playerID)) return 'Mafia';
+    else if (this.state.doctors?.some(doctor => doctor.id === playerID)) return 'Doctor';
+    else if (this.state.police?.some(police => police.id === playerID)) return 'Police';
+    else return 'Spectator';
   }
 
   /**
@@ -130,34 +120,20 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
    * @param playerid Takes player's id.
    * @returns True if the player is alive, false if the player is dead.
    */
-  private _isPlayerAlive(playerid: string): boolean {
-    if (this._roleCheck(playerid) === 'Doctor' && this.state.doctor?.status === 'Active') {
-      return true;
-    }
-    if (this._roleCheck(playerid) === 'Police' && this.state.police?.status === 'Active') {
-      return true;
-    }
-    if (this.state.mafia) {
-      for (let mafiaIndex = 0; mafiaIndex < this.state.mafia.length; mafiaIndex++) {
-        if (this.state.mafia[mafiaIndex].id === playerid) {
-          if (this.state.mafia[mafiaIndex].status === 'Active') {
-            return true;
-          }
-        }
-      }
-    }
-    if (this.state.villagers) {
-      for (let villagerIndex = 0; villagerIndex < this.state.villagers.length; villagerIndex++) {
-        if (
-          this.state.villagers[villagerIndex].id === playerid &&
-          this.state.villagers[villagerIndex].status === 'Active'
-        ) {
-          return true;
-        }
-      }
-    }
-    return false;
+  private _isPlayerAlive(playerID: string): boolean {
+    return this._playerRole(playerID) !== 'Spectator'
   }
+
+  /**
+   * Used to get the count of players thatt are alive in said team
+   * @param team Mafia or Civilian team to check count
+   * @returns The number of players that are alive on the given team
+   */
+  private _teamCount(team: Teams): number {
+    if (team === 'MAFIAS_TEAM') return this.state.mafia.length;
+    return this.state.police.length + this.state.doctors.length + this.state.villagers.length;
+  }
+
 
   /**
    * Checks whether a team is still alive or dead.
@@ -165,65 +141,7 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
    * @returns True if there is at least one person alive on that team, False if no one on the team is alive.
    */
   private _isTeamAlive(team: Teams): boolean {
-    if (team === 'MAFIAS_TEAM') {
-      if (this.state.mafia) {
-        for (let mafiaIndex = 0; mafiaIndex < this.state.mafia.length; mafiaIndex++) {
-          if (this.state.mafia[mafiaIndex].status === 'Active') {
-            return true;
-          }
-        }
-      }
-    }
-    if (team === 'CIVILIANS_TEAM') {
-      if (this.state.doctor?.status === 'Active') {
-        return true;
-      }
-      if (this.state.police?.status === 'Active') {
-        return true;
-      }
-      if (this.state.villagers) {
-        for (let villagerIndex = 0; villagerIndex < this.state.villagers.length; villagerIndex++) {
-          if (this.state.villagers[villagerIndex].status === 'Active') {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Used to get the count of players taht are alive in said team
-   * @param team Mafia or Civilian team to check count
-   * @returns The number of players that are alive on the given team
-   */
-  private _isTeamCount(team: Teams): number {
-    let count = 0;
-    if (team === 'MAFIAS_TEAM') {
-      if (this.state.mafia) {
-        for (let mafiaIndex = 0; mafiaIndex < this.state.mafia.length; mafiaIndex++) {
-          if (this.state.mafia[mafiaIndex].status === 'Active') {
-            count++;
-          }
-        }
-      }
-    }
-    if (team === 'CIVILIANS_TEAM') {
-      if (this.state.doctor?.status === 'Active') {
-        count++;
-      }
-      if (this.state.police?.status === 'Active') {
-        count++;
-      }
-      if (this.state.villagers) {
-        for (let villagerIndex = 0; villagerIndex < this.state.villagers.length; villagerIndex++) {
-          if (this.state.villagers[villagerIndex].status === 'Active') {
-            count++;
-          }
-        }
-      }
-    }
-    return count;
+    return this._teamCount(team) > 0;
   }
 
   /**
@@ -247,18 +165,12 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
   private _getWinningTeam(): void {
     let playerIndex: number;
     const winningTeam: PlayerID[] = [];
-    if (this._allMafiaIsDead() && this.state.doctors && this.state.police && this.state.villagers) {
-      //winningTeam.push(this.state.doctors?.id);
-      //winningTeam.push(this.state.polices?.id);
-      for (playerIndex = 0; playerIndex < this.state.villagers?.length; playerIndex += 1) {
-        winningTeam.push(this.state.villagers[playerIndex].id);
-      }
+    if (this._isTeamAlive('CIVILIANS_TEAM') && !this._isTeamAlive('MAFIAS_TEAM')) {
+      for (playerIndex = 0; playerIndex < this.state.police.length; playerIndex++) winningTeam.push(this.state.police[playerIndex].id)
+      for (playerIndex = 0; playerIndex < this.state.doctors.length; playerIndex++) winningTeam.push(this.state.doctors[playerIndex].id)
+      for (playerIndex = 0; playerIndex < this.state.villagers.length; playerIndex++) winningTeam.push(this.state.villagers[playerIndex].id)
     }
-    if (this.state.mafia) {
-      for (playerIndex = 0; playerIndex < this.state.mafia.length; playerIndex += 1) {
-        winningTeam.push(this.state.mafia[playerIndex].id);
-      }
-    }
+    else for (playerIndex = 0; playerIndex < this.state.mafia.length; playerIndex++) winningTeam.push(this.state.mafia[playerIndex].id);
     this.state.winners = winningTeam;
   }
 
@@ -272,7 +184,7 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
       this._getWinningTeam();
       this.state.winnerTeam = 'CIVILIANS_TEAM';
     }
-    if (this._isTeamCount('MAFIAS_TEAM') >= this._isTeamCount('CIVILIANS_TEAM')) {
+    if (this._teamCount('MAFIAS_TEAM') >= this._teamCount('CIVILIANS_TEAM')) {
       this.state.status = 'OVER';
       this._getWinningTeam();
       this.state.winnerTeam = 'MAFIAS_TEAM';
@@ -292,7 +204,7 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     const newMoves = this.state.moves.filter(oldMove => oldMove.playerVoting !== playerid);
     this.state.moves = newMoves;
     if (this.state.phase === 'Night') {
-      if (this._roleCheck(playerid) === 'Villager') {
+      if (this._playerRole(playerid) === 'Villager') {
         throw new InvalidParametersError(MOVE_NOT_YOUR_TURN_MESSAGE);
       }
     }
@@ -319,22 +231,13 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
    */
   public _startGame(): void {
     if (this._players.length >= 6 && this._players.length <= 10) {
-      this._randomlyAssignRole();
-      if (this.state.mafia && this.state.villagers) {
-        if (
-          this.state.doctor &&
-          this.state.police &&
-          this.state.mafia?.length >= 2 &&
-          this.state.villagers?.length >= 2
-        ) {
-          this.state = {
-            ...this.state,
-            status: 'IN_PROGRESS',
-            phase: 'Day',
-            round: 1,
-          };
-        }
-      }
+      this._randomlyAssignRoles();
+      this.state = {
+        ...this.state,
+        status: 'IN_PROGRESS',
+        phase: undefined,
+        round: 1,
+      };
     } else {
       throw new InvalidParametersError(GAME_NOT_ENOUGH_PLAYERS);
     }
@@ -401,13 +304,13 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     // check who the doctor voted for
     if (isNightPhase) {
       this.state.moves.forEach(move => {
-        if (this.state.doctor?.id === move.playerVoting) {
+        if (this._playerRole(move.playerVoting) === 'Doctor') { //TODO fix
           doctorVote = move.playerVoted;
         }
       });
       // check who the police investigated
-      this.state.moves.forEach(move => {
-        if (this.state.police?.id === move.playerVoting) {
+      this.state.moves.forEach(move => { 
+        if (this._playerRole(move.playerVoting) === 'Police') { //TODO fix
           if (!this.state.investigation) {
             this.state.investigation = [];
           }
@@ -426,7 +329,7 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     // find who mafia voted for
     const votes = isNightPhase
       ? this.state.moves
-          .filter(move => this._roleCheck(move.playerVoting) === 'Mafia')
+          .filter(move => this._playerRole(move.playerVoting) === 'Mafia')
           .map(move => move.playerVoted)
       : this.state.moves.map(move => move.playerVoted) ?? [];
     for (const player of votes) {
@@ -436,7 +339,8 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
         playerMostVoted = player;
       }
     }
-
+  
+    /* TODO reimpliment
     this.state.mafia?.forEach(mafia => {
       if (mafia.id === playerMostVoted && mafia.id !== doctorVote) {
         mafia.status = 'Spectator';
@@ -453,6 +357,8 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     if (this.state.police?.id === playerMostVoted && this.state.police?.id !== doctorVote) {
       this.state.police.status = 'Spectator';
     }
+    */
+   
     // change phase
     if (this.state.phase === 'Day') {
       this.state = {

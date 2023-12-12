@@ -33,7 +33,12 @@ describe('ConversationArea', () => {
       expect(testArea.occupantsByID).toEqual([newPlayer.id]);
 
       const lastEmittedUpdate = getLastEmittedEvent(townEmitter, 'interactableUpdate');
-      expect(lastEmittedUpdate).toEqual({ topic, id, occupantsByID: [newPlayer.id] });
+      expect(lastEmittedUpdate).toEqual({
+        topic,
+        id,
+        occupants: [newPlayer.id],
+        type: 'ConversationArea',
+      });
     });
     it("Sets the player's conversationLabel and emits an update for their location", () => {
       expect(newPlayer.location.interactableID).toEqual(id);
@@ -51,7 +56,12 @@ describe('ConversationArea', () => {
 
       expect(testArea.occupantsByID).toEqual([extraPlayer.id]);
       const lastEmittedUpdate = getLastEmittedEvent(townEmitter, 'interactableUpdate');
-      expect(lastEmittedUpdate).toEqual({ topic, id, occupantsByID: [extraPlayer.id] });
+      expect(lastEmittedUpdate).toEqual({
+        topic,
+        id,
+        occupants: [extraPlayer.id],
+        type: 'ConversationArea',
+      });
     });
     it("Clears the player's conversationLabel and emits an update for their location", () => {
       testArea.remove(newPlayer);
@@ -62,7 +72,12 @@ describe('ConversationArea', () => {
     it('Clears the topic of the conversation area when the last occupant leaves', () => {
       testArea.remove(newPlayer);
       const lastEmittedUpdate = getLastEmittedEvent(townEmitter, 'interactableUpdate');
-      expect(lastEmittedUpdate).toEqual({ topic: undefined, id, occupantsByID: [] });
+      expect(lastEmittedUpdate).toEqual({
+        topic: undefined,
+        id,
+        occupants: [],
+        type: 'ConversationArea',
+      });
       expect(testArea.topic).toBeUndefined();
     });
   });
@@ -71,7 +86,8 @@ describe('ConversationArea', () => {
     expect(model).toEqual({
       id,
       topic,
-      occupantsByID: [newPlayer.id],
+      occupants: [newPlayer.id],
+      type: 'ConversationArea',
     });
   });
   describe('fromMapObject', () => {
@@ -96,7 +112,7 @@ describe('ConversationArea', () => {
       expect(val.boundingBox).toEqual({ x, y, width, height });
       expect(val.id).toEqual(name);
       expect(val.topic).toBeUndefined();
-      expect(val.occupantsByID).toEqual([]);
+      expect(val.occupants).toEqual([]);
     });
   });
 });

@@ -132,7 +132,7 @@ export default class TownGameScene extends Phaser.Scene {
     this.load.tilemapTiledJSON('map', this._resourcePathPrefix + '/assets/tilemaps/indoors.json');
     this.load.atlas(
       'atlas',
-      this._resourcePathPrefix + '/assets/atlas/atlas.png',
+      this._resourcePathPrefix + '/assets/atlas/atlasMafia.png',
       this._resourcePathPrefix + '/assets/atlas/atlas.json',
     );
   }

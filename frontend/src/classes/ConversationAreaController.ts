@@ -1,3 +1,4 @@
+// Code taken from IP2
 import { useEffect, useState } from 'react';
 import { ConversationArea as ConversationAreaModel } from '../types/CoveyTownSocket';
 import PlayerController from './PlayerController';

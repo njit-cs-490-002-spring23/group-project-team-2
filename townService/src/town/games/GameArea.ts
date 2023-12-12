@@ -1,3 +1,4 @@
+// Code Taken from IP2
 import Player from '../../lib/Player';
 import {
   GameArea as GameAreaModel,

@@ -1,3 +1,4 @@
+// Code Taken from IP2
 import Interactable, { KnownInteractableTypes } from '../Interactable';
 
 export default class GameArea extends Interactable {

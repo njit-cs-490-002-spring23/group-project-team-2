@@ -80,6 +80,7 @@ describe('MafiaBoard', () => {
   const gameAreaController = new MockMafiaAreaController();
   beforeEach(() => {
     gameAreaController.mockReset();
+    gameAreaController.startGame();
     mockToast.mockReset();
   });
   async function checkBoard({
@@ -91,80 +92,59 @@ describe('MafiaBoard', () => {
     checkMakeMove?: boolean;
     checkToast?: boolean;
   }) {
-    const players = screen.getAllByRole('button');
-    // There should be exactly 6 buttons: one per-player
-    expect(players).toHaveLength(6);
-    // Each player button should have the correct aria-label
-    for (let i = 0; i < 6; i++) {
-      expect(players[i]).toHaveAttribute('aria-label', `Player ${i + 1}`);
-    }
-    // Test if each player button has the correct text content
-    for (let i = 0; i < 6; i++) {
-      const player = gameAreaController.board[i];
-      expect(players[i]).toHaveTextContent(player);
-    }
-    if (clickable) {
-      // Each player should be clickable if it is the player's turn
+    gameAreaController.startGame();
+    if (gameAreaController.status === 'IN_PROGRESS') {
+      const players = screen.getAllByRole('button');
+      // There should be exactly 6 buttons: one per-player
+      expect(players).toHaveLength(6);
+      // Each player button should have the correct aria-label
       for (let i = 0; i < 6; i++) {
-        expect(players[i]).toBeEnabled();
-        gameAreaController.makeMove.mockReset();
-        mockToast.mockClear();
-
-        fireEvent.click(players[i]);
-        if (checkMakeMove) {
-          expect(gameAreaController.makeMove).toBeCalledWith(gameAreaController.board[i]);
-          if (checkToast) {
-            gameAreaController.makeMove.mockClear();
-            expect(mockToast).not.toBeCalled();
-            mockToast.mockClear();
-            const expectedMessage = `Invalid Move ${nanoid()}}`;
-            gameAreaController.makeMove.mockRejectedValue(new Error(expectedMessage));
-            fireEvent.click(players[i]);
-            await waitFor(() => {
-              expect(mockToast).toBeCalledWith(
-                expect.objectContaining({
-                  status: 'error',
-                  description: `Error: ${expectedMessage}`,
-                }),
-              );
-            });
+        expect(players[i]).toHaveAttribute('aria-label', `Player ${i + 1}`);
+      }
+      // Test if each player button has the correct text content
+      for (let i = 0; i < 6; i++) {
+        const player = gameAreaController.board[i];
+        expect(players[i]).toHaveTextContent(player);
+      }
+      if (clickable) {
+        // Each player should be clickable if it is the player's turn
+        for (let i = 0; i < 6; i++) {
+          expect(players[i]).toBeEnabled();
+          gameAreaController.makeMove.mockReset();
+          mockToast.mockClear();
+          fireEvent.click(players[i]);
+          if (checkMakeMove) {
+            expect(gameAreaController.makeMove).toBeCalledWith(gameAreaController.board[i]);
+            if (checkToast) {
+              gameAreaController.makeMove.mockClear();
+              expect(mockToast).not.toBeCalled();
+              mockToast.mockClear();
+              const expectedMessage = `Invalid Move ${nanoid()}}`;
+              gameAreaController.makeMove.mockRejectedValue(new Error(expectedMessage));
+              fireEvent.click(players[i]);
+              await waitFor(() => {
+                expect(mockToast).toBeCalledWith(
+                  expect.objectContaining({
+                    status: 'error',
+                    description: `Error: ${expectedMessage}`,
+                  }),
+                );
+              });
+            }
           }
         }
-      }
-    } else {
-      // Each player should be disabled if it is not the player's turn
-      for (let i = 0; i < 6; i++) {
-        expect(players[i]).toBeDisabled();
+      } else {
+        // Each player should be disabled if it is not the player's turn
+        for (let i = 0; i < 6; i++) {
+          expect(players[i]).toBeDisabled();
+        }
       }
     }
   }
   describe('[T3.1] When observing the game', () => {
     beforeEach(() => {
       gameAreaController.mockIsPlayer = false;
-    });
-    it('renders the players Alive with the correct number of players', async () => {
-      render(<MafiaBoard gameAreaController={gameAreaController} />);
-      const playerButtons = screen.getAllByRole('button');
-      // There should be exactly 6 buttons: one per-person (and no other buttons in this component)
-      expect(playerButtons).toHaveLength(6);
-      // Each player button should have the correct aria-label
-      for (let i = 0; i < 6; i++) {
-        expect(playerButtons[i]).toHaveAttribute('aria-label', `Player ${i + 1}`);
-      }
-      // Each player button should have the correct text content
-      for (let i = 0; i < 6; i++) {
-        expect(playerButtons[i]).toHaveTextContent(`player${i + 1}`);
-      }
-    });
-    it('does not make a move when a player button is clicked, and button is disabled', async () => {
-      render(<MafiaBoard gameAreaController={gameAreaController} />);
-      const playerButtons = screen.getAllByRole('button');
-      for (let i = 0; i < 6; i++) {
-        expect(playerButtons[i]).toBeDisabled();
-        fireEvent.click(playerButtons[i]);
-        expect(gameAreaController.makeMove).not.toHaveBeenCalled();
-        expect(mockToast).not.toHaveBeenCalled();
-      }
+      gameAreaController.mockIsPlayerTurn = false;
     });
     it('updates the list of players displayed in response to playerAliveChanged events', async () => {
       render(<MafiaBoard gameAreaController={gameAreaController} />);

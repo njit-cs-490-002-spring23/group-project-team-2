@@ -20,12 +20,11 @@ import {
   InteractableCommandBase,
   InteractableCommandResponse,
   InteractableID,
-  InteractableType,
   PlayerID,
   PlayerLocation,
   TownSettingsUpdate,
-  ViewingArea as ViewingAreaModel,
 } from '../types/CoveyTownSocket';
+import { InteractableType } from '../generated/client';
 import { isConversationArea, isViewingArea, isMafiaArea } from '../types/TypeUtils';
 import ConversationAreaController from './ConversationAreaController';
 import PlayerController from './PlayerController';
@@ -574,7 +573,8 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   async createConversationArea(newArea: {
     topic?: string;
     id: string;
-    occupantsByID: Array<string>;
+    occupants: Array<string>;
+    type: InteractableType;
   }) {
     await this._townsService.createConversationArea(this.townID, this.sessionToken, newArea);
   }
@@ -586,7 +586,14 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    *
    * @param newArea
    */
-  async createViewingArea(newArea: ViewingAreaModel) {
+  async createViewingArea(newArea: {
+    id: string;
+    video?: string;
+    isPlaying: boolean;
+    elapsedTimeSec: number;
+    occupants: Array<string>;
+    type: InteractableType;
+  }) {
     await this._townsService.createViewingArea(this.townID, this.sessionToken, newArea);
   }
 
@@ -712,7 +719,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    *    with the event
    */
   public emitViewingAreaUpdate(viewingArea: ViewingAreaController) {
-    this._socket.emit('interactableUpdate', viewingArea.viewingAreaModel());
+    this._socket.emit('interactableUpdate', viewingArea.toInteractableAreaModel());
   }
 
   /**

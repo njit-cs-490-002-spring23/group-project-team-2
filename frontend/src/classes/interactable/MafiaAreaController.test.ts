@@ -8,6 +8,7 @@ import {
   Teams,
   TimeOfDay,
   MafiaMove,
+  PlayerID,
 } from '../../types/CoveyTownSocket';
 import PlayerController from '../PlayerController';
 import TownController from '../TownController';
@@ -48,6 +49,8 @@ describe('[T1] MafiaAreaController', () => {
     doctor,
     phase,
     winnerTeam,
+    winners,
+    investigation,
   }: {
     _id?: string;
     history?: GameResult[];
@@ -60,6 +63,8 @@ describe('[T1] MafiaAreaController', () => {
     doctor?: PlayerState;
     phase?: TimeOfDay;
     winnerTeam?: Teams;
+    winners?: PlayerID[];
+    investigation?: PlayerID[];
   }) {
     const id = _id || nanoid();
     const playerStates = [...(villagers || []), ...(mafias || [])];
@@ -250,40 +255,6 @@ describe('[T1] MafiaAreaController', () => {
         expect(controller.isPlayerTurn).toBe(false);
       });
     });
-    describe('totalDeceasedPlayers', () => {
-      it('should return the correct number of deceased players', () => {
-        const controller = mafiaGameControllerWithProp({
-          status: 'IN_PROGRESS',
-          villagers: [
-            { id: otherPlayers[0].id, status: 'Spectator' },
-            { id: otherPlayers[1].id, status: 'Active' },
-          ],
-          mafias: [
-            { id: otherPlayers[2].id, status: 'Spectator' },
-            { id: otherPlayers[3].id, status: 'Active' },
-          ],
-          doctor: { id: otherPlayers[4].id, status: 'Spectator' },
-          police: { id: ourPlayer.id, status: 'Active' },
-        });
-        expect(controller.totalDeceasedPlayers).toBe(3);
-      });
-      it('should return zero if no players are deceased', () => {
-        const controller = mafiaGameControllerWithProp({
-          status: 'IN_PROGRESS',
-          villagers: [
-            { id: otherPlayers[0].id, status: 'Active' },
-            { id: otherPlayers[1].id, status: 'Active' },
-          ],
-          mafias: [
-            { id: otherPlayers[2].id, status: 'Active' },
-            { id: otherPlayers[3].id, status: 'Active' },
-          ],
-          doctor: { id: otherPlayers[4].id, status: 'Active' },
-          police: { id: ourPlayer.id, status: 'Active' },
-        });
-        expect(controller.totalDeceasedPlayers).toBe(0);
-      });
-    });
     describe('mafias', () => {
       it('should return the mafia players if there is one', () => {
         const controller = mafiaGameControllerWithProp({
@@ -337,7 +308,7 @@ describe('[T1] MafiaAreaController', () => {
       });
     });
     describe('police', () => {
-      it('should return the police players if there is one', () => {
+      it('should return the police player if there is one', () => {
         const controller = mafiaGameControllerWithProp({
           status: 'IN_PROGRESS',
           police: { id: ourPlayer.id, status: 'Active' },
@@ -360,7 +331,7 @@ describe('[T1] MafiaAreaController', () => {
       });
     });
     describe('doctor', () => {
-      it('should return the doctor players if there is one', () => {
+      it('should return the doctor player if there is one', () => {
         const controller = mafiaGameControllerWithProp({
           status: 'IN_PROGRESS',
           doctor: { id: ourPlayer.id, status: 'Active' },
@@ -382,54 +353,6 @@ describe('[T1] MafiaAreaController', () => {
         expect(controller.doctor).toBe(undefined);
       });
     });
-    /*
-    describe('playersAlive', () => {
-      it('should return all players as alive by default', () => {
-        const controller = mafiaGameControllerWithProp({
-          status: 'IN_PROGRESS',
-          villagers: [
-            { id: otherPlayers[0].id, status: 'Active' },
-            { id: otherPlayers[1].id, status: 'Active' },
-          ],
-          mafias: [
-            { id: otherPlayers[2].id, status: 'Active' },
-            { id: otherPlayers[3].id, status: 'Active' },
-          ],
-          doctor: { id: otherPlayers[4].id, status: 'Active' },
-          police: { id: ourPlayer.id, status: 'Active' },
-        });
-        expect(controller.playersAlive).toEqual([
-          otherPlayers[0].id,
-          otherPlayers[1].id,
-          otherPlayers[2].id,
-          otherPlayers[3].id,
-          otherPlayers[4].id,
-          ourPlayer.id,
-        ]);
-      });
-      it('should return the correct players as alive when some are deceased', () => {
-        const controller = mafiaGameControllerWithProp({
-          status: 'IN_PROGRESS',
-          villagers: [
-            { id: otherPlayers[0].id, status: 'Active' },
-            { id: otherPlayers[1].id, status: 'Active' },
-          ],
-          mafias: [
-            { id: otherPlayers[2].id, status: 'Spectator' },
-            { id: otherPlayers[3].id, status: 'Active' },
-          ],
-          doctor: { id: otherPlayers[4].id, status: 'Spectator' },
-          police: { id: ourPlayer.id, status: 'Active' },
-        });
-        expect(controller.playersAlive).toEqual([
-          otherPlayers[0].id,
-          otherPlayers[1].id,
-          otherPlayers[3].id,
-          ourPlayer.id,
-        ]);
-      });
-    });
-    */
     describe('winnerTeam', () => {
       it('should return the winning team and the winner of such team', () => {
         const controller = mafiaGameControllerWithProp({
@@ -439,6 +362,32 @@ describe('[T1] MafiaAreaController', () => {
         expect(controller.winnerTeam).toBe('CIVILIANS_TEAM');
       });
     });
+    /*
+    describe('winners', () => {
+      it('should return all the winners names', () => {
+        const controller = mafiaGameControllerWithProp({
+          status: 'OVER',
+          villagers: [
+            { id: ourPlayer.id, status: 'Active' },
+            { id: otherPlayers[0].id, status: 'Spectator' },
+          ],
+          mafias: [
+            { id: otherPlayers[1].id, status: 'Spectator' },
+            { id: otherPlayers[2].id, status: 'Spectator' },
+          ],
+          doctor: { id: otherPlayers[4].id, status: 'Spectator' },
+          police: { id: ourPlayer.id, status: 'Active' },
+          winners: [ourPlayer.id, otherPlayers[0].id, otherPlayers[3].id, otherPlayers[4].id],
+        });
+        expect(controller.winners).toBe([
+          ourPlayer.id,
+          otherPlayers[0].id,
+          otherPlayers[3].id,
+          otherPlayers[4].id,
+        ]);
+      });
+    });
+    */
     describe('makeMove', () => {
       it('should throw an error if the game is not in progress', async () => {
         const controller = mafiaGameControllerWithProp({});
@@ -472,6 +421,38 @@ describe('[T1] MafiaAreaController', () => {
             playerVoting: ourPlayer.id,
             playerVoted: otherPlayers[0].id,
           },
+        });
+      });
+    });
+    describe('countVotes', () => {
+      it('should throw an error if the game is not in progress', async () => {
+        const controller = mafiaGameControllerWithProp({});
+        await expect(async () => controller.countVotes()).rejects.toEqual(
+          new Error(NO_GAME_IN_PROGRESS_ERROR),
+        );
+      });
+      it('should call townController.sendInteractableCommand with the correct count move', async () => {
+        const controller = mafiaGameControllerWithProp({
+          status: 'IN_PROGRESS',
+          villagers: [
+            { id: ourPlayer.id, status: 'Active' },
+            { id: otherPlayers[0].id, status: 'Spectator' },
+          ],
+          mafias: [
+            { id: otherPlayers[1].id, status: 'Spectator' },
+            { id: otherPlayers[2].id, status: 'Spectator' },
+          ],
+        });
+        const instanceID = nanoid();
+        mockTownController.sendInteractableCommand.mockImplementationOnce(async () => {
+          return { gameID: instanceID };
+        });
+        await controller.joinGame();
+        mockTownController.sendInteractableCommand.mockReset();
+        await controller.countVotes();
+        expect(mockTownController.sendInteractableCommand).toHaveBeenCalledWith(controller.id, {
+          type: 'countVotes',
+          gameID: instanceID,
         });
       });
     });

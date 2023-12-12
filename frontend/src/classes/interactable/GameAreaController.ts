@@ -57,6 +57,15 @@ export default abstract class GameAreaController<
   }
 
   /**
+   * Sends a request to the server to start the current in the game area.
+   */
+  public async startGame() {
+    await this._townController.sendInteractableCommand(this.id, {
+      type: 'StartGame',
+    });
+  }
+
+  /**
    * Sends a request to the server to join the current game in the game area, or create a new one if there is no game in progress.
    *
    * @throws An error if the server rejects the request to join the game.

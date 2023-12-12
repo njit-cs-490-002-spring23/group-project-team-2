@@ -103,6 +103,8 @@ describe('[T4] Viewing Area Video', () => {
       id: 'test',
       isPlaying: true,
       video: 'test',
+      occupants: [],
+      type: 'ViewingArea',
     });
 
     addListenerSpy = jest.spyOn(viewingArea, 'addListener');
@@ -228,6 +230,8 @@ describe('[T4] Viewing Area Video', () => {
             id: 'test',
             isPlaying: true,
             video: 'test',
+            occupants: [],
+            type: 'ViewingArea',
           });
           const newAddListenerSpy = jest.spyOn(newViewingArea, 'addListener');
           renderData.rerender(renderViewingArea(newViewingArea, townController));

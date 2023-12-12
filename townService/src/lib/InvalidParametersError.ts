@@ -5,6 +5,7 @@ export const GAME_FULL_MESSAGE = 'Game is full';
 export const GAME_NOT_IN_PROGRESS_MESSAGE = 'Game is not in progress';
 export const GAME_OVER_MESSAGE = 'Game is over';
 export const GAME_ID_MISSMATCH_MESSAGE = 'Game ID mismatch';
+export const GAME_NOT_ENOUGH_PLAYERS = 'Game does not have the required number of players';
 /**
  * invalid move messages
  */

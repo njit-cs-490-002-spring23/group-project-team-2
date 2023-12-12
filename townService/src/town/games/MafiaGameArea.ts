@@ -63,6 +63,14 @@ export default class MafiaGameArea extends GameArea<MafiaGame> {
     command: CommandType,
     player: Player,
   ): InteractableCommandReturnType<CommandType> {
+    if (command.type === 'StartGame') {
+      const game = this._game;
+      if (game && game.state.status === 'WAITING_TO_START') {
+        game.startGame();
+        this._stateUpdated(game.toModel());
+      }
+      return undefined as InteractableCommandReturnType<CommandType>;
+    }
     if (command.type === 'GameMove') {
       const game = this._game;
       if (!game) {
@@ -76,6 +84,18 @@ export default class MafiaGameArea extends GameArea<MafiaGame> {
         playerID: player.id,
         move: command.move,
       });
+      this._stateUpdated(game.toModel());
+      return undefined as InteractableCommandReturnType<CommandType>;
+    }
+    if (command.type === 'countVotes') {
+      const game = this._game;
+      if (!game) {
+        throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
+      }
+      if (this._game?.id !== command.gameID) {
+        throw new InvalidParametersError(GAME_ID_MISSMATCH_MESSAGE);
+      }
+      game.applyVotes();
       this._stateUpdated(game.toModel());
       return undefined as InteractableCommandReturnType<CommandType>;
     }

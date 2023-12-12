@@ -54,6 +54,7 @@ function gameStatusMessage(controller: MafiaAreaController): string {
 }
 
 function isPlayerAlive(controller: MafiaAreaController, id: PlayerID): string {
+  /* TODO fix
   const villagers = controller.villagersState;
   if (villagers) {
     const villagerPlayer = villagers.filter(villager => villager.id === id);
@@ -80,9 +81,11 @@ function isPlayerAlive(controller: MafiaAreaController, id: PlayerID): string {
       return police.status;
     }
   }
+  */
   return 'No Status';
 }
 
+/* TODO fix
 function getPlayerRole(controller: MafiaAreaController, id: PlayerID): string {
   const villagers = controller.villagersState;
   if (villagers && villagers.some(villager => villager.id === id)) {
@@ -117,6 +120,7 @@ function investigation(
   }
   return undefined;
 }
+*/
 
 function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.Element {
   const gameAreaController = useInteractableAreaController<MafiaAreaController>(interactableID);
@@ -132,25 +136,6 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
     const updateGameState = () => {
       setGameStatus(gameAreaController.status || 'WAITING_TO_START');
       setObservers(gameAreaController.observers);
-      const allPlayers = [];
-      if (gameAreaController.spectators)
-        allPlayers.push(...gameAreaController.spectators);
-      if (gameAreaController.police) {
-        allPlayers.push(...gameAreaController.police);
-      }
-      if (gameAreaController.doctor) {
-        allPlayers.push(...gameAreaController.doctor);
-      }
-      if (gameAreaController.mafia) {
-        allPlayers.push(...gameAreaController.mafia);
-      }
-      if (gameAreaController.villagers) {
-        allPlayers.push(...gameAreaController.villagers);
-      }
-      setPlayers(gameAreaController.players);
-      setCanStartGame(
-        allPlayers.length >= REQUIRED_MIN_PLAYERS && allPlayers.length <= MAX_PLAYERS,
-      );
     };
 
     gameAreaController.addListener('gameUpdated', updateGameState);

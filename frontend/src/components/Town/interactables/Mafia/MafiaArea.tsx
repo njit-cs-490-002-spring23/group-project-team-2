@@ -181,7 +181,9 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
   if (
     (gameStatus === 'WAITING_TO_START' && !gameAreaController.isPlayer) ||
     gameStatus === 'OVER' ||
-    !gameAreaController.checkPlayerListLeftStatus
+    (gameAreaController.checkPlayerListLeftStatus &&
+      gameStatus === 'IN_PROGRESS' &&
+      !gameAreaController.isPlayer)
   ) {
     joinGame = (
       <Button
@@ -266,7 +268,7 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
             </ListItem>
           ))
         ) : (
-          <ListItem>(No player yet!)</ListItem>
+          <ListItem></ListItem>
         )}
       </List>
       <MafiaBoard gameAreaController={gameAreaController} />

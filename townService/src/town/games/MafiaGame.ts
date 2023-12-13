@@ -419,23 +419,23 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     if (this._roleCheck(player.id) === 'Mafia') {
       const leavingPlayer = this.state.mafia?.find(p => p.id === player.id);
       if (leavingPlayer) {
-        leavingPlayer.status = 'Spectator';
+        leavingPlayer.status = 'Left';
       }
     }
     if (this._roleCheck(player.id) === 'Villager') {
       const leavingPlayer = this.state.villagers?.find(p => p.id === player.id);
       if (leavingPlayer) {
-        leavingPlayer.status = 'Spectator';
+        leavingPlayer.status = 'Left';
       }
     }
     if (this._roleCheck(player.id) === 'Doctor') {
       if (this.state.doctor) {
-        this.state.doctor.status = 'Spectator';
+        this.state.doctor.status = 'Left';
       }
     }
     if (this._roleCheck(player.id) === 'Police') {
       if (this.state.police) {
-        this.state.police.status = 'Spectator';
+        this.state.police.status = 'Left';
       }
     }
   }

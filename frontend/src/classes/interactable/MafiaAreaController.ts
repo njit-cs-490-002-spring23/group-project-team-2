@@ -355,24 +355,24 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
     if (newState) {
       const newBoard: PlayerID[] = [];
       newState.state.villagers?.forEach(villager => {
-        if (villager.status === 'Active') {
+        if (villager.status === 'Active' || villager.status === 'Left') {
           newBoard.push(villager.id);
         }
       });
 
       newState.state.mafia?.forEach(mafia => {
-        if (mafia.status === 'Active') {
+        if (mafia.status === 'Active' || mafia.status === 'Left') {
           newBoard.push(mafia.id);
         }
       });
 
       const doctor = newState.state.doctor;
-      if (doctor?.status === 'Active') {
+      if (doctor?.status === 'Active' || doctor?.status === 'Left') {
         newBoard.push(doctor.id);
       }
 
       const police = newState.state.police;
-      if (police?.status === 'Active') {
+      if (police?.status === 'Active' || police?.status === 'Left') {
         newBoard.push(police.id);
       }
       if (newBoard !== this._board) {

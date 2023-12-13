@@ -166,56 +166,65 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
   townController.ourPlayer.setSkin = townController.ourPlayer.getSkin;
   let joinGame = <></>;
   let startGame = <></>;
-  if (
-    (gameStatus === 'WAITING_TO_START' && !gameAreaController.isPlayer) ||
-    gameStatus === 'OVER'
-  ) {
-    joinGame = (
-      <Button
-        onClick={async () => {
-          setJoiningGame(true);
-          try {
-            await gameAreaController.joinGame();
-          } catch (error) {
-            toast({
-              title: 'Error',
-              description: (error as Error).toString(),
-              status: 'error',
-            });
-          }
-          setJoiningGame(false);
-        }}
-        isLoading={joiningGame}
-        disabled={joiningGame}>
-        Join Game
-      </Button>
-    );
+  let playerList = 
+  <List aria-label='list of players in the game'>
+  {gameAreaController.spectators.length > 0 ? (
+  gameAreaController.spectators.map((player, index) => <ListItem key={index}>{index + 1}{') '}{player.userName}</ListItem>)
+  ) : ( <ListItem>(No player yet!)</ListItem> )}
+  </List>
+  let mafiaBoard = <></>
+  if (gameStatus === 'WAITING_TO_START') {
+    if(!gameAreaController.isPlayer) {
+      joinGame = (
+        <Button
+          onClick={async () => {
+            setJoiningGame(true);
+            try {
+              await gameAreaController.joinGame();
+            } catch (error) {
+              toast({
+                title: 'Error',
+                description: (error as Error).toString(),
+                status: 'error',
+              });
+            }
+            setJoiningGame(false);
+          }}
+          isLoading={joiningGame}
+          disabled={joiningGame}>
+          Join Game
+        </Button>
+      );
+    }
+    else if (gameAreaController.isPlayer && gameAreaController.firstPlayer()) {
+      startGame = (
+        <Button
+          onClick={async () => {
+            setCanStartGame(true);
+            try {
+              await gameAreaController.startGame();
+            } catch (error) {
+              toast({
+                title: 'Error',
+                description: (error as Error).toString(),
+                status: 'error',
+              });
+            }
+            setCanStartGame(false);
+          }}
+          isLoading={canStartGame}
+          disabled={canStartGame}>
+          Start Game
+        </Button>
+      );
+    }
   }
-  if (
-    gameStatus === 'WAITING_TO_START' &&
-    gameAreaController.isPlayer &&
-    gameAreaController.firstPlayer()
-  ) {
-    startGame = (
-      <Button
-        onClick={async () => {
-          setCanStartGame(true);
-          try {
-            await gameAreaController.startGame();
-          } catch (error) {
-            toast({
-              title: 'Error',
-              description: (error as Error).toString(),
-              status: 'error',
-            });
-          }
-          setCanStartGame(false);
-        }}
-        isLoading={canStartGame}
-        disabled={canStartGame}>
-        Start Game
-      </Button>
-    );
+  else if (gameStatus === 'IN_PROGRESS') {
+    playerList = 
+    <AccordionPanel>
+      {playerList}
+    </AccordionPanel>
+    mafiaBoard = <MafiaBoard gameAreaController={gameAreaController} />
   }
 
   return (
@@ -244,13 +253,8 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
       <b>
         {gameStatusMessage(gameAreaController)}. {joinGame} {startGame}
       </b>
-      <List aria-label='list of players in the game'>
-        {gameAreaController.spectators.length > 0 ? (
-          gameAreaController.spectators.map((player, index) => <ListItem key={index}>{index + 1}{') '}{player.userName}</ListItem>)
-        ) : (
-          <ListItem>(No player yet!)</ListItem>
-        )}
-      </List>
+      {playerList}
+      {mafiaBoard}
     </Container>
   );
 }

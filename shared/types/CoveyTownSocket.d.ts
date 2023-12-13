@@ -117,7 +117,7 @@ export interface MafiaMove {
  * The state of the game is represented as a list of moves, and the playerIDs of the players (2 villagers, 2 mafia, one police, one doctor)
  * When player join, they will be assign to the roles randonly
  */
-export type PlayerStatus = 'Active' | 'Spectator';
+export type PlayerStatus = 'Active' | 'Spectator' | 'Left';
 
 export type PlayerState = {
   id: PlayerID;
@@ -133,7 +133,8 @@ export interface MafiaGameState extends WinnableGameState {
   doctor?: PlayerState;
   phase?: TimeOfDay;
   round?: number;
-  investigation?: PlayerID[]
+  investigation?: PlayerID[];
+  banPlayers?: PlayerID[];
 }
 
 export type InteractableID = string;

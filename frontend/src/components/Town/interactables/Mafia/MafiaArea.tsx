@@ -158,13 +158,13 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
       if (isOurPlayerAWinner) {
         toast({
           title: 'Game over',
-          description: `Congratulations, your ${winnerTeam} won!`,
+          description: `${winnerTeam} won!`,
           status: 'success',
         });
       } else {
         toast({
           title: 'Game over',
-          description: `You lost, ${winnerTeam} won!`,
+          description: `${winnerTeam} won!`,
           status: 'success',
         });
       }
@@ -180,7 +180,10 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
   let startGame = <></>;
   if (
     (gameStatus === 'WAITING_TO_START' && !gameAreaController.isPlayer) ||
-    gameStatus === 'OVER'
+    gameStatus === 'OVER' ||
+    (gameAreaController.checkPlayerListLeftStatus &&
+      gameStatus === 'IN_PROGRESS' &&
+      !gameAreaController.isPlayer)
   ) {
     joinGame = (
       <Button
@@ -265,7 +268,7 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
             </ListItem>
           ))
         ) : (
-          <ListItem>(No player yet!)</ListItem>
+          <ListItem></ListItem>
         )}
       </List>
       <MafiaBoard gameAreaController={gameAreaController} />

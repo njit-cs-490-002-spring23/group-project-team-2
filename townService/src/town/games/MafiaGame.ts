@@ -8,6 +8,7 @@ import InvalidParametersError, {
   PLAYER_ALREADY_IN_GAME_MESSAGE,
   PLAYER_NOT_IN_GAME_MESSAGE,
   GAME_NOT_ENOUGH_PLAYERS,
+  PLAYER_ALREADY_TOOK_ROLE,
 } from '../../lib/InvalidParametersError';
 
 /**
@@ -322,6 +323,8 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
   public _startGame(): void {
     if (this._players.length >= 6 && this._players.length <= 10) {
       this._randomlyAssignRole();
+      const ids = this._players.map(player => player.id);
+      this.state.banPlayers = ids;
       if (this.state.mafia && this.state.villagers) {
         if (
           this.state.doctor &&
@@ -342,6 +345,29 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     }
   }
 
+  public replacePlayer(player: Player): void {
+    this.state?.mafia?.forEach(placePlayer => {
+      if (placePlayer.status === 'Left') {
+        placePlayer.id = player.id;
+        placePlayer.status = 'Active';
+      }
+    });
+    this.state?.villagers?.forEach(placePlayer => {
+      if (placePlayer.status === 'Left') {
+        placePlayer.id = player.id;
+        placePlayer.status = 'Active';
+      }
+    });
+    if (this.state.doctor?.status === 'Left') {
+      this.state.doctor.id = player.id;
+      this.state.doctor.status = 'Active';
+    }
+    if (this.state.police?.status === 'Left') {
+      this.state.police.id = player.id;
+      this.state.police.status = 'Active';
+    }
+  }
+
   /**
    * Adds a player to the game
    * Updates the game's state to reflect the new player.
@@ -354,8 +380,14 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
   public _join(player: Player): void {
     if (this._players.includes(player)) {
       throw new InvalidParametersError(PLAYER_ALREADY_IN_GAME_MESSAGE);
+    } else if (this.state?.banPlayers?.includes(player.id)) {
+      throw new InvalidParametersError(PLAYER_ALREADY_TOOK_ROLE);
     }
-    if (this._players.length >= 10) {
+    if (this.state.status === 'IN_PROGRESS') {
+      this.state.banPlayers?.push(player.id);
+      this.replacePlayer(player);
+    }
+    if (this._players.length >= 10 && this.state.status === 'WAITING_TO_START') {
       throw new InvalidParametersError(GAME_FULL_MESSAGE);
     }
   }
@@ -387,23 +419,23 @@ export default class MafiaGame extends Game<MafiaGameState, MafiaMove> {
     if (this._roleCheck(player.id) === 'Mafia') {
       const leavingPlayer = this.state.mafia?.find(p => p.id === player.id);
       if (leavingPlayer) {
-        leavingPlayer.status = 'Spectator';
+        leavingPlayer.status = 'Left';
       }
     }
     if (this._roleCheck(player.id) === 'Villager') {
       const leavingPlayer = this.state.villagers?.find(p => p.id === player.id);
       if (leavingPlayer) {
-        leavingPlayer.status = 'Spectator';
+        leavingPlayer.status = 'Left';
       }
     }
     if (this._roleCheck(player.id) === 'Doctor') {
       if (this.state.doctor) {
-        this.state.doctor.status = 'Spectator';
+        this.state.doctor.status = 'Left';
       }
     }
     if (this._roleCheck(player.id) === 'Police') {
       if (this.state.police) {
-        this.state.police.status = 'Spectator';
+        this.state.police.status = 'Left';
       }
     }
   }

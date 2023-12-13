@@ -158,13 +158,13 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
       if (isOurPlayerAWinner) {
         toast({
           title: 'Game over',
-          description: `Congratulations, your ${winnerTeam} won!`,
+          description: `${winnerTeam} won!`,
           status: 'success',
         });
       } else {
         toast({
           title: 'Game over',
-          description: `You lost, ${winnerTeam} won!`,
+          description: `${winnerTeam} won!`,
           status: 'success',
         });
       }

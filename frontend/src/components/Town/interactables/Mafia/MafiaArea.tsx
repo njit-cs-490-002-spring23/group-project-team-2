@@ -180,7 +180,8 @@ function MafiaArea({ interactableID }: { interactableID: InteractableID }): JSX.
   let startGame = <></>;
   if (
     (gameStatus === 'WAITING_TO_START' && !gameAreaController.isPlayer) ||
-    gameStatus === 'OVER'
+    gameStatus === 'OVER' ||
+    !gameAreaController.checkPlayerListLeftStatus
   ) {
     joinGame = (
       <Button

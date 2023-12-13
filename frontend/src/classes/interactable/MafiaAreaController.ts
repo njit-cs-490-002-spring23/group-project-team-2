@@ -87,6 +87,22 @@ export default class MafiaAreaController extends GameAreaController<MafiaGameSta
     return undefined;
   }
 
+  get checkPlayerListLeftStatus(): boolean {
+    if (this._model.game?.state?.mafia?.some(mafia => mafia?.status === 'Left')) {
+      return true;
+    }
+    if (this._model.game?.state?.villagers?.some(villager => villager?.status === 'Left')) {
+      return true;
+    }
+    if (this._model.game?.state?.doctor?.status === 'Left') {
+      return true;
+    }
+    if (this._model.game?.state?.police?.status === 'Left') {
+      return true;
+    }
+    return false;
+  }
+
   /**
    * Returns the player with the 'Doctor' role, if there is one, or undefined otherwise
    */
